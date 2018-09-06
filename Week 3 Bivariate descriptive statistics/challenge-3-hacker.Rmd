@@ -87,19 +87,43 @@ Interpretation for 1:
 
 Interpretation for 2: 
 
-(3) Use appropriate numbers and graphs to describe the relationship between weight status (VBMI4CAT) and sex (sex). Interpret the results.
+(3) Use appropriate numbers and graphs to describe the relationship between age (age) and years smoking (yearssmoking). Interpret your results.
 
 ```{r question3}
+# relationship between age and years smoking
+
+# graph of relationship between age and years smoking
+
+```
+
+Interpretation for 3: 
+
+(4) Take a subset of the data to delete the values of age that do not make sense and revise your graph and numbers from question 6. Explain what changed in your graph and numbers. Hint: to remove values of age that do not make sense, use age < 100 or something similar in the subset command
+
+```{r question 4}
+# subset age to delete problematic values
+
+# relationship between age and years smoking
+
+# graph of relationship between age and years smoking 
+
+```
+
+Interpretation for 4:
+
+(5) Use appropriate numbers and graphs to describe the relationship between weight status (VBMI4CAT) and sex (sex). Interpret the results.
+
+```{r question5}
 # weight status by sex
 
 # graph of weight status by sex
 ```
 
-Interpretation for 3: 
+Interpretation for 5: 
 
-(4) Use subset to remove people with weight status of "Tall" and check your results.
+(6) Use subset to remove people with weight status of "Tall" and check your results.
 
-```{r question4}
+```{r question6}
 # subset data frame to delete Tall weight status
 
 
@@ -108,9 +132,24 @@ Interpretation for 3:
 ```
 
 
-(5) Use subset to remove blank values. Re-do the analysis from number (3). Compare the results with your results from number (3). Hint: to remove blank values, put nothing between the quote marks in the subset command
+(7) Use subset to remove blank values. Re-do the analysis from number (5). Compare the results with your results from number (5). Hint: to remove blank values, put nothing between the quote marks in the subset command
 
-```{r question5}
+```{r question7}
+# subset data frame to delete blank weight status
+
+# check to see if the subset command worked
+
+# weight status by sex
+
+# graph of weight status by sex
+
+```
+
+Interpretation for 7: 
+
+(8) Create a stacked bar graph and a grouped bar graph to visualize the relationship from question 7. Explain what each graph is showing. Compare the stacked and grouped graphs and make a case for which one is preferable for understanding the data. Tip: see http://docs.ggplot2.org/current/geom_bar.html and http://rstudio-pubs-static.s3.amazonaws.com/3256_bb10db1440724dac8fa40da5e658ada5.html 
+
+```{r question7}
 # subset data frame to delete blank weight status
 
 # check to see if the subset command worked
@@ -122,32 +161,15 @@ Interpretation for 3:
 
 ```
 
-Interpretation for 5: 
+Interpretation for 8: 
 
-(6) Use appropriate numbers and graphs to describe the relationship between age (age) and years smoking (yearssmoking). Interpret your results.
+(9) Look up the droplevels command and demonstrate what it does by using droplevels on the VBMI4CAT variable and showing the levels before and after.
 
-```{r question6}
-# relationship between age and years smoking
-
-# graph of relationship between age and years smoking
+```{r}
+# using droplevels to clean VBMI4CAT
 
 ```
 
-Interpretation for 6: 
-
-(7) Take a subset of the data to delete the values of age that do not make sense and revise your graph and numbers from question 6. Explain what changed in your graph and numbers. Hint: to remove values of age that do not make sense, use age < 100 or something similar in the subset command
-
-```{r question7}
-# subset age to delete problematic values
-
-# relationship between age and years smoking
-
-# graph of relationship between age and years smoking 
-
-```
-
-Interpretation for 7:
-
-
+Interpretation for 9: 
 
 Knit your document to check that it looks good. Make any edits needed. Once you are happy with the work, upload the R-Markdown file with the .Rmd file extension (not the knitted file) to Blackboard. 
