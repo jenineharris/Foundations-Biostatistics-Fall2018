@@ -75,7 +75,7 @@ Code book:
 
 Interpretation for 1: 
 
-(2) Use the subset command to remove people with marital status of 9-Refused. Use the table command to see if it worked. Write a sentence interpreting the how many people were removed from the data frame.
+(2) Use the subset command to remove people with marital status of 9-Refused. Use the table command to see if it worked. Write a sentence explaining how many people were removed from the data frame.
 
 ```{r question2}
 # subset data frame to delete 9-Refused marital status
