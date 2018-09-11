@@ -29,8 +29,7 @@ Start by running this code to import the data and examining the code book below:
 
 ```{r data}
 # import the data and name it smokers
-smokers <- read.csv("http://tinyurl.com/z2m3cgq",
-                    sep = ",", header = TRUE)
+smokers <- read.csv("http://tinyurl.com/z2m3cgq")
 ```
 
 Code book:
