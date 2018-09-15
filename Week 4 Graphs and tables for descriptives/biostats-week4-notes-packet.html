@@ -181,7 +181,7 @@ nhanes2013 &lt;- nhanes_load_data(file_name = &quot;DUQ_H&quot;,
 <div id="data-heroin-and-methamphetamine-use" class="section level2">
 <h2>Data: heroin and methamphetamine use</h2>
 <p><em>What are the characteristics of heroin and methamphetamine use among NHANES participants?</em></p>
-<p>There are several questions about heroin use in the NHANES Drug Use questionnaire:</p>
+<p>There are several questions about heroin and meth use in the NHANES Drug Use questionnaire:</p>
 <ul>
 <li>Ever used heroin (DUQ290)</li>
 <li>Age first used heroin (DUQ300)</li>
@@ -582,7 +582,7 @@ kable(drug.use.all, &quot;html&quot;, caption = &quot;Drug use among NHANES 2013
   kable_styling(&quot;striped&quot;, full_width = TRUE) %&gt;%
   group_rows(&quot;Ever used heroin&quot;, 1, 2) %&gt;%
   group_rows(&quot;Ever used meth&quot;, 3, 4) %&gt;% 
-  group_rows(&quot;Age of first use (median, IQR)&quot;, 5, 6)</code></pre>
+  group_rows(&quot;Age in years of first use (median, IQR)&quot;, 5, 6)</code></pre>
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
 <caption>
 Drug use among NHANES 2013-2014 participants
@@ -657,7 +657,7 @@ Yes
 </tr>
 <tr grouplength="2">
 <td colspan="3" style="border-bottom: 1px solid;">
-<strong>Age of first use (median, IQR)</strong>
+<strong>Age in years of first use (median, IQR)</strong>
 </td>
 </tr>
 <tr>
@@ -690,16 +690,15 @@ Meth
 <h2>A new graphing option (and some code to make maps)</h2>
 <p>In past weeks we have used:</p>
 <ul>
-<li>bar graphs for one or two categorical variables</li>
-<li>mosaic plots for two categorical variables</li>
-<li>histograms and density plots for continuous variables</li>
-<li>box plots for categorical and continuous variables together</li>
-<li>petal plots for categorical and continuous variables together</li>
+<li>histograms and density plots to understand one continuous variable</li>
+<li>bar graphs to understand one or two categorical variables</li>
+<li>mosaic plots to understand two categorical variables together</li>
+<li>box plots and petal plots to understand categorical and continuous variables together</li>
 <li>scatterplots for two continuous variables together</li>
 </ul>
 <p>This section offers one more option (and some code for maps):</p>
 <ul>
-<li>waffle plot for categorical variables (instead of pie graph to display parts of a whole)</li>
+<li>waffle plot to understand a single categorical variable</li>
 </ul>
 </div>
 <div id="waffle-plots" class="section level2">
@@ -736,8 +735,8 @@ waffle(table(nhanes2011$gunUse)/50, rows=5,
 </div>
 <div id="making-a-map-to-display-data-just-fyi" class="section level2">
 <h2>Making a map to display data (just FYI)</h2>
-<p>The <code>ggplot2</code> package has a geom for mapping. It can take global, state, or county-level data. We will use incarceration data in from wikipedia.</p>
-<p>The map will need two things: (1) a variable called <code>region</code> with state names in all-lower case letters, (2) a numeric or factor variable of something you want to map.</p>
+<p>The <code>ggplot2</code> package has a geom for mapping. It can take global, state, or county-level data. We will use state-level incarceration data in from wikipedia.</p>
+<p>The map feature in <code>ggplot2</code> relies on two variables: (1) a variable named <code>region</code> with state names in all-lower case letters, (2) a numeric or factor variable of something you want to map.</p>
 <pre class="r"><code># use htmltab package to bring in data from a website
 # incarceration rate by state in 2016
 library(htmltab)
@@ -762,12 +761,12 @@ prison.rate2016$prison.per100k &lt;- as.numeric(gsub(&quot;,&quot;, &quot;&quot;
 </ul>
 <p>Build the map, like this:</p>
 <pre class="r"><code># load in the basic US state map information from the ggplot2 package
-# here it is being named us
+# here it is being named &quot;us&quot;
 us &lt;- map_data(&quot;state&quot;)
 
 # make the map
 
-# basic stuff for all state maps does not need to change
+# basic stuff for all state maps 
 ggplot() + 
   geom_map(data = us, map = us, aes(x = long, y = lat, 
                         map_id = region)) +  
@@ -800,7 +799,7 @@ ggplot() +
 </div>
 <div id="challenge-4" class="section level2">
 <h2>Challenge 4</h2>
-<p>Pick the standard or hacker challenge RMD file from GitHub. Write the code and text needed to answer the questions. Submit via Blackboard before the next class meeting.</p>
+<p>Pick the standard or hacker challenge RMD file from GitHub. Write the code and text needed to answer the questions. Submit the RMD file (not the knit file) via Blackboard before the next class meeting.</p>
 </div>
 </div>
 

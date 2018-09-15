@@ -59,7 +59,7 @@ nhanes2013 <- nhanes_load_data(file_name = "DUQ_H",
 
 *What are the characteristics of heroin and methamphetamine use among NHANES participants?*
 
-There are several questions about heroin use in the NHANES Drug Use questionnaire:
+There are several questions about heroin and meth use in the NHANES Drug Use questionnaire:
 
 * Ever used heroin (DUQ290) 
 * Age first used heroin (DUQ300) 
@@ -322,7 +322,7 @@ kable(drug.use.all, "html", caption = "Drug use among NHANES 2013-2014 participa
   kable_styling("striped", full_width = TRUE) %>%
   group_rows("Ever used heroin", 1, 2) %>%
   group_rows("Ever used meth", 3, 4) %>% 
-  group_rows("Age of first use (median, IQR)", 5, 6)
+  group_rows("Age in years of first use (median, IQR)", 5, 6)
 ```
 
 Ok! There are lots of things you can do with `kable` to style and save your table. Use the Google to see what is out there.
@@ -331,16 +331,15 @@ Ok! There are lots of things you can do with `kable` to style and save your tabl
 
 In past weeks we have used:
 
-* bar graphs for one or two categorical variables 
-* mosaic plots for two categorical variables 
-* histograms and density plots for continuous variables 
-* box plots for categorical and continuous variables together
-* petal plots for categorical and continuous variables together 
+* histograms and density plots to understand one continuous variable 
+* bar graphs to understand one or two categorical variables 
+* mosaic plots to understand two categorical variables together
+* box plots and petal plots to understand categorical and continuous variables together
 * scatterplots for two continuous variables together 
 
 This section offers one more option (and some code for maps): 
 
-* waffle plot for categorical variables (instead of pie graph to display parts of a whole)
+* waffle plot to understand a single categorical variable 
 
 ## Waffle plots
 
@@ -361,11 +360,12 @@ blank_theme <- theme_minimal()+
   plot.title=element_text(size=14, face="bold")
   )
 
-ggplot(pieExample, aes(x="", y=percentPie, fill=colorPie)) +blank_theme+
-  theme(axis.text.x=element_blank()) +
-  geom_bar(stat="identity",width=1) + coord_polar("y", start=0) +
-  scale_fill_manual(values=c('#7570b3','#1b9e77')) +
-  labs(x="", y="", fill="") +
+ggplot(data = pieExample, aes(x = "", y = percentPie, fill = colorPie)) +
+  blank_theme +
+  theme(axis.text.x = element_blank()) +
+  geom_bar(stat = "identity", width = 1) + coord_polar("y", start = 0) +
+  scale_fill_manual(values = c('#7570b3','#1b9e77')) +
+  labs(x = "", y = "", fill = "") +
   ggtitle("Should I make a pie graph?") 
   
 ```
@@ -409,9 +409,9 @@ waffle(table(nhanes2011$gunUse)/50, rows=5,
 
 ## Making a map to display data (just FYI)
 
-The `ggplot2` package has a geom for mapping. It can take global, state, or county-level data. We will use incarceration data in from wikipedia.
+The `ggplot2` package has a geom for mapping. It can take global, state, or county-level data. We will use state-level incarceration data in from wikipedia.
 
-The map will need two things: (1) a variable called `region` with state names in all-lower case letters, (2) a numeric or factor variable of something you want to map.
+The map feature in `ggplot2` relies on two variables: (1) a variable named `region` with state names in all-lower case letters, (2) a numeric or factor variable of something you want to map. 
 
 ```{r}
 # use htmltab package to bring in data from a website
@@ -434,21 +434,21 @@ prison.rate2016$prison.per100k <- as.numeric(gsub(",", "", prison.rate2016$priso
 
 ```
 
-Once the data are formatted with:
+Once the data are formatted with: 
 
 * region variable of state names in all lower case 
 * numeric or factor variable to map for each state  
 
-Build the map, like this:
+Build the map, like this: 
 
 ```{r}
 # load in the basic US state map information from the ggplot2 package
-# here it is being named us
+# here it is being named "us"
 us <- map_data("state")
 
 # make the map
 
-# basic stuff for all state maps does not need to change
+# basic stuff for all state maps 
 ggplot() + 
   geom_map(data = us, map = us, aes(x = long, y = lat, 
                         map_id = region)) +  
@@ -480,7 +480,7 @@ ggplot() +
 
 ## Challenge 4 
 
-Pick the standard or hacker challenge RMD file from GitHub. Write the code and text needed to answer the questions. Submit via Blackboard before the next class meeting.
+Pick the standard or hacker challenge RMD file from GitHub. Write the code and text needed to answer the questions. Submit the RMD file (not the knit file) via Blackboard before the next class meeting.
 
 
 
