@@ -1,0 +1,60 @@
+---
+title: "Week 4 Challenge Standard"
+output: html_document
+---
+
+(1) Use `tableone` to create a basic table that includes the appropriate descriptive statistics for following variables from the Drug Use questionnaire: DUQ200, DUQ210, DUQ250, DUQ260. 
+
+Before creating the table: 
+
+* recode the variables so they have clear variable names, clear category labels, and values that don't make sense are coded to `NA`  
+* check the distribution to decide which descriptive statistics to report for any continuous variables 
+
+```{r}
+# open library for recoding 
+library(car)
+
+# recode DUQ200
+
+# recode DUQ210
+
+# recode DUQ250 
+
+# recode DUQ260
+
+```
+
+```{r}
+# check distributions for continuous variables 
+
+```
+
+```{r}
+# create table using tableone 
+# open library
+library()
+
+# create table 
+
+```
+
+(2) Use `kableExtra` to create a fancy table that includes the appropriate descriptive statistics for the same four variables from question 1. Format the table so that all the information is needed to understand the values in the table. 
+
+```{r}
+# open the library
+library()
+
+# create the table with formatting 
+```
+
+(3) Use `waffle` to create well-formatted waffle plots for the two categorical variables from question 1. Find colors on colorbrewer to distinguish the groups.
+
+```{r}
+# open the library
+
+
+# create the plot 
+
+```
+
+(4) Write a paragraph intepreting the information in the tables and waffle plot.

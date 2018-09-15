@@ -1,0 +1,491 @@
+---
+title: 'Biostats week 4: Making great tables and graphs'
+---
+
+# Outline
+
+This packet reviews descriptives statistics and introduces options for making tables and graphs:
+
+#. Descriptive statistics by variable types
+#. Basic tables
+#. Fancy tables
+#. A new graphing option (and some code to make maps)
+
+Packages used in this packet:
+
+* tableone 
+* kableExtra 
+* waffle 
+* car 
+* ggplot2 
+* RNHANES 
+* htmltab (optional)
+
+## Introduction
+
+In this packet we will review descriptive statistics and learn to make great tables displaying these statistics. A new option for graphing will also be introduced. 
+
+The research questions we will answer with tables and graphs are: 
+
+* What are the characteristics of heroin and methamphetamine use among NHANES participants? 
+* How do incarceration rates vary by state in the US? 
+
+First, use the `RNHANES`package to open the Drug Use survey:
+
+```{r warning = FALSE, message = FALSE}
+# open the RNHANES library
+library(RNHANES)
+
+# download 2013-2014 NHANES data
+# use the name of the data you want (DUQ_H for drug use)
+# add demographic data using demographics = TRUE
+nhanes2013 <- nhanes_load_data(file_name = "DUQ_H",
+                               year = "2013-2014",
+                               demographics = TRUE)
+
+
+
+```
+
+## Descriptive statistics by variable types 
+
+* Continuous (or near continuous) variables
+    - Use mean and standard deviation when normally distributed 
+    - Use median and IQR when skewed 
+* Categorical variables 
+    - Use frequency and percentage 
+
+## Data: heroin and methamphetamine use 
+
+*What are the characteristics of heroin and methamphetamine use among NHANES participants?*
+
+There are several questions about heroin use in the NHANES Drug Use questionnaire:
+
+* Ever used heroin (DUQ290) 
+* Age first used heroin (DUQ300) 
+* Ever used methamphetamine (DUQ330)
+* Age first used methamphetamine (DUQ340)
+
+First, decide which descriptive statistics are useful for each variable. Categorical variables are straightforward since there is just one option: frequencies and percentages. Examine how the variables are coded in codebook and conduct some recoding to have logical variable names and logical category names:
+
+```{r message=FALSE, warning=FALSE}
+# open the car library to recode 
+library(car)
+
+# recode DUQ290 to Yes, No, NA 
+# add a logical variable name 
+nhanes2013$ever.heroin <- recode(nhanes2013$DUQ290,
+                                 "1 = 'Yes';
+                                 2 = 'No';
+                                 7 = NA;
+                                 9 = NA")
+
+# recode DUQ290 to Yes, No, NA 
+# add a logical variable name 
+nhanes2013$ever.meth <- recode(nhanes2013$DUQ330,
+                                 "1 = 'Yes';
+                                 2 = 'No';
+                                 7 = NA;
+                                 9 = NA")
+
+```
+
+Examine descriptive statistics for the categorical variables:
+
+```{r}
+# ever used frequencies
+table(nhanes2013$ever.heroin)
+table(nhanes2013$ever.meth)
+
+# ever used percentages 
+prop.table(table(nhanes2013$ever.heroin))
+prop.table(table(nhanes2013$ever.meth))
+
+```
+
+Recode the continuous variables:
+
+```{r}
+# recode DUQ300 so out-of-range are NA 
+# add a logical variable name 
+nhanes2013$age.first.heroin <- recode(nhanes2013$DUQ300,
+                                 "777 = NA;
+                                 999 = NA")
+
+# recode DUQ340 so out-of-range are NA 
+# add a logical variable name 
+nhanes2013$age.first.meth <- recode(nhanes2013$DUQ340,
+                                 "777 = NA;
+                                 999 = NA")
+```
+
+Descriptives for continuous:
+
+```{r warning=FALSE, message=FALSE}
+# are they normally distributed?
+library(ggplot2)
+ggplot(data = nhanes2013, aes(x = age.first.heroin)) +
+  geom_histogram()
+ggplot(data = nhanes2013, aes(x = age.first.meth)) +
+  geom_histogram()
+```
+
+```{r}
+# plots looks skewed right, use median & IQR
+median(nhanes2013$age.first.heroin, na.rm = TRUE)
+median(nhanes2013$age.first.meth, na.rm = TRUE)
+
+IQR(nhanes2013$age.first.heroin, na.rm = TRUE)
+IQR(nhanes2013$age.first.meth, na.rm = TRUE)
+
+```
+
+Great! We have all the descriptive statistics! How can we put it all in a well-formatted table?
+
+Clear tables tend to have the following features:
+
+* A title that explains what is in the table
+    * The number of observations if possible
+    * The year the data were collected if possible 
+    * The units of measurement (people, organizations, etc)
+* Consistent use of the same number of decimal places throughout the table 
+* Numbers aligned to the right so that the decimal points line up  
+* Words aligned to the left 
+* Indentation and shading to differentiate rows or sections 
+* Limited internal lines
+* Clearly labelled rows and columns 
+
+## Basic table in R
+
+Well, we could open a word processing document and copy the numbers from the R procedures for each variable (median, IQR, etc.) into the document to make a table. However, there are (at least) three reasons to spend the time developing tables directly in your software program instead:
+
+#.  Transcribing the numbers can (and does) result in errors  
+#.  Small changes to table contents can be made more easily 
+#.  R code can be reused, so developing new tables will take less time after the first one is complete 
+
+Let's start with a very basic table and including the heroin and meth variables we have cleaned. If you do not need the table to be formatted for a paper or something else, the `tableone` package has a very clear interface for getting descriptive statistics into a table format easily. Try it with the small data frame:
+
+```{r warning=FALSE}
+# open tableone package
+library(tableone)
+
+# create table from all variables
+drug.table <- CreateTableOne(vars = c("age.first.heroin", "age.first.meth", 
+                                      'ever.heroin','ever.meth'), data = nhanes2013)
+
+# print out table basic
+print(drug.table)
+
+
+```
+
+```{r}
+# indicate which variables are non-normal
+# add argument to print every category of categorical
+print(drug.table, nonnormal = c('age.first.meth', 'age.first.heroin'),
+      showAllLevels = TRUE)
+```
+
+This is really nice for exploring the data and could be copied and pasted easily into Word or Excel for formatting. You might even use it rather than running means, standard deviations, frequencies, and percentages separately. The next option is **more difficult** to use but allows you to make a well-formatted table that can be directly used in a report or paper. 
+
+## Fancy table in R
+
+The `kable` package takes descriptive statistics (not raw data) and allows a lot of formatting to make publication-ready tables. But first the data must be in a clean data frame of descriptive statistics (not of raw data) with all the right labels. To do this we will make objects for each of the variables we are including with the descriptive information in them and combine these objects together for a data frame of descriptive statistics. 
+
+First, make a vector with the frequency and percentages for heroin use: 
+
+```{r}
+# descriptives for drug use
+drug.use <- cbind(table(nhanes2013$ever.heroin),
+                    prop.table(table(nhanes2013$ever.heroin)))
+drug.use
+
+```
+
+There are no variable names on the columns and the percentage needs to be cleaned up. Add variable names, fix the percentages, and make it a data frame: 
+
+```{r}
+# percentages multiplied by 100 and rounded to 1 decimal
+heroin.use <- cbind(table(nhanes2013$ever.heroin),
+                    round(100*(prop.table(table(nhanes2013$ever.heroin))), 1))
+
+# add variable names
+colnames(heroin.use) <- c("Frequency", "Percentage")
+
+# make data frame
+heroin.use <- data.frame(heroin.use)
+
+```
+
+Make meth:
+
+```{r}
+# percentages multiplied by 100 and rounded to 1 decimal
+meth.use <- cbind(table(nhanes2013$ever.meth),
+                    round(100*(prop.table(table(nhanes2013$ever.meth))), 1))
+
+# add variable names
+colnames(meth.use) <- c("Frequency", "Percentage")
+
+# make data frame
+meth.use <- data.frame(meth.use)
+
+```
+
+Combine heroin and meth: 
+
+```{r}
+# combine data frames 
+drug.use <- rbind(heroin.use, meth.use)
+drug.use
+```
+
+It is pretty close, but the No1 and Yes1 values for heroin are not quite right. Let's fix them:
+
+```{r}
+# move row labels to a variable and recode
+# No1 and Yes1 to No and Yes
+drug.use <- data.frame(Used = row.names(drug.use), drug.use) 
+drug.use$Used <- recode(drug.use$Used, "'No1' = 'No'; 'Yes1' = 'Yes'")
+drug.use
+```
+
+The data frame now has Yes and No as a variable and it is cleaned up. Notice that the row names are still the original "No, Yes, No1, Yes1"; this is ok to leave or to change, it does not matter for making the table. To change it, check out the help documentation for `rownames`.
+
+Now that we have a clean data frame with descriptive statistics in it, try a table. Notice the `%>%` in the table command. This is a pipe. Pipes send information from one command to another without saving any of the intermediate steps. Think of them like a water pipe in your home that sends water from one place to another.
+
+```{r}
+# open library for making tables 
+library(kableExtra)
+
+# make basic table with styling so it shows up
+kable(drug.use, "html", caption = "Drug Use among NHANES 2013-2014 participants",
+      row.names = FALSE) %>%
+  kable_styling("striped", full_width = TRUE)
+
+```
+
+The table is pretty basic and not any better than the `tableone` version at this point, but we have only just begun! Next we will add the continuous variables and then group and label sections of the table.
+
+```{r warning=FALSE}
+# make vectors of the median and IQR for
+# age meth use and age heroin use
+# to match the drug.use data frame vectors have 3 members
+age.heroin.desc <- c("Heroin", median(nhanes2013$age.first.heroin, na.rm = T),
+                  IQR(nhanes2013$age.first.heroin, na.rm = T))
+age.heroin.desc
+
+age.meth.desc <- c("Meth", median(nhanes2013$age.first.meth, na.rm = T),
+                  IQR(nhanes2013$age.first.meth, na.rm = T))
+age.meth.desc
+```
+We now have two vectors with the medians and IQR for heroin and meth use. Use the `rbind`, or row bind, command to add them to the `drug.use` data frame:
+
+```{r}
+
+# add vectors as rows to the drug.use data frame
+drug.use.all <- rbind(drug.use, age.heroin.desc, age.meth.desc)
+
+# print the data frame to check it
+drug.use.all
+```
+
+Well, it almost worked! The first variable in the drug.use data frame appears to be categorical (factor data type) with categories of Yes and No, so Heroin and Meth were not considered good entries there because they are not categories in the variable. Change the variable to character type and try again:
+
+```{r}
+# change drug.use Used variable to string
+drug.use$Used <- as.character(drug.use$Used)
+
+# add vectors as rows to the drug.use data frame
+drug.use.all <- rbind(drug.use, age.heroin.desc, age.meth.desc)
+
+# print the data frame to check it
+drug.use.all
+```
+
+Great! All the statistics we are interested in are there. Try making the basic table again:
+
+```{r}
+# table with all four variables
+kable(drug.use.all, "html", caption = "Drug use among NHANES 2013-2014 participants",
+      row.names = FALSE) %>%
+  kable_styling("striped", full_width = TRUE) 
+  
+```
+
+Pretty good, but it would benefit from some additional formatting to differentiate between the variables:
+
+```{r}
+# table with all four variables
+kable(drug.use.all, "html", caption = "Drug use among NHANES 2013-2014 participants",
+      row.names = FALSE) %>%
+  kable_styling("striped", full_width = TRUE) %>%
+  group_rows("Ever used heroin", 1, 2) %>%
+  group_rows("Ever used meth", 3, 4) %>% 
+  group_rows("Age of first use (median, IQR)", 5, 6)
+```
+
+Ok! There are lots of things you can do with `kable` to style and save your table. Use the Google to see what is out there.
+
+## A new graphing option (and some code to make maps)
+
+In past weeks we have used:
+
+* bar graphs for one or two categorical variables 
+* mosaic plots for two categorical variables 
+* histograms and density plots for continuous variables 
+* box plots for categorical and continuous variables together
+* petal plots for categorical and continuous variables together 
+* scatterplots for two continuous variables together 
+
+This section offers one more option (and some code for maps): 
+
+* waffle plot for categorical variables (instead of pie graph to display parts of a whole)
+
+## Waffle plots
+
+Pie charts are meant to show parts of a whole. The pie, or circle, represents the whole.The slices of pie shown in different colors represent the parts. While pie charts are often seen in newspapers and other popular media, they are considered by most analysts as an unclear way to display data. A few of the reasons for this were summarized in an R-bloggers post: https://www.r-bloggers.com/pie-charts-in-ggplot2/. In fact, if you asked 100 analysts, "Should I make a pie graph?", they might answer:
+
+```{r echo=FALSE, message=FALSE, error=FALSE}
+colorPie <- c("No", "No, but in green")
+percentPie <- c(90, 10)
+pieExample <- data.frame(colorPie,percentPie)
+
+blank_theme <- theme_minimal()+
+  theme(
+  axis.title.x = element_blank(),
+  axis.title.y = element_blank(),
+  panel.border = element_blank(),
+  panel.grid=element_blank(),
+  axis.ticks = element_blank(),
+  plot.title=element_text(size=14, face="bold")
+  )
+
+ggplot(pieExample, aes(x="", y=percentPie, fill=colorPie)) +blank_theme+
+  theme(axis.text.x=element_blank()) +
+  geom_bar(stat="identity",width=1) + coord_polar("y", start=0) +
+  scale_fill_manual(values=c('#7570b3','#1b9e77')) +
+  labs(x="", y="", fill="") +
+  ggtitle("Should I make a pie graph?") 
+  
+```
+
+Instead, a waffle plot allows showing parts of a whole in a way that allows more clear interpretation (**waffles > pie**). Let's use the gun use question in the 2011-2012 NHANES audiology questionnaire: *Ever used firearms for any reason?* 
+
+The code book is here: https://wwwn.cdc.gov/nchs/nhanes/2011-2012/AUQ_G.htm
+
+The question is AUQ300.
+
+Bring in the data and do a little data management to add labels first, then make a waffle: 
+
+```{r message=FALSE}
+# load the 2011-2012 data
+nhanes2011 <- nhanes_load_data("AUQ_G", "2011-2012", demographics = TRUE)
+
+# recode gun use variable
+nhanes2011$gunUse <- recode(nhanes2011$AUQ300,
+                              "1 = 'Yes';
+                            2 = 'No'; 
+                            7 = NA")
+
+# open library and make graph
+# each square is 25 people
+# 5 rows of squares
+library(waffle)
+waffle(table(nhanes2011$gunUse)/25, rows=5)
+```
+
+Hm. There seems to be an extra color and it is missing a title. **Waffle plot was written for 3 or more groups, so with 2 groups there is an extra blank color, use white to make it disappear.** The same problem will not happen if there are 3 or more groups. 
+
+The squares could also be bigger to hold more people. The waffle plot can be customized to use whatever colors you like. Check colorbrewer2.org for ideas on colors to use. Here is one option using some colorbrewer colors and white to hide the extra group:
+
+```{r}
+#add a title
+#change the colors
+waffle(table(nhanes2011$gunUse)/50, rows=5,
+       title = "NHANES participants who ever used a gun, 2011-2012",
+       colors = c("#af8dc3", "#7fbf7b", "white"))
+```
+
+## Making a map to display data (just FYI)
+
+The `ggplot2` package has a geom for mapping. It can take global, state, or county-level data. We will use incarceration data in from wikipedia.
+
+The map will need two things: (1) a variable called `region` with state names in all-lower case letters, (2) a numeric or factor variable of something you want to map.
+
+```{r}
+# use htmltab package to bring in data from a website
+# incarceration rate by state in 2016
+library(htmltab)
+
+# the URL where the data are
+incarcerationURL <- "https://en.wikipedia.org/wiki/List_of_U.S._states_by_incarceration_and_correctional_supervision_rate"
+
+# naming the data frame
+prison.rate <- htmltab(doc = incarcerationURL, header = 1, which = 3)
+prison.rate2016 <- prison.rate[c(4:56), c(1,3)]
+names(prison.rate2016) <- c("region", "prison.per100k")
+
+# state map takes lower case version of state
+prison.rate2016$region <- tolower(prison.rate2016$region)
+
+# make prison.per100k numeric after removing commas
+prison.rate2016$prison.per100k <- as.numeric(gsub(",", "", prison.rate2016$prison.per100k))
+
+```
+
+Once the data are formatted with:
+
+* region variable of state names in all lower case 
+* numeric or factor variable to map for each state  
+
+Build the map, like this:
+
+```{r}
+# load in the basic US state map information from the ggplot2 package
+# here it is being named us
+us <- map_data("state")
+
+# make the map
+
+# basic stuff for all state maps does not need to change
+ggplot() + 
+  geom_map(data = us, map = us, aes(x = long, y = lat, 
+                        map_id = region)) +  
+  
+# add the variable of interest to the map
+  geom_map(data = prison.rate2016, map = us,
+                    aes(fill = prison.per100k, map_id = region),
+                    color="#ffffff") + 
+
+# tell R to use a gradient to shade from low to high
+# can add colors for high and low if preferred
+  scale_fill_gradient2() + 
+
+# remove labels on x and y axes
+  labs(x=NULL, y=NULL) + 
+
+# use albers coordinate system that makes the map look nice
+# see different coordinate systems to choose from here:
+# https://stackoverflow.com/questions/31216951/how-do-i-change-the-projection-method-used-by-r-for-mapping-coordinates 
+  coord_map("albers", lat0 = 39, lat1 = 45) + 
+
+# remove all the regular stuff a ggplot has by making it all blank
+  theme(panel.border = element_blank(), panel.background = element_blank(),
+                           axis.ticks = element_blank(), axis.text = element_blank()) +
+
+# add a relvant title
+  ggtitle("Number of incarcerated adults per 100,000 people in each state, 2016")
+```
+
+## Challenge 4 
+
+Pick the standard or hacker challenge RMD file from GitHub. Write the code and text needed to answer the questions. Submit via Blackboard before the next class meeting.
+
+
+
+
+
+
+
+
