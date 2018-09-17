@@ -4,7 +4,7 @@ title: 'Biostats week 4: Making great tables and graphs'
 
 # Outline
 
-This packet reviews descriptives statistics and introduces options for making tables and graphs:
+This packet reviews descriptive statistics and introduces options for making tables and graphs:
 
 #. Descriptive statistics by variable types
 #. Basic tables
@@ -19,6 +19,8 @@ Packages used in this packet:
 * car 
 * ggplot2 
 * RNHANES 
+* maps (optional) 
+* mapproj (optional) 
 * htmltab (optional)
 
 ## Introduction
@@ -27,7 +29,8 @@ In this packet we will review descriptive statistics and learn to make great tab
 
 The research questions we will answer with tables and graphs are: 
 
-* What are the characteristics of heroin and methamphetamine use among NHANES participants? 
+* What are the characteristics of heroin and methamphetamine use among NHANES participants?
+* What proportion of people in the US have ever used a gun? 
 * How do incarceration rates vary by state in the US? 
 
 First, use the `RNHANES`package to open the Drug Use survey:
@@ -157,21 +160,23 @@ Clear tables tend to have the following features:
 
 ## Basic table in R
 
-Well, we could open a word processing document and copy the numbers from the R procedures for each variable (median, IQR, etc.) into the document to make a table. However, there are (at least) three reasons to spend the time developing tables directly in your software program instead:
+We could open a word processing document and copy the numbers from the R output above for each variable (median, IQR, etc.) into the document to make a table. However, there are (at least) three reasons this is not a great strategy: 
 
 #.  Transcribing the numbers can (and does) result in errors  
-#.  Small changes to table contents can be made more easily 
+#.  Changes to table contents can be made more easily 
 #.  R code can be reused, so developing new tables will take less time after the first one is complete 
 
-Let's start with a very basic table and including the heroin and meth variables we have cleaned. If you do not need the table to be formatted for a paper or something else, the `tableone` package has a very clear interface for getting descriptive statistics into a table format easily. Try it with the small data frame:
+Let's start with a very basic table and including the heroin and meth variables we have cleaned. If you do not need the table to be formatted in a fancy way for a paper or something else, the `tableone` package has a very clear interface for getting descriptive statistics into a table format easily. Try it with the clean variables: 
 
 ```{r warning=FALSE}
 # open tableone package
 library(tableone)
 
 # create table from all variables
-drug.table <- CreateTableOne(vars = c("age.first.heroin", "age.first.meth", 
-                                      'ever.heroin','ever.meth'), data = nhanes2013)
+drug.table <- CreateTableOne(vars = c('age.first.heroin', 
+                                      'age.first.meth', 
+                                      'ever.heroin',
+                                      'ever.meth'), data = nhanes2013)
 
 # print out table basic
 print(drug.table)
@@ -190,9 +195,21 @@ This is really nice for exploring the data and could be copied and pasted easily
 
 ## Fancy table in R
 
-The `kable` package takes descriptive statistics (not raw data) and allows a lot of formatting to make publication-ready tables. But first the data must be in a clean data frame of descriptive statistics (not of raw data) with all the right labels. To do this we will make objects for each of the variables we are including with the descriptive information in them and combine these objects together for a data frame of descriptive statistics. 
+The `kable` package takes descriptive statistics (not raw data) and allows a lot of formatting to make publication-ready tables, like this: 
 
-First, make a vector with the frequency and percentages for heroin use: 
+
+![](final-table.PNG)
+
+
+But first the data must be in a clean data frame of descriptive statistics (not raw data!) with all the right labels. For example, the information we got above from all the descriptive statistics commands should be organized into a data frame like this:
+
+
+![](table-for-kable.PNG)
+
+
+To do this we will make objects for each of the variables with the descriptive information in them and combine these objects together for a data frame of descriptive statistics. 
+
+First, combine the frequency and percentage tables for heroin use. The `cbind` command combines them by columns (`rbind` would combine by row.)
 
 ```{r}
 # descriptives for heroin use
@@ -206,11 +223,8 @@ There are no variable names on the columns and the percentage needs to be cleane
 
 ```{r}
 # percentages multiplied by 100 and rounded to 1 decimal
-heroin.use <- cbind(table(nhanes2013$ever.heroin),
-                    round(100*(prop.table(table(nhanes2013$ever.heroin))), 1))
-
-# add column names
-colnames(heroin.use) <- c("Frequency", "Percentage")
+heroin.use <- cbind(Frequency = table(nhanes2013$ever.heroin),
+                    Percentage = round(100*(prop.table(table(nhanes2013$ever.heroin))), 1))
 
 # make data frame
 heroin.use <- data.frame(heroin.use)
@@ -221,11 +235,8 @@ Make meth:
 
 ```{r}
 # percentages multiplied by 100 and rounded to 1 decimal
-meth.use <- cbind(table(nhanes2013$ever.meth),
-                    round(100*(prop.table(table(nhanes2013$ever.meth))), 1))
-
-# add column names
-colnames(meth.use) <- c("Frequency", "Percentage")
+meth.use <- cbind(Frequency = table(nhanes2013$ever.meth),
+                  Percentage = round(100*(prop.table(table(nhanes2013$ever.meth))), 1))
 
 # make data frame
 meth.use <- data.frame(meth.use)
@@ -236,25 +247,9 @@ Combine heroin and meth:
 
 ```{r}
 # combine data frames 
-drug.use <- rbind(heroin.use, meth.use)
+drug.use <- rbind(usedHeroin = heroin.use, usedMeth = meth.use)
 drug.use
 ```
-
-It is pretty close, but the No1 and Yes1 values for heroin are not quite right. Let's fix them:
-
-```{r}
-# move row labels to a variable named Used
-drug.use <- data.frame(Used = row.names(drug.use), drug.use) 
-
-# replace row labels with accurate labels
-rownames(drug.use) <- c("Heroin.no", "Heroin.yes", "Meth.no", "Meth.yes")
-
-# recode No1 and Yes1 to No and Yes
-drug.use$Used <- recode(drug.use$Used, "'No1' = 'No'; 'Yes1' = 'Yes'")
-drug.use
-```
-
-The data frame now has Yes and No as a variable and it is cleaned up. Notice that the row names are still the original "No, Yes, No1, Yes1"; this is ok to leave or to change, it does not matter for making the table. To change it, check out the help documentation for `rownames`.
 
 Now that we have a clean data frame with descriptive statistics in it, try a table. Notice the `%>%` in the table command. This is a pipe. Pipes send information from one command to another without saving any of the intermediate steps. Think of them like a water pipe in your home that sends water from one place to another.
 
@@ -263,8 +258,7 @@ Now that we have a clean data frame with descriptive statistics in it, try a tab
 library(kableExtra)
 
 # make basic table with styling so it shows up
-kable(drug.use, "html", caption = "Drug Use among NHANES 2013-2014 participants",
-      row.names = FALSE) %>%
+kable(drug.use, "html", caption = "Drug Use among NHANES 2013-2014 participants") %>%
   kable_styling("striped", full_width = TRUE)
 
 ```
@@ -275,54 +269,63 @@ The table is pretty basic and not any better than the `tableone` version at this
 # make vectors of the median and IQR for
 # age meth use and age heroin use
 # to match the drug.use data frame vectors have 3 members
-age.heroin.desc <- c("Heroin", median(nhanes2013$age.first.heroin, na.rm = T),
+age.heroin.desc <- c(median(nhanes2013$age.first.heroin, na.rm = T),
                   IQR(nhanes2013$age.first.heroin, na.rm = T))
 age.heroin.desc
 
-age.meth.desc <- c("Meth", median(nhanes2013$age.first.meth, na.rm = T),
+age.meth.desc <- c(median(nhanes2013$age.first.meth, na.rm = T),
                   IQR(nhanes2013$age.first.meth, na.rm = T))
 age.meth.desc
 ```
+
+
 We now have two vectors with the medians and IQR for heroin and meth use. Use the `rbind`, or row bind, command to add them to the `drug.use` data frame:
 
 ```{r}
-
 # add vectors as rows to the drug.use data frame
-drug.use.all <- rbind(drug.use, age.heroin.desc, age.meth.desc)
+drug.use.all <- rbind(drug.use, ageHeroin = age.heroin.desc, 
+                      ageMeth = age.meth.desc)
 
 # print the data frame to check it
 drug.use.all
 ```
 
-Well, it almost worked! The first variable in the drug.use data frame appears to be categorical (factor data type) with categories of Yes and No, so Heroin and Meth were not considered good entries there because they are not categories in the variable. Change the variable to character type and try again:
+Try with the `kable` formatting: 
 
 ```{r}
-# change drug.use Used variable to string
-drug.use$Used <- as.character(drug.use$Used)
-
-# add vectors as rows to the drug.use data frame
-drug.use.all <- rbind(drug.use, age.heroin.desc, age.meth.desc)
-
-# print the data frame to check it
-drug.use.all
+# make basic table with styling so it shows up
+kable(drug.use.all, "html", caption = "Drug Use among NHANES 2013-2014 participants") %>%
+  kable_styling("striped", full_width = TRUE)
 ```
 
-Great! All the statistics we are interested in are there. Try making the basic table again:
+
+Well, it almost worked! The row names are not ideal for labels in the table. Add a new variable that will make better labels for the rows:
+
+```{r}
+# make a new variable to label rows better
+Used <- c("No", "Yes", "No", "Yes", "Heroin", "Meth")
+
+# add never variable as a column to the data frame
+drug.use.all.labelled <- cbind(Used, drug.use.all)
+
+# print the data frame to check it
+drug.use.all.labelled
+```
+
+
+Try it again with `kable` and some additional formatting to differentiate between the variables:
 
 ```{r}
 # table with all four variables
-kable(drug.use.all, "html", caption = "Drug use among NHANES 2013-2014 participants",
-      row.names = FALSE) %>%
+kable(drug.use.all.labelled, "html", caption = "Table 1. Drug use among NHANES 2013-2014 participants.", row.names = FALSE) %>%
   kable_styling("striped", full_width = TRUE) 
-  
 ```
 
-Pretty good, but it would benefit from some additional formatting to differentiate between the variables:
+It has all the numbers we need. The new row labels are good. However, it needs a way to differentiate heroin and meth used for the first four rows. It also needs to say median and IQR for the Heroin and Meth rows at the bottom. The `kable` group option does this:
 
 ```{r}
 # table with all four variables
-kable(drug.use.all, "html", caption = "Drug use among NHANES 2013-2014 participants",
-      row.names = FALSE) %>%
+kable(drug.use.all.labelled, "html", caption = "Table 1. Drug use among NHANES 2013-2014 participants.", row.names = FALSE) %>%
   kable_styling("striped", full_width = TRUE) %>%
   group_rows("Ever used heroin", 1, 2) %>%
   group_rows("Ever used meth", 3, 4) %>% 
@@ -330,71 +333,6 @@ kable(drug.use.all, "html", caption = "Drug use among NHANES 2013-2014 participa
 ```
 
 Ok! That looks ready to put in a paper or on a website. 
-
-Here is the full code for making the table:
-
-```{r}
-# get descriptives for heroin use
-heroin.use <- cbind(table(nhanes2013$ever.heroin),
-                    round(100*(prop.table(table(nhanes2013$ever.heroin))), 1))
-
-# add column names
-colnames(heroin.use) <- c("Frequency", "Percentage")
-
-# make data frame
-heroin.use <- data.frame(heroin.use)
-
-# get descriptives for meth use
-meth.use <- cbind(table(nhanes2013$ever.meth),
-                    round(100*(prop.table(table(nhanes2013$ever.meth))), 1))
-
-# add column names
-colnames(meth.use) <- c("Frequency", "Percentage")
-
-# make data frame
-meth.use <- data.frame(meth.use)
-
-# combine data frames 
-drug.use <- rbind(heroin.use, meth.use)
-
-# move row labels to a variable named Used
-drug.use <- data.frame(Used = row.names(drug.use), drug.use) 
-
-# replace row labels with accurate labels
-rownames(drug.use) <- c("Heroin.no", "Heroin.yes", "Meth.no", "Meth.yes")
-
-# recode No1 and Yes1 to No and Yes
-drug.use$Used <- recode(drug.use$Used, "'No1' = 'No'; 'Yes1' = 'Yes'")
-
-# change drug.use Used variable to string
-drug.use$Used <- as.character(drug.use$Used)
-
-# make vectors of the median and IQR for
-# age meth first use and age heroin first use
-age.heroin.desc <- c("Heroin", median(nhanes2013$age.first.heroin, na.rm = T),
-                  IQR(nhanes2013$age.first.heroin, na.rm = T))
-
-age.meth.desc <- c("Meth", median(nhanes2013$age.first.meth, na.rm = T),
-                  IQR(nhanes2013$age.first.meth, na.rm = T))
-
-# add vectors as rows to the drug.use data frame
-drug.use.all <- rbind(drug.use, age.heroin.desc, age.meth.desc)
-
-# print the data frame to check it
-drug.use.all
-
-# open kableExtra package
-library(kableExtra)
-  
-# table with all four variables
-kable(drug.use.all, "html", caption = "Drug use among NHANES 2013-2014 participants",
-      row.names = FALSE) %>%
-  kable_styling("striped", full_width = TRUE) %>%
-  group_rows("Ever used heroin", 1, 2) %>%
-  group_rows("Ever used meth", 3, 4) %>% 
-  group_rows("Age in years of first use (median, IQR)", 5, 6)
-
-```
 
 There are lots of things you can do with `kable` to style and save your table. Use the Google to see what is out there.
 
@@ -474,7 +412,7 @@ The squares could also be bigger to hold more people. The waffle plot can be cus
 #add a title
 #change the colors
 waffle(table(nhanes2011$gunUse)/50, rows=5,
-       title = "NHANES participants who ever used a gun, 2011-2012",
+       title = "NHANES participants who ever used a gun, 2011-2012.\nEach square is 50 people.",
        colors = c("#af8dc3", "#7fbf7b", "white"))
 ```
 
