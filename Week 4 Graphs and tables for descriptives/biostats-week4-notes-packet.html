@@ -319,10 +319,10 @@ print(drug.table, nonnormal = c('age.first.meth', 'age.first.heroin'),
 <h2>Fancy table in R</h2>
 <p>The <code>kable</code> package takes descriptive statistics (not raw data) and allows a lot of formatting to make publication-ready tables. But first the data must be in a clean data frame of descriptive statistics (not of raw data) with all the right labels. To do this we will make objects for each of the variables we are including with the descriptive information in them and combine these objects together for a data frame of descriptive statistics.</p>
 <p>First, make a vector with the frequency and percentages for heroin use:</p>
-<pre class="r"><code># descriptives for drug use
-drug.use &lt;- cbind(table(nhanes2013$ever.heroin),
+<pre class="r"><code># descriptives for heroin use
+heroin.use &lt;- cbind(table(nhanes2013$ever.heroin),
                     prop.table(table(nhanes2013$ever.heroin)))
-drug.use</code></pre>
+heroin.use</code></pre>
 <pre><code>##     [,1]      [,2]
 ## No   611 0.8474341
 ## Yes  110 0.1525659</code></pre>
@@ -331,7 +331,7 @@ drug.use</code></pre>
 heroin.use &lt;- cbind(table(nhanes2013$ever.heroin),
                     round(100*(prop.table(table(nhanes2013$ever.heroin))), 1))
 
-# add variable names
+# add column names
 colnames(heroin.use) &lt;- c(&quot;Frequency&quot;, &quot;Percentage&quot;)
 
 # make data frame
@@ -341,7 +341,7 @@ heroin.use &lt;- data.frame(heroin.use)</code></pre>
 meth.use &lt;- cbind(table(nhanes2013$ever.meth),
                     round(100*(prop.table(table(nhanes2013$ever.meth))), 1))
 
-# add variable names
+# add column names
 colnames(meth.use) &lt;- c(&quot;Frequency&quot;, &quot;Percentage&quot;)
 
 # make data frame
@@ -356,16 +356,20 @@ drug.use</code></pre>
 ## No1        439       60.7
 ## Yes1       284       39.3</code></pre>
 <p>It is pretty close, but the No1 and Yes1 values for heroin are not quite right. Let’s fix them:</p>
-<pre class="r"><code># move row labels to a variable and recode
-# No1 and Yes1 to No and Yes
+<pre class="r"><code># move row labels to a variable named Used
 drug.use &lt;- data.frame(Used = row.names(drug.use), drug.use) 
+
+# replace row labels with accurate labels
+rownames(drug.use) &lt;- c(&quot;Heroin.no&quot;, &quot;Heroin.yes&quot;, &quot;Meth.no&quot;, &quot;Meth.yes&quot;)
+
+# recode No1 and Yes1 to No and Yes
 drug.use$Used &lt;- recode(drug.use$Used, &quot;'No1' = 'No'; 'Yes1' = 'Yes'&quot;)
 drug.use</code></pre>
-<pre><code>##      Used Frequency Percentage
-## No     No       611       84.7
-## Yes   Yes       110       15.3
-## No1    No       439       60.7
-## Yes1  Yes       284       39.3</code></pre>
+<pre><code>##            Used Frequency Percentage
+## Heroin.no    No       611       84.7
+## Heroin.yes  Yes       110       15.3
+## Meth.no      No       439       60.7
+## Meth.yes    Yes       284       39.3</code></pre>
 <p>The data frame now has Yes and No as a variable and it is cleaned up. Notice that the row names are still the original “No, Yes, No1, Yes1”; this is ok to leave or to change, it does not matter for making the table. To change it, check out the help documentation for <code>rownames</code>.</p>
 <p>Now that we have a clean data frame with descriptive statistics in it, try a table. Notice the <code>%&gt;%</code> in the table command. This is a pipe. Pipes send information from one command to another without saving any of the intermediate steps. Think of them like a water pipe in your home that sends water from one place to another.</p>
 <pre class="r"><code># open library for making tables 
@@ -461,13 +465,13 @@ drug.use.all &lt;- rbind(drug.use, age.heroin.desc, age.meth.desc)</code></pre>
 ## level, NA generated</code></pre>
 <pre class="r"><code># print the data frame to check it
 drug.use.all</code></pre>
-<pre><code>##      Used Frequency Percentage
-## No     No       611       84.7
-## Yes   Yes       110       15.3
-## No1    No       439       60.7
-## Yes1  Yes       284       39.3
-## 5    &lt;NA&gt;        24         10
-## 6    &lt;NA&gt;        21          8</code></pre>
+<pre><code>##            Used Frequency Percentage
+## Heroin.no    No       611       84.7
+## Heroin.yes  Yes       110       15.3
+## Meth.no      No       439       60.7
+## Meth.yes    Yes       284       39.3
+## 5          &lt;NA&gt;        24         10
+## 6          &lt;NA&gt;        21          8</code></pre>
 <p>Well, it almost worked! The first variable in the drug.use data frame appears to be categorical (factor data type) with categories of Yes and No, so Heroin and Meth were not considered good entries there because they are not categories in the variable. Change the variable to character type and try again:</p>
 <pre class="r"><code># change drug.use Used variable to string
 drug.use$Used &lt;- as.character(drug.use$Used)
@@ -477,13 +481,13 @@ drug.use.all &lt;- rbind(drug.use, age.heroin.desc, age.meth.desc)
 
 # print the data frame to check it
 drug.use.all</code></pre>
-<pre><code>##        Used Frequency Percentage
-## No       No       611       84.7
-## Yes     Yes       110       15.3
-## No1      No       439       60.7
-## Yes1    Yes       284       39.3
-## 5    Heroin        24         10
-## 6      Meth        21          8</code></pre>
+<pre><code>##              Used Frequency Percentage
+## Heroin.no      No       611       84.7
+## Heroin.yes    Yes       110       15.3
+## Meth.no        No       439       60.7
+## Meth.yes      Yes       284       39.3
+## 5          Heroin        24         10
+## 6            Meth        21          8</code></pre>
 <p>Great! All the statistics we are interested in are there. Try making the basic table again:</p>
 <pre class="r"><code># table with all four variables
 kable(drug.use.all, &quot;html&quot;, caption = &quot;Drug use among NHANES 2013-2014 participants&quot;,
@@ -684,7 +688,175 @@ Meth
 </tr>
 </tbody>
 </table>
-<p>Ok! There are lots of things you can do with <code>kable</code> to style and save your table. Use the Google to see what is out there.</p>
+<p>Ok! That looks ready to put in a paper or on a website.</p>
+<p>Here is the full code for making the table:</p>
+<pre class="r"><code># get descriptives for heroin use
+heroin.use &lt;- cbind(table(nhanes2013$ever.heroin),
+                    round(100*(prop.table(table(nhanes2013$ever.heroin))), 1))
+
+# add column names
+colnames(heroin.use) &lt;- c(&quot;Frequency&quot;, &quot;Percentage&quot;)
+
+# make data frame
+heroin.use &lt;- data.frame(heroin.use)
+
+# get descriptives for meth use
+meth.use &lt;- cbind(table(nhanes2013$ever.meth),
+                    round(100*(prop.table(table(nhanes2013$ever.meth))), 1))
+
+# add column names
+colnames(meth.use) &lt;- c(&quot;Frequency&quot;, &quot;Percentage&quot;)
+
+# make data frame
+meth.use &lt;- data.frame(meth.use)
+
+# combine data frames 
+drug.use &lt;- rbind(heroin.use, meth.use)
+
+# move row labels to a variable named Used
+drug.use &lt;- data.frame(Used = row.names(drug.use), drug.use) 
+
+# replace row labels with accurate labels
+rownames(drug.use) &lt;- c(&quot;Heroin.no&quot;, &quot;Heroin.yes&quot;, &quot;Meth.no&quot;, &quot;Meth.yes&quot;)
+
+# recode No1 and Yes1 to No and Yes
+drug.use$Used &lt;- recode(drug.use$Used, &quot;'No1' = 'No'; 'Yes1' = 'Yes'&quot;)
+
+# change drug.use Used variable to string
+drug.use$Used &lt;- as.character(drug.use$Used)
+
+# make vectors of the median and IQR for
+# age meth first use and age heroin first use
+age.heroin.desc &lt;- c(&quot;Heroin&quot;, median(nhanes2013$age.first.heroin, na.rm = T),
+                  IQR(nhanes2013$age.first.heroin, na.rm = T))
+
+age.meth.desc &lt;- c(&quot;Meth&quot;, median(nhanes2013$age.first.meth, na.rm = T),
+                  IQR(nhanes2013$age.first.meth, na.rm = T))
+
+# add vectors as rows to the drug.use data frame
+drug.use.all &lt;- rbind(drug.use, age.heroin.desc, age.meth.desc)
+
+# print the data frame to check it
+drug.use.all</code></pre>
+<pre><code>##              Used Frequency Percentage
+## Heroin.no      No       611       84.7
+## Heroin.yes    Yes       110       15.3
+## Meth.no        No       439       60.7
+## Meth.yes      Yes       284       39.3
+## 5          Heroin        24         10
+## 6            Meth        21          8</code></pre>
+<pre class="r"><code># open kableExtra package
+library(kableExtra)
+  
+# table with all four variables
+kable(drug.use.all, &quot;html&quot;, caption = &quot;Drug use among NHANES 2013-2014 participants&quot;,
+      row.names = FALSE) %&gt;%
+  kable_styling(&quot;striped&quot;, full_width = TRUE) %&gt;%
+  group_rows(&quot;Ever used heroin&quot;, 1, 2) %&gt;%
+  group_rows(&quot;Ever used meth&quot;, 3, 4) %&gt;% 
+  group_rows(&quot;Age in years of first use (median, IQR)&quot;, 5, 6)</code></pre>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+<caption>
+Drug use among NHANES 2013-2014 participants
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Used
+</th>
+<th style="text-align:left;">
+Frequency
+</th>
+<th style="text-align:left;">
+Percentage
+</th>
+</tr>
+</thead>
+<tbody>
+<tr grouplength="2">
+<td colspan="3" style="border-bottom: 1px solid;">
+<strong>Ever used heroin</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+No
+</td>
+<td style="text-align:left;">
+611
+</td>
+<td style="text-align:left;">
+84.7
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Yes
+</td>
+<td style="text-align:left;">
+110
+</td>
+<td style="text-align:left;">
+15.3
+</td>
+</tr>
+<tr grouplength="2">
+<td colspan="3" style="border-bottom: 1px solid;">
+<strong>Ever used meth</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+No
+</td>
+<td style="text-align:left;">
+439
+</td>
+<td style="text-align:left;">
+60.7
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Yes
+</td>
+<td style="text-align:left;">
+284
+</td>
+<td style="text-align:left;">
+39.3
+</td>
+</tr>
+<tr grouplength="2">
+<td colspan="3" style="border-bottom: 1px solid;">
+<strong>Age in years of first use (median, IQR)</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Heroin
+</td>
+<td style="text-align:left;">
+24
+</td>
+<td style="text-align:left;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left: 2em;" indentlevel="1">
+Meth
+</td>
+<td style="text-align:left;">
+21
+</td>
+<td style="text-align:left;">
+8
+</td>
+</tr>
+</tbody>
+</table>
+<p>There are lots of things you can do with <code>kable</code> to style and save your table. Use the Google to see what is out there.</p>
 </div>
 <div id="a-new-graphing-option-and-some-code-to-make-maps" class="section level2">
 <h2>A new graphing option (and some code to make maps)</h2>
@@ -735,9 +907,11 @@ waffle(table(nhanes2011$gunUse)/50, rows=5,
 </div>
 <div id="making-a-map-to-display-data-just-fyi" class="section level2">
 <h2>Making a map to display data (just FYI)</h2>
-<p>The <code>ggplot2</code> package has a geom for mapping. It can take global, state, or county-level data. We will use state-level incarceration data in from wikipedia.</p>
+<p>The <code>ggplot2</code> package has a geom for mapping. It can take global, state, or county-level data. The map below demonstrates the use of the <code>geom_map</code> with state-level incarceration data in from Wikipedia. The <code>htmltab</code> package can bring in data from online tables.</p>
 <p>The map feature in <code>ggplot2</code> relies on two variables: (1) a variable named <code>region</code> with state names in all-lower case letters, (2) a numeric or factor variable of something you want to map.</p>
-<pre class="r"><code># use htmltab package to bring in data from a website
+<pre class="r"><code># LOAD THE DATA
+
+# use htmltab package to bring in data from a website
 # incarceration rate by state in 2016
 library(htmltab)
 
@@ -749,22 +923,23 @@ prison.rate &lt;- htmltab(doc = incarcerationURL, header = 1, which = 3)
 prison.rate2016 &lt;- prison.rate[c(4:56), c(1,3)]
 names(prison.rate2016) &lt;- c(&quot;region&quot;, &quot;prison.per100k&quot;)
 
-# state map takes lower case version of state
+# state map takes lower case version of state 
+# change the region variable to lower case
 prison.rate2016$region &lt;- tolower(prison.rate2016$region)
 
 # make prison.per100k numeric after removing commas
-prison.rate2016$prison.per100k &lt;- as.numeric(gsub(&quot;,&quot;, &quot;&quot;, prison.rate2016$prison.per100k))</code></pre>
+prison.rate2016$prison.per100k &lt;- as.numeric(gsub(&quot;,&quot;, &quot;&quot;, prison.rate2016$prison.per100k))
+
+# load in the basic US state map information from the ggplot2 package
+# here it is being named &quot;us&quot;
+us &lt;- map_data(&quot;state&quot;)</code></pre>
 <p>Once the data are formatted with:</p>
 <ul>
 <li>region variable of state names in all lower case</li>
 <li>numeric or factor variable to map for each state</li>
 </ul>
 <p>Build the map, like this:</p>
-<pre class="r"><code># load in the basic US state map information from the ggplot2 package
-# here it is being named &quot;us&quot;
-us &lt;- map_data(&quot;state&quot;)
-
-# make the map
+<pre class="r"><code># MAKE THE MAP
 
 # basic stuff for all state maps 
 ggplot() + 

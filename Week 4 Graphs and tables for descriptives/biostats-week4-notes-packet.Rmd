@@ -195,10 +195,10 @@ The `kable` package takes descriptive statistics (not raw data) and allows a lot
 First, make a vector with the frequency and percentages for heroin use: 
 
 ```{r}
-# descriptives for drug use
-drug.use <- cbind(table(nhanes2013$ever.heroin),
+# descriptives for heroin use
+heroin.use <- cbind(table(nhanes2013$ever.heroin),
                     prop.table(table(nhanes2013$ever.heroin)))
-drug.use
+heroin.use
 
 ```
 
@@ -209,7 +209,7 @@ There are no variable names on the columns and the percentage needs to be cleane
 heroin.use <- cbind(table(nhanes2013$ever.heroin),
                     round(100*(prop.table(table(nhanes2013$ever.heroin))), 1))
 
-# add variable names
+# add column names
 colnames(heroin.use) <- c("Frequency", "Percentage")
 
 # make data frame
@@ -224,7 +224,7 @@ Make meth:
 meth.use <- cbind(table(nhanes2013$ever.meth),
                     round(100*(prop.table(table(nhanes2013$ever.meth))), 1))
 
-# add variable names
+# add column names
 colnames(meth.use) <- c("Frequency", "Percentage")
 
 # make data frame
@@ -243,9 +243,13 @@ drug.use
 It is pretty close, but the No1 and Yes1 values for heroin are not quite right. Let's fix them:
 
 ```{r}
-# move row labels to a variable and recode
-# No1 and Yes1 to No and Yes
+# move row labels to a variable named Used
 drug.use <- data.frame(Used = row.names(drug.use), drug.use) 
+
+# replace row labels with accurate labels
+rownames(drug.use) <- c("Heroin.no", "Heroin.yes", "Meth.no", "Meth.yes")
+
+# recode No1 and Yes1 to No and Yes
 drug.use$Used <- recode(drug.use$Used, "'No1' = 'No'; 'Yes1' = 'Yes'")
 drug.use
 ```
@@ -325,7 +329,74 @@ kable(drug.use.all, "html", caption = "Drug use among NHANES 2013-2014 participa
   group_rows("Age in years of first use (median, IQR)", 5, 6)
 ```
 
-Ok! There are lots of things you can do with `kable` to style and save your table. Use the Google to see what is out there.
+Ok! That looks ready to put in a paper or on a website. 
+
+Here is the full code for making the table:
+
+```{r}
+# get descriptives for heroin use
+heroin.use <- cbind(table(nhanes2013$ever.heroin),
+                    round(100*(prop.table(table(nhanes2013$ever.heroin))), 1))
+
+# add column names
+colnames(heroin.use) <- c("Frequency", "Percentage")
+
+# make data frame
+heroin.use <- data.frame(heroin.use)
+
+# get descriptives for meth use
+meth.use <- cbind(table(nhanes2013$ever.meth),
+                    round(100*(prop.table(table(nhanes2013$ever.meth))), 1))
+
+# add column names
+colnames(meth.use) <- c("Frequency", "Percentage")
+
+# make data frame
+meth.use <- data.frame(meth.use)
+
+# combine data frames 
+drug.use <- rbind(heroin.use, meth.use)
+
+# move row labels to a variable named Used
+drug.use <- data.frame(Used = row.names(drug.use), drug.use) 
+
+# replace row labels with accurate labels
+rownames(drug.use) <- c("Heroin.no", "Heroin.yes", "Meth.no", "Meth.yes")
+
+# recode No1 and Yes1 to No and Yes
+drug.use$Used <- recode(drug.use$Used, "'No1' = 'No'; 'Yes1' = 'Yes'")
+
+# change drug.use Used variable to string
+drug.use$Used <- as.character(drug.use$Used)
+
+# make vectors of the median and IQR for
+# age meth first use and age heroin first use
+age.heroin.desc <- c("Heroin", median(nhanes2013$age.first.heroin, na.rm = T),
+                  IQR(nhanes2013$age.first.heroin, na.rm = T))
+
+age.meth.desc <- c("Meth", median(nhanes2013$age.first.meth, na.rm = T),
+                  IQR(nhanes2013$age.first.meth, na.rm = T))
+
+# add vectors as rows to the drug.use data frame
+drug.use.all <- rbind(drug.use, age.heroin.desc, age.meth.desc)
+
+# print the data frame to check it
+drug.use.all
+
+# open kableExtra package
+library(kableExtra)
+  
+# table with all four variables
+kable(drug.use.all, "html", caption = "Drug use among NHANES 2013-2014 participants",
+      row.names = FALSE) %>%
+  kable_styling("striped", full_width = TRUE) %>%
+  group_rows("Ever used heroin", 1, 2) %>%
+  group_rows("Ever used meth", 3, 4) %>% 
+  group_rows("Age in years of first use (median, IQR)", 5, 6)
+
+```
+
+There are lots of things you can do with `kable` to style and save your table. Use the Google to see what is out there.
 
 ## A new graphing option (and some code to make maps)
 
@@ -409,11 +480,13 @@ waffle(table(nhanes2011$gunUse)/50, rows=5,
 
 ## Making a map to display data (just FYI)
 
-The `ggplot2` package has a geom for mapping. It can take global, state, or county-level data. We will use state-level incarceration data in from wikipedia.
+The `ggplot2` package has a geom for mapping. It can take global, state, or county-level data. The map below demonstrates the use of the `geom_map` with state-level incarceration data in from Wikipedia. The `htmltab` package can bring in data from online tables.
 
 The map feature in `ggplot2` relies on two variables: (1) a variable named `region` with state names in all-lower case letters, (2) a numeric or factor variable of something you want to map. 
 
 ```{r}
+# LOAD THE DATA
+
 # use htmltab package to bring in data from a website
 # incarceration rate by state in 2016
 library(htmltab)
@@ -426,11 +499,16 @@ prison.rate <- htmltab(doc = incarcerationURL, header = 1, which = 3)
 prison.rate2016 <- prison.rate[c(4:56), c(1,3)]
 names(prison.rate2016) <- c("region", "prison.per100k")
 
-# state map takes lower case version of state
+# state map takes lower case version of state 
+# change the region variable to lower case
 prison.rate2016$region <- tolower(prison.rate2016$region)
 
 # make prison.per100k numeric after removing commas
 prison.rate2016$prison.per100k <- as.numeric(gsub(",", "", prison.rate2016$prison.per100k))
+
+# load in the basic US state map information from the ggplot2 package
+# here it is being named "us"
+us <- map_data("state")
 
 ```
 
@@ -442,11 +520,7 @@ Once the data are formatted with:
 Build the map, like this: 
 
 ```{r}
-# load in the basic US state map information from the ggplot2 package
-# here it is being named "us"
-us <- map_data("state")
-
-# make the map
+# MAKE THE MAP
 
 # basic stuff for all state maps 
 ggplot() + 

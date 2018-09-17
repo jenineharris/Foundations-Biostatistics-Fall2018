@@ -3,7 +3,7 @@ title: "Week 4 Challenge Standard"
 output: html_document
 ---
 
-(1) Use `tableone` to create a basic table that includes the appropriate descriptive statistics for following variables from the Drug Use questionnaire: DUQ200, DUQ210, DUQ250, DUQ260, DUQ410. 
+(1) Use `tableone` to create a basic table that includes the appropriate descriptive statistics for following variables from the Drug Use questionnaire: DUQ200, DUQ210, DUQ240, DUQ260, DUQ410. 
 
 Before creating the table: 
 
@@ -18,7 +18,7 @@ library(car)
 
 # recode DUQ210
 
-# recode DUQ250 
+# recode DUQ240 
 
 # recode DUQ260 
 

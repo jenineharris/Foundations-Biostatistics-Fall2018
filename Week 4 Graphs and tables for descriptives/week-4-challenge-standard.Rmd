@@ -3,7 +3,7 @@ title: "Week 4 Challenge Standard"
 output: html_document
 ---
 
-(1) Use `tableone` to create a basic table that includes the appropriate descriptive statistics for following variables from the Drug Use questionnaire: DUQ200, DUQ210, DUQ250, DUQ260. 
+(1) Use `tableone` to create a basic table that includes the appropriate descriptive statistics for following variables from the NHANES Drug Use 2013-2014 questionnaire: DUQ200, DUQ210, DUQ240, DUQ260. 
 
 Before creating the table: 
 
@@ -11,6 +11,8 @@ Before creating the table:
 * check the distribution to decide which descriptive statistics to report for any continuous variables 
 
 ```{r}
+# bring in the data 
+
 # open library for recoding 
 library(car)
 
@@ -18,7 +20,7 @@ library(car)
 
 # recode DUQ210
 
-# recode DUQ250 
+# recode DUQ240 
 
 # recode DUQ260
 
@@ -35,6 +37,8 @@ library(car)
 library()
 
 # create table 
+
+# print table
 
 ```
 
