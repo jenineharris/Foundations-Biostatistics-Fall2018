@@ -46,8 +46,6 @@ nhanes2013 <- nhanes_load_data(file_name = "DUQ_H",
                                year = "2013-2014",
                                demographics = TRUE)
 
-
-
 ```
 
 ## Descriptive statistics by variable types 
@@ -83,7 +81,7 @@ nhanes2013$ever.heroin <- recode(nhanes2013$DUQ290,
                                  7 = NA;
                                  9 = NA")
 
-# recode DUQ290 to Yes, No, NA 
+# recode DUQ330 to Yes, No, NA 
 # add a logical variable name 
 nhanes2013$ever.meth <- recode(nhanes2013$DUQ330,
                                  "1 = 'Yes';
@@ -166,7 +164,7 @@ We could open a word processing document and copy the numbers from the R output 
 #.  Changes to table contents can be made more easily 
 #.  R code can be reused, so developing new tables will take less time after the first one is complete 
 
-Let's start with a very basic table and including the heroin and meth variables we have cleaned. If you do not need the table to be formatted in a fancy way for a paper or something else, the `tableone` package has a very clear interface for getting descriptive statistics into a table format easily. Try it with the clean variables: 
+Let's start with a very basic table for the heroin and meth variables we have cleaned. If you do not need the table to be formatted in a fancy way for a paper or something else, the `tableone` package has a very clear interface for getting descriptive statistics into a table format easily. Try it with the clean variables: 
 
 ```{r warning=FALSE}
 # open tableone package
@@ -183,6 +181,8 @@ print(drug.table)
 
 
 ```
+
+This looks good, although we decided that the age variables were not normally distributed, so the median and IQR are more appropriate to report. The print feature of the `tableone` package has options for identifying non-normal variables:
 
 ```{r}
 # indicate which variables are non-normal
@@ -207,9 +207,9 @@ But first the data must be in a clean data frame of descriptive statistics (not 
 ![](table-for-kable.PNG)
 
 
-To do this we will make objects for each of the variables with the descriptive information in them and combine these objects together for a data frame of descriptive statistics. 
+To do this we will combine the descriptive information from each of the variables into a data frame of descriptive statistics. 
 
-First, combine the frequency and percentage tables for heroin use. The `cbind` command combines them by columns (`rbind` would combine by row.)
+First, combine the frequency and percentage tables for heroin use. The `cbind` command combines them by columns (`rbind` would combine by row).
 
 ```{r}
 # descriptives for heroin use
@@ -219,13 +219,23 @@ heroin.use
 
 ```
 
-There are no variable names on the columns and the percentage needs to be cleaned up. Add variable names, fix the percentages, and make it a data frame: 
+Two problems:
+
+* There are no variable names on the columns
+* The percentage needs to be cleaned up 
+
+Add variable names of Frequency and Percentage, fix the percentages, and make it a data frame: 
 
 ```{r}
 # percentages multiplied by 100 and rounded to 1 decimal
 heroin.use <- cbind(Frequency = table(nhanes2013$ever.heroin),
                     Percentage = round(100*(prop.table(table(nhanes2013$ever.heroin))), 1))
+heroin.use
+```
 
+Now, change it to a data frame:
+
+```{r}
 # make data frame
 heroin.use <- data.frame(heroin.use)
 
@@ -243,7 +253,7 @@ meth.use <- data.frame(meth.use)
 
 ```
 
-Combine heroin and meth: 
+Combine heroin and meth data frames: 
 
 ```{r}
 # combine data frames 
@@ -251,7 +261,7 @@ drug.use <- rbind(usedHeroin = heroin.use, usedMeth = meth.use)
 drug.use
 ```
 
-Now that we have a clean data frame with descriptive statistics in it, try a table. Notice the `%>%` in the table command. This is a pipe. Pipes send information from one command to another without saving any of the intermediate steps. Think of them like a water pipe in your home that sends water from one place to another.
+Now that we have a clean data frame with descriptive statistics in it, try a `kable` table. Notice the `%>%` in the table command. This is a pipe. Pipes send information from one command to another without saving any of the intermediate steps. Think of them like a pipe in your home that sends water from one place to another.
 
 ```{r}
 # open library for making tables 
@@ -263,12 +273,11 @@ kable(drug.use, "html", caption = "Drug Use among NHANES 2013-2014 participants"
 
 ```
 
-The table is pretty basic and not any better than the `tableone` version at this point, but we have only just begun! Next we will add the continuous variables and then group and label sections of the table.
+The table is pretty basic and not really much better than the `tableone` version at this point, but we have only just begun! Next we will add the continuous variables and then group and label sections of the table.
 
 ```{r warning=FALSE}
 # make vectors of the median and IQR for
 # age meth use and age heroin use
-# to match the drug.use data frame vectors have 3 members
 age.heroin.desc <- c(median(nhanes2013$age.first.heroin, na.rm = T),
                   IQR(nhanes2013$age.first.heroin, na.rm = T))
 age.heroin.desc
@@ -313,7 +322,7 @@ drug.use.all.labelled
 ```
 
 
-Try it again with `kable` and some additional formatting to differentiate between the variables:
+Try it again with `kable`, removing the row.names:
 
 ```{r}
 # table with all four variables
@@ -321,7 +330,7 @@ kable(drug.use.all.labelled, "html", caption = "Table 1. Drug use among NHANES 2
   kable_styling("striped", full_width = TRUE) 
 ```
 
-It has all the numbers we need. The new row labels are good. However, it needs a way to differentiate heroin and meth used for the first four rows. It also needs to say median and IQR for the Heroin and Meth rows at the bottom. The `kable` group option does this:
+It has all the numbers we need. The new row labels are good. However, it needs a way to differentiate heroin and meth used for the first four rows. It also needs to say median and IQR for the Heroin and Meth rows at the bottom. The `kable` group_rows option does this:
 
 ```{r}
 # table with all four variables
@@ -379,7 +388,7 @@ ggplot(data = pieExample, aes(x = "", y = percentPie, fill = colorPie)) +
   
 ```
 
-Instead, a waffle plot allows showing parts of a whole in a way that allows more clear interpretation (**waffles > pie**). Let's use the gun use question in the 2011-2012 NHANES audiology questionnaire: *Ever used firearms for any reason?* 
+Instead, a waffle plot shows parts of a whole in a way that allows more clear interpretation (**waffles > pie**). Let's use the gun use question in the 2011-2012 NHANES audiology questionnaire: *Ever used firearms for any reason?* 
 
 The code book is here: https://wwwn.cdc.gov/nchs/nhanes/2011-2012/AUQ_G.htm
 
@@ -412,7 +421,7 @@ The squares could also be bigger to hold more people. The waffle plot can be cus
 #add a title
 #change the colors
 waffle(table(nhanes2011$gunUse)/50, rows=5,
-       title = "NHANES participants who ever used a gun, 2011-2012.\nEach square is 50 people.",
+       title = "NHANES participants who ever used a gun, 2011-2012.\nEach square represents 50 people.",
        colors = c("#af8dc3", "#7fbf7b", "white"))
 ```
 
