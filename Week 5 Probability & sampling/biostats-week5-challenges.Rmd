@@ -1,0 +1,40 @@
+---
+title: "Biostats Week 5 Challenge"
+output: html_document
+---
+# Instructions 
+
+Use the Missouri smokers data set saved at http://tinyurl.com/z2m3cgq to answer the questions below in this R Markdown file. Choose either the standard or hacker edition below and delete the one you are not doing. Both editions are worth the same number of points. If you choose to complete and submit both editions, I will score whichever one shows up first in the document(s) you submit.
+
+You may want to use more than one code chunk to organize your coding. To add new code chunks in R, use the green `Insert` menu at the top of the pane and choose `R` to insert an R chunk. 
+
+Variables from a 2013 survey of Missouri smokers:
+
+* numcigs: Number of cigarettes smoked per day
+* ageonset: Age started smoking
+* yearssmoking: Number of years smoking
+* packyears: Number of years smoking*number of packs of cigarettes per day
+* age: Age in years
+* VBMI4: Body mass index
+
+# Standard edition
+
+Create a well-formatted kable table that includes the mean, standard deviation, standard error, and 95% confidence interval for the following variables: numcigs, ageonset, yearssmoking, age, VBMI4. See above for the definitions of these variables. Clean up the out-of-range values from the age and VBMI4 variables before building the table. Write a paragraph interpreting the means and confidence intervals reported in the table. Knit the file to check and make sure everything runs correctly. Submit the R Markdown file to Blackboard before class.
+
+```{r}
+
+```
+
+
+# Hacker edition
+
+Create a well-formatted kable table that includes the mean, standard deviation, standard error, and 90% confidence interval for the following variables: numcigs, ageonset, yearssmoking, before computing means and CIs. Write a paragraph interpreting the means and confidence intervals reported in the table. Modify your code chunks so: (1) the code chunks do not show up when the document is knitted, and (2) warnings and messages from the code chunks do not show up when the document is knitted. Knit the file to check and make sure everything runs correctly. Submit the R Markdown file to Blackboard before class.
+
+```{r}
+
+```
+
+
+
+
+

@@ -1,0 +1,446 @@
+---
+title: 'Biostats week 5: Probability and Sampling Distributions'
+author: "Jenine Harris"
+output:
+  html_document:
+    df_print: paged
+---
+
+# Outline
+
+This packet covers _probability_ and _sampling_ concepts:
+
+#. Probability distributions
+#. The binomial distribution
+#. The normal distribution
+#. z-scores
+#. Estimating population means from sample means
+#. Interval estimation
+
+#1. Probability distributions
+
+The company that makes M&Ms used to conduct consumer preference tests to determine which colors people like best. For years they published the results on their website, and used the results to determine the proportion of M&Ms of each colors they would use in mixes of plain M&Ms. In 2008 this information disappeared from the website. The last known value were: 24% blue, 20% orange, 16% green, 14% yellow, 13% red, and 13% brown 
+
+```{r echo=FALSE, warning = FALSE, message=FALSE}
+percent<-c(24, 20, 16, 14, 13, 13)
+color<-c('blue', 'orange', 'green', 'yellow', 'red', 'brown')
+mm<-data.frame(percent,color)
+library(ggplot2)
+ggplot(data = mm, aes(color, percent)) + 
+  geom_bar(stat="identity") +
+  ggtitle('Probability distribution of color for plain M&Ms') +
+  ylab('probability')
+```
+
+If you open a bag of plain M&Ms and select one without looking, the probability that the M&M you select will be blue is 24%. The probability that the M&M you select will be brown is 13%. The set of these probabilities altogether is a _probability distribution_. A probability distribution is the numeric or visual representation of the _likelihood of a value of a variable occuring_.
+
+There are many different probability distributions that most statistics in social science are based on. Two of the most commonly used are the _binomial distribution_ and the _normal distribution_. 
+
+#2. The binomial distribution
+
+The binomial distribution is used when a variable has two possible outcomes. The most common example is flipping a coin, but in public health, social work, and social policy there are many variables that have two outcomes: alive & dead, smoker & non-smoker, healthy weight & unhealthy weight, depressed & not depressed. We could even consider our M&M example if we were interested in the probability of picking a red M&M or non-red M&M.
+
+The binomial distribution is defined by two things: 
+
+* n - the number of observations (e.g., coin flips, people surveyed, M&Ms selected)   
+* p - the probability of _success_ (e.g., 50% chance of heads, 21% chance of being a smoker in Missouri, 20% chance of a red M&M)
+
+If we selected 20 M&Ms, and we knew that the likelihood of red was 20% or .2 for each selection, the binomial distribution function can tell us how likely it is we will choose exactly 10 red M&Ms:
+
+\[
+f(x) = {{n}\choose{x}} \cdot p^x \cdot (1-p)^{(n-x)}
+\]
+
+\[
+f(10) = {{20}\choose{10}} \cdot .2^{10} \cdot (1-.2)^{(20-10)}
+\]
+
+\[
+f(10) = .002
+\]
+
+There is a .2% probability of choosing exactly 10 red M&Ms if we chose 20 at random from a mix with 20% red M&Ms.
+
+Or, we can just let R do it for us using the `dbinom` command. The `dbinom` command takes three arguments: x, size, and prob. The first argument, `x` is the exact number of events to occur, `size` is the number selected, and `prob` is the probability of a single `x` occuring.
+
+```{r}
+# find probability when x = 10, n = 20, p = .2
+dbinom(x = 10, size = 20, prob = .2)                  
+```
+
+The binomial distribution can also be displayed graphically:
+
+```{r echo=FALSE, warning = FALSE, message=FALSE}
+x <- seq(0,40,1)
+binom_data <- data.frame(x = seq(0,40,1), y = dbinom(x,40,.2), probability = .2)
+binom_data2 <- data.frame(x = seq(0,40,1), y = dbinom(x,40,.5), probability = .5)
+bi_data <- rbind(binom_data, binom_data2)
+bi_data$probability <- as.factor(bi_data$probability)
+
+ggplot(data = bi_data, aes(x = x, y = y, fill = probability)) +
+  geom_polygon() +
+  facet_grid(cols = vars(probability), labeller = label_both) + 
+  xlab("Exact number of events to occur (x)") + 
+  ylab("Probability (p)") +
+  ggtitle("Binomial distribution for the probability of x with sample size 40 (n = 40)") + scale_fill_brewer(palette = "Dark2") + theme_minimal() + guides(fill = FALSE)
+
+
+
+
+```
+
+#3. Normal distribution
+
+The normal distribution is used when a variable is continuous or nearly continuous. Just as the shape of the binomial distribution is determined by n and p, the shape of the normal distribution is determined by m and s, the mean and standard deviation. 
+
+
+```{r echo = FALSE, warning = FALSE, message=FALSE}
+require(ggplot2)
+require(reshape2)
+library(dplyr)
+df <- data.frame(cbind(rnorm(1000000, mean = 0, sd = 1),rnorm(1000000, mean=3, sd = 2)))
+
+df$id <- 1:nrow(df)
+
+df.m <- melt(df, "id")
+
+df.m$dists <- recode(df.m$variable, `X1` = "mean=0, sd=1", `X2` = "mean=3, sd=2")
+
+ggplot(data = df.m, aes(x=value, fill = variable)) + geom_density() +
+  facet_grid(cols = vars(dists)) + scale_fill_brewer(palette = "Dark2") +
+  guides(fill = FALSE) + theme(axis.title.y = element_blank(), axis.line.y = element_blank(),
+                               axis.ticks.y = element_blank(), axis.text.y = element_blank())
+```
+
+We can use the normal distribution to find the likelihood of a certain value or range of values. For example, say the average test score of a person in a class is 70 and the standard deviation is 15. You want to know the percent of students who scored more than the 90 percent needed to earn an A. Essentially, you want to know what percent of students is in the shaded area:
+
+```{r echo=FALSE, warning = FALSE, message=FALSE}
+example.test <- data.frame(rnorm(1000000, mean = 70, sd = 15))
+
+example.test$id <- 1:nrow(example.test)
+
+example.test <- melt(example.test, "id")
+
+# create a density object and make it a data frame to graph
+exampleDensity <- density(example.test$value, na.rm=TRUE)
+exampleDensityData <- data.frame(x = exampleDensity$x, y = exampleDensity$y)
+
+ggplot(data = exampleDensityData, mapping = aes(x = x, y = y)) +
+    geom_line()+
+    geom_area(mapping = aes(x = ifelse(x>90 , x, 0)), fill = "darkgreen") + 
+  ylim(0, .03) +
+  xlab("Test scores") + 
+  ylab("Probability density") + 
+  ggtitle("Probability density for test scores with shading over 90%")
+
+```
+
+To figure out what proportion of students are in the shaded area under the curve, we can use the same calculus we used to find the area under the curve previously. This calculus is built in to the `pnorm` command:
+
+```{r}
+# normal curve with mean = 70 and sd = 15
+# area underneath bounded by 90
+pnorm(90, mean=70, sd=15)             
+```
+
+Does that seem right? Does the shaded area look like `r round(100*pnorm(90, mean=70, sd=15), 2)`% of the area under the curve?
+
+So, the pnorm function finds the area under the curve starting on the left up to the x value you entered (90). To get the area in the right hand tail of the distribution, use an option:
+```{r}
+# normal curve with mean = 70 and sd = 15
+# shaded for scores of 90 and above
+pnorm(90, mean=70, sd=15, lower.tail=FALSE)             
+```
+
+Much better! It looks like 9.1% of students in the class got more than 90 on the test. This appears consistent with the shaded area of the graph.
+
+#4. z-scores
+
+Another useful feature of the normal distribution is that, regardless of what the mean and standard deviation are, if a variable is normally distributed: 
+
+* 68% of values are within one standard deviation of the mean  
+* 95% of values are within two standard deviations of the mean  
+* 99.7% of values are within three standard deviations of the mean
+
+This relationship can be used to describe and compare how far individual observations are from a mean value. Therefore, in the class above, 68% of students are between 70-15 and 70+15, so they have a score between 55-85 on the exam. In addition, 95% of students would be between 70-15x2 and 70+15x2 or 40 and 100 score on the exam.
+
+This information is used to create z-scores, which allow description and comparison of where an individual observation falls compared to others. Using the z-score formula:
+
+\[
+z=\frac{x-m}{s}
+\]
+
+The resulting z-score is the number of standard deviations an observation is away from the mean. So, a student whose score on the exam is 82 is:
+
+\[
+z=\frac{82-70}{15}=.8
+\]
+
+or .8 standard deviations above the mean (z=.8). Likewise, a student with a score of 65 is:
+
+\[
+z=\frac{65-70}{15}=-.33
+\]
+
+about a third of a standard deviation below the mean (z=-.33).
+
+#5. Estimating population means from sample means
+
+There are many things that are impossible to measure. We cannot realistically measure the height or weight or eye color or income of every single person in the US right now. Instead, we take samples of the population we are interested in to try and estimate population means.
+
+To see how this works, we can use something we do have a population mean for, the number of employees for all 50 state health departments nationwide in 2013. Load the data and compute the mean below:
+
+```{r}
+# state and number of employees for 50 health departments
+hdemp <- read.csv("http://tinyurl.com/h3ppczv")
+
+# mean and standard deviation of number of employees
+mean(hdemp$employees, na.rm = T)
+sd(hdemp$employees, na.rm = T)
+```
+
+So, the mean number of employees in a state health department in 2010 was 2215.4 with a standard deviation of 2884.627.
+
+How close could we get to this number if we only had enough time and money to collect data on 20 state health departments?
+
+```{r}
+# sample 20 health departments at random 
+# find the mean number of employees in each sample
+# run the code 20 times and record the values
+s1 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+mean(s1$employees)
+```
+
+```{r}
+# run the code another 19 times
+s2 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s3 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s4 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s5 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s6 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s7 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s8 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s9 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s10 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s11 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s12 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s13 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s14 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s15 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s16 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s17 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s18 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s19 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s20 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s21 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s22 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s23 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s24 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+s25 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+
+```
+
+If we sample 20 health departments multiple times, how close do we get? Here is the mean number of employees in each of 25 random samples, each sample having 20 health departments:
+
+```{r warning = FALSE}
+# make a vector of means of the 25 samples
+mean.25samp <- c(mean(s1$employees), mean(s2$employees), mean(s3$employees),
+                   mean(s4$employees), mean(s5$employees), mean(s6$employees),
+                   mean(s7$employees), mean(s8$employees), mean(s9$employees),
+                   mean(s10$employees), mean(s11$employees), mean(s12$employees),
+                   mean(s13$employees), mean(s14$employees), mean(s15$employees),
+                   mean(s16$employees), mean(s17$employees), mean(s18$employees),
+                   mean(s19$employees), mean(s20$employees), mean(s21$employees),
+                   mean(s22$employees), mean(s23$employees), mean(s24$employees),
+                   mean(s25$employees))
+
+# plot it
+ggplot() + aes(x = mean.25samp) + 
+  geom_histogram(binwidth = 500) 
+
+# check the mean of the means
+mean(mean.25samp)
+
+# compare to original mean
+mean(hdemp$employees, na.rm = T)
+```
+
+No, find mean number of employees in each of 50 random samples of 20 health departments. Luckily, R will do this for us automatically, we do not have to take 50 samples and then find the mean of the means:
+
+```{r}
+# create a blank numeric vector with 50 entries
+means.of.our.50samples <- numeric(50)
+
+# fill each entry with a mean from a sample of 20 health departments
+for(i in 1:50){
+  s <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+  means.of.our.50samples[i] <- mean(s$employees)}
+
+# plot it
+ggplot() + aes(x = means.of.our.50samples) + geom_histogram(binwidth = 500) 
+
+# check the stats
+mean(means.of.our.50samples)
+
+# compare to original data mean
+mean(hdemp$employees, na.rm = T)
+
+```
+
+We can get even closer to the true mean by taking more samples and larger samples. Luckily, R will do this for us with a bit of code. Try taking 10,000 samples of 20 health departments each. Graph the mean number of people served in each sample. 
+
+```{r}
+# take 10000 samples and find all the means
+means.of.our.10000samples <- numeric(10000)
+for(i in 1:10000){
+  s <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
+  means.of.our.10000samples[i] <- mean(s$employees)}
+
+# plot the means
+ggplot() + aes(x = means.of.our.10000samples) + geom_histogram(binwidth = 100) 
+
+# check the mean of the means
+mean(means.of.our.10000samples)
+
+# compare to the population mean
+mean(hdemp$employees, na.rm = TRUE)
+
+```
+
+When you take a lot of large samples, the resulting sampling distribution will look like a normal distribution _where the mean is nearly the same as the population mean_. This is called the _Central Limit Theorem_ and even holds true for variables that not normally distributed to begin with. 
+
+Another characteristic of sampling distributions is that the standard deviation of a sampling distribution is: 
+
+\[
+\frac{\sigma}{\sqrt{n}}
+\]
+
+where $\sigma$ is the population standard deviation and n is the size of the samples used to make the distribution. So, we could use the standard deviation of the sampling distribution to find the population standard deviation:
+
+```{r}
+# sampling distribution standard dev
+sd(means.of.our.10000samples)
+
+# mulitply by sqrt(n) to estimate population standard dev
+sd(means.of.our.10000samples)*sqrt(20)
+```
+
+Since we don't usually have the population standard deviation and we can't usually take 10,000 samples and get the standard deviation, an approximation to this value is called the _standard error_ and is computed:
+
+\[
+\frac{s}{\sqrt{n}}
+\]
+
+where s is the sample standard deviation and n is the sample size. This value estimates the population standard deviation.
+
+We can compute the standard error for one of the samples of 25 health departments we took:
+```{r}
+# mean of sample 25 
+mean(s25$employees)
+
+# se of sample 25 
+sd(s25$employees)/sqrt(length(s25))
+```
+
+#6. Estimating intervals
+
+Alrighty, time to pull some things together. We know: 
+
+* how to compute the mean of a variable in a sample 
+* how to compute the standard error of a sample to estimate the standard deviation of the sampling distribution
+* the mean of the sampling distribution is a good estimate of the mean in the population 
+* how many standard deviations away from the mean most observations are 
+
+We can use these three things to create an _interval_ around the mean that quantifies the uncertainty of the estimate from a sample and gives us a _better idea about where the true population mean lies_. So, when you got a mean value and standard error for number of employees from a sample, you could use these to create a range of values where the true population mean for number of employees likely lies.
+
+For example, open the smokers data set from \url{http://tinyurl.com/z2m3cgq}. This is a sample of 100 smokers from Missouri. Compute the mean and standard error of the mean for number of cigarettes smoked per day (numcigs):
+```{r}
+# bring in the data
+smokers<-read.csv("http://tinyurl.com/z2m3cgq")
+
+# mean number of cigarettes per day
+mean.numcigs <- mean(smokers$numcigs, na.rm=TRUE)
+mean.numcigs
+
+# standard error for the number of cigarettes per day
+err.numcigs <- sd(smokers$numcigs, na.rm=TRUE)/sqrt(length(smokers$numcigs))
+err.numcigs
+```
+
+Choose what sort of interval you would like. Most of the time you will see 95% intervals or _95% confidence intervals_ which show the range where the population value is 95 times if the study were replicated 100 times. You could also choose a larger interval like a _68% confidence interval_ or a smaller interval like a _99% confidence interval_. We will start with 95%.
+
+....so....
+
+* 95% of values lie within 2 standard deviations of the mean (this is actually rounded up from 1.96) 
+* the standard error of a sample is a good estimate of the standard deviation in the population 
+* so most sample means will fall within 1.96 standard errors of the population mean 
+
+We got a sample mean of 18.58 cigarettes per day and a standard error of .81 for this mean. Compute the _95% confidence interval_.
+
+```{r} 
+# compute upper boundary of confidence interval
+mean.numcigs + 1.96*err.numcigs
+
+# compute lower boundary of confidence interval 
+mean.numcigs - 1.96*err.numcigs
+```
+
+The 95% confidence interval for the mean number of cigarettes per day is 16.97-20.18.
+
+Note that the number of standard deviations is a z-score, so the formulas are often written: 
+
+
+mean + z * standard error
+
+mean - z * standard error
+
+Interpretation: The mean number of cigarettes smoked per day by Missouri smokers is 18.58 cigarettes; the true or population mean value of cigarettes smoked per day by Missouri smokers likely lies between 16.97 and 20.18 (m=18.58; 95% CI=16.97-20.18).
+
+Use the kable table to report means, sd, se, and CI for multiple variables at once. Here is an example of one way to do this:
+
+```{r}
+# get numcigs mean, sd, se, ci
+mean.numcigs <- mean(smokers$numcigs, na.rm = TRUE)
+sd.numcigs <- sd(smokers$numcigs, na.rm = TRUE)
+se.numcigs <- sd.numcigs/sqrt(length(smokers$numcigs))
+ciLower.numcigs <- mean.numcigs - 1.96*se.numcigs
+ciUpper.numcigs <- mean.numcigs + 1.96*se.numcigs
+
+# put numcig stats into a vector
+numcigs.stats <- c(mean = mean.numcigs, sd = sd.numcigs, 
+                   se = se.numcigs, "Lower CI" = ciLower.numcigs, "Upper CI" = ciUpper.numcigs)
+
+
+# get age mean, sd, se, ci 
+mean.age <- mean(smokers$age, na.rm = TRUE)
+sd.age <- sd(smokers$age, na.rm = TRUE)
+se.age <- sd.age/sqrt(length(smokers$age))
+ciLower.age <- mean.age - 1.96*se.age
+ciUpper.age <- mean.age + 1.96*se.age
+
+# put age stats into a vector
+age.stats <- c(mean = mean.age, sd = sd.age, 
+                   se = se.age, "Lower CI" = ciLower.age, "Upper CI" = ciUpper.age)
+
+# combine vectors into data frame
+smokers.stats <- rbind(numcigs.stats, age.stats)
+smokers.stats <- data.frame(smokers.stats)
+
+# add a variable for better row labels
+Characteristic <- c("Number of cigarettes per day", "Age in years")
+smokers.stats <- cbind(Characteristic, smokers.stats)
+
+# kable table with 1 digit after the decimal place
+library(kableExtra)
+kable(smokers.stats, "html", row.names = FALSE, digits = 1,
+      caption = "Table 1. Smoking characteristics of Missouri smokers (2013).") %>%
+  kable_styling("condensed", full_width = TRUE)
+
+```
+
+
+NOTE ON SMALL SAMPLES: When sample sizes are small, there is more uncertainty in our data. In the case of very small samples (<30) use the t-distribution instead of the normal distribution to compute confidence intervals that account for this added uncertainty. Trade the 1.96 for the value of t that corresponds to the probability level you are interested in. Values of t can be found online in tables of t-statistics.
+
+
+
+
