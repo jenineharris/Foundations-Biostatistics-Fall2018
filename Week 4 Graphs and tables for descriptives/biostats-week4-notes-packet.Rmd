@@ -227,9 +227,9 @@ Two problems:
 Add variable names of Frequency and Percentage, fix the percentages, and make it a data frame: 
 
 ```{r}
-# percentages multiplied by 100 and rounded to 1 decimal
+# percentages multiplied by 100
 heroin.use <- cbind(Frequency = table(nhanes2013$ever.heroin),
-                    Percentage = round(100*(prop.table(table(nhanes2013$ever.heroin))), 1))
+                    Percentage = 100*(prop.table(table(nhanes2013$ever.heroin))))
 heroin.use
 ```
 
@@ -244,9 +244,9 @@ heroin.use <- data.frame(heroin.use)
 Make meth:
 
 ```{r}
-# percentages multiplied by 100 and rounded to 1 decimal
+# percentages multiplied by 100
 meth.use <- cbind(Frequency = table(nhanes2013$ever.meth),
-                  Percentage = round(100*(prop.table(table(nhanes2013$ever.meth))), 1))
+                  Percentage = 100*(prop.table(table(nhanes2013$ever.meth))))
 
 # make data frame
 meth.use <- data.frame(meth.use)
@@ -303,7 +303,8 @@ Try with the `kable` formatting:
 
 ```{r}
 # make basic table with styling so it shows up
-kable(drug.use.all, "html", caption = "Drug Use among NHANES 2013-2014 participants") %>%
+kable(drug.use.all, "html", caption = "Drug Use among NHANES 2013-2014 participants", 
+      digits = 1) %>%
   kable_styling("striped", full_width = TRUE)
 ```
 
@@ -326,7 +327,7 @@ Try it again with `kable`, removing the row.names:
 
 ```{r}
 # table with all four variables
-kable(drug.use.all.labelled, "html", caption = "Table 1. Drug use among NHANES 2013-2014 participants.", row.names = FALSE) %>%
+kable(drug.use.all.labelled, "html", caption = "Table 1. Drug use among NHANES 2013-2014 participants.", row.names = FALSE, digits = 1) %>%
   kable_styling("striped", full_width = TRUE) 
 ```
 
@@ -334,14 +335,50 @@ It has all the numbers we need. The new row labels are good. However, it needs a
 
 ```{r}
 # table with all four variables
-kable(drug.use.all.labelled, "html", caption = "Table 1. Drug use among NHANES 2013-2014 participants.", row.names = FALSE) %>%
+kable(drug.use.all.labelled, "html", caption = "Table 1. Drug use among NHANES 2013-2014 participants.", row.names = FALSE, digits = 1) %>%
   kable_styling("striped", full_width = TRUE) %>%
   group_rows("Ever used heroin", 1, 2) %>%
   group_rows("Ever used meth", 3, 4) %>% 
   group_rows("Age in years of first use (median, IQR)", 5, 6)
 ```
 
-Ok! That looks ready to put in a paper or on a website. 
+Ok! That looks ready to put in a paper or on a website. Here is a summary of the relevant code:
+
+```{r}
+# categorical variables vectors
+heroin.use <- cbind(Frequency = table(nhanes2013$ever.heroin),
+                    Percentage = 100*(prop.table(table(nhanes2013$ever.heroin))))
+meth.use <- cbind(Frequency = table(nhanes2013$ever.meth),
+                  Percentage = 100*(prop.table(table(nhanes2013$ever.meth))))
+
+# make categorical variables into data frames and combine
+meth.use <- data.frame(meth.use)
+heroin.use <- data.frame(heroin.use)
+drug.use <- rbind(usedHeroin = heroin.use, usedMeth = meth.use)
+
+# continuous variables vectors
+age.heroin.desc <- c(median(nhanes2013$age.first.heroin, na.rm = T),
+                  IQR(nhanes2013$age.first.heroin, na.rm = T))
+age.meth.desc <- c(median(nhanes2013$age.first.meth, na.rm = T),
+                  IQR(nhanes2013$age.first.meth, na.rm = T))
+
+# add continuous variables to drug.use data frame
+drug.use.all <- rbind(drug.use, ageHeroin = age.heroin.desc, 
+                      ageMeth = age.meth.desc)
+
+# make a new variable to name the rows better and add to data frame
+Used <- c("No", "Yes", "No", "Yes", "Heroin", "Meth")
+drug.use.all.labelled <- cbind(Used, drug.use.all)
+
+# make the table
+kable(drug.use.all.labelled, "html", caption = "Table 1. Drug use among NHANES 2013-2014 participants.", row.names = FALSE, digits = 1) %>%
+  kable_styling("striped", full_width = TRUE) %>%
+  group_rows("Ever used heroin", 1, 2) %>%
+  group_rows("Ever used meth", 3, 4) %>% 
+  group_rows("Age in years of first use (median, IQR)", 5, 6)
+
+```
+
 
 There are lots of things you can do with `kable` to style and save your table. Use the Google to see what is out there.
 
