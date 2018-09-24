@@ -256,7 +256,7 @@ mean.25samp <- c(mean(s1$employees), mean(s2$employees), mean(s3$employees),
 
 # plot it
 ggplot() + aes(x = mean.25samp) + 
-  geom_histogram(binwidth = 500) 
+  geom_histogram(binwidth = 250) 
 
 # check the mean of the means
 mean(mean.25samp)
