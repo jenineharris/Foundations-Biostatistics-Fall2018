@@ -1,0 +1,111 @@
+---
+title: "How many blue M&Ms?"
+---
+
+In public health, social work, and social policy, we often use a sample as an estimate or representation of a population. The Central Limit Theorem can help to demonstrate why this works. In this activity we will answer the research question, how many blue M&Ms are in a fun size bag of plain M&Ms? 
+
+# The situation
+
+You’ve been asked to do quality control for a local factory. Consider the packages of M&Ms distributed across the entire class to be the whole population of M&Ms produced in this factory during a certain time frame.
+
+# Your tasks
+
+(1)	Count how many blue M&Ms are in each of your M&M packages. IMPORTANT: Count each package separately, do not mix package contents together before counting. Write these numbers on the board.
+
+(2)	Enter the numbers from the board for the whole class as a vector in R called mm. Use the mean command to compute the mean for the number of blue M&Ms per bag in the population.
+
+```{r}
+# enter the values from the board into a vector
+mm <- c()
+
+# compute mean and sd of mm vector
+mean(mm)
+
+```
+
+Since all the bags in the class are the populatoin, this value is the population mean. Population values are often written using Greek characters. Write the population mean with the Greek character for mean (µ pronounced mu).
+
+µ = 
+
+(3)	Use R to randomly select a sample of the number of blue m&ms from 10 packages from the mm vector and compute the mean and standard deviation. 
+
+```{r}
+# take a sample of 10 values from the mm vector
+sample1 <- sample(mm, 10)
+
+# examine the sample 
+sample1
+```
+
+```{r}
+# find the mean and standard deviation for the sample
+mean(sample1)
+
+```
+
+Take another sample and find the mean and standard deviation:
+
+```{r}
+# take a sample of 10 values from the mm vector
+sample2 <- sample(mm, 10)
+
+# examine the sample 
+sample2
+```
+
+```{r}
+# find the mean for the sample
+mean(sample2)
+
+```
+
+Write the means for your sample1 and sample2 on the board.
+
+(4)	Enter all the means from the class into a vector and name it sampmeans. Find the mean and standard deviation for the distribution of sample means, also known as the sampling distribution. Make a histogram of the sample means.
+
+```{r}
+# enter the values from the board into a vector
+sampmeans <- c()
+
+# compute mean and sd of mm vector
+mean(sampmeans)
+
+```
+
+Sampling distribution mean = 
+
+Sampling distribution standard deviation = 
+
+```{r}
+# plot a histogram of the sample means
+hist(sampmeans)
+```
+
+
+(5)	How close is the mean of the sampling distribution to the population mean?
+
+
+
+(6)	Count how many of the sample means are within 1 standard deviation of the sampling distribution mean. Count how many are within 2 standard deviations. What percentage are within 1 and 2 standard deviations of the sampling distribution mean?
+
+number of means within 1 standard deviation = 
+percentage of means within 1 standard deviation = 
+
+number of means within 2 standard deviations = 
+percentage of means within 2 standard deviations = 
+
+
+(7)	For a perfectly normally distributed variable, 68% of observations are within 1 standard deviation of the mean and 95% of observations are within 2 standard deivations of the mean. How do the percentages from #6 compare to what these percentages would be for a perfectly normally distributed variable?
+
+
+
+# The BIG idea:
+
+- It is often difficult or impossible to measure a population 
+- If you take multiple samples from the population, the mean of sample means will be close to the population mean  (mean of sample means = population mean) 
+- The sample means will also tend to be normally distributed 
+- Because they are normally distributed, 68% of sample means will be within one standard deviation of the mean of sample means and 95% will be within two standard deviations of the mean of sample means (remember, mean of sample means is a good estimate of the population mean) 
+- Therefore, any one sample, if collected carefully, has a high probability of representing what is going on in the population 
+
+This is called The Central Limit Theorem (CLT). The CLT allows us to estimate population parameters using sample statistics. 
+
