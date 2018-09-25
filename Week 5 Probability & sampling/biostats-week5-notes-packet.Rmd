@@ -16,7 +16,7 @@ This packet covers _probability_ and _sampling_ concepts:
 
 #1. Probability distributions
 
-The company that makes M&Ms used to conduct consumer preference tests to determine which colors people like best. For years they published the results on their website, and used the results to determine the proportion of M&Ms of each colors they would use in mixes of plain M&Ms. In 2008 this information disappeared from the website. The last known value were: 24% blue, 20% orange, 16% green, 14% yellow, 13% red, and 13% brown 
+The company that makes M&Ms used to conduct consumer preference tests to determine which colors people like best. For years they published the results on their website, and used the results to determine the proportion of M&Ms of each colors they would use in mixes of plain M&Ms. In 2008 this information disappeared from the website. The last known values were: 24% blue, 20% orange, 16% green, 14% yellow, 13% red, and 13% brown 
 
 ```{r echo=FALSE, warning = FALSE, message=FALSE}
 percent<-c(24, 20, 16, 14, 13, 13)
@@ -195,12 +195,12 @@ sd(hdemp$employees, na.rm = T)
 
 So, the mean number of employees in a state health department in 2010 was 2215.4 with a standard deviation of 2884.627.
 
-How close could we get to this number if we only had enough time and money to collect data on 20 state health departments?
+How close could we get to this number if we only had enough time and money to collect data on 25 state health departments?
 
 ```{r}
-# sample 20 health departments at random 
+# sample 25 health departments at random 
 # find the mean number of employees in each sample
-# run the code 20 times and record the values
+# run the code 25 times and record the values
 s1 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
 mean(s1$employees)
 ```
