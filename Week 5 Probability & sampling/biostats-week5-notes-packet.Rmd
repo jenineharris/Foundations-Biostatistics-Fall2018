@@ -195,7 +195,7 @@ sd(hdemp$employees, na.rm = T)
 
 So, the mean number of employees in a state health department in 2010 was 2215.4 with a standard deviation of 2884.627.
 
-How close could we get to this number if we only had enough time and money to collect data on 25 state health departments?
+How close could we get to this number if we only had enough time and money to collect data on 20 state health departments?
 
 ```{r}
 # sample 25 health departments at random 
@@ -206,7 +206,7 @@ mean(s1$employees)
 ```
 
 ```{r}
-# run the code another 19 times
+# run the code another 24 times
 s2 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
 s3 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
 s4 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
