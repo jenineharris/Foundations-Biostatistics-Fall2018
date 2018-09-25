@@ -42,7 +42,22 @@ The binomial distribution is defined by two things:
 * n - the number of observations (e.g., coin flips, people surveyed, M&Ms selected)   
 * p - the probability of _success_ (e.g., 50% chance of heads, 21% chance of being a smoker in Missouri, 20% chance of an orange M&M) 
 
-If we selected 40 M&Ms, and we knew that the likelihood of orange was 20% or .2 for each selection, the binomial distribution function can tell us how likely it is we will choose exactly 10 orange M&Ms. The 10 is represented by x in the formulas:
+The binomial distribution can be displayed graphically:
+
+```{r echo=FALSE, warning = FALSE, message=FALSE}
+x <- seq(0,40,1)
+binom_data <- data.frame(x = seq(0,40,1), y = dbinom(x,40,.2), probability = .2)
+binom_data$probability <- as.factor(binom_data$probability)
+
+ggplot(data = binom_data, aes(x = x, y = y, fill = probability)) +
+  geom_polygon() +
+  xlab("Exact number of events to occur (x)") + 
+  ylab("Probability (p)") +
+  ggtitle("Binomial distribution for the probability of x with sample size 40 (n = 40)") + scale_fill_brewer(palette = "Dark2") + theme_minimal() + guides(fill = FALSE)
+
+```
+
+We can use the function underlying this figure to compute probabilities.  If we know that orange was 20% or .2 for each selection, the binomial distribution function can tell us how likely it is we will choose *exactly* 10 orange M&Ms in 40 tries. The 10 is represented by x in the formulas:
 
 \[
 f(x) = {{n}\choose{x}} \cdot p^x \cdot (1-p)^{(n-x)}
@@ -65,23 +80,6 @@ Or, we can just let R do it for us using the `dbinom` command. The `dbinom` comm
 dbinom(x = 10, size = 40, prob = .2)                  
 ```
 
-The binomial distribution can also be displayed graphically:
-
-```{r echo=FALSE, warning = FALSE, message=FALSE}
-x <- seq(0,40,1)
-binom_data <- data.frame(x = seq(0,40,1), y = dbinom(x,40,.2), probability = .2)
-binom_data2 <- data.frame(x = seq(0,40,1), y = dbinom(x,40,.5), probability = .5)
-bi_data <- rbind(binom_data, binom_data2)
-bi_data$probability <- as.factor(bi_data$probability)
-
-ggplot(data = bi_data, aes(x = x, y = y, fill = probability)) +
-  geom_polygon() +
-  facet_grid(cols = vars(probability), labeller = label_both) + 
-  xlab("Exact number of events to occur (x)") + 
-  ylab("Probability (p)") +
-  ggtitle("Binomial distribution for the probability of x with sample size 40 (n = 40)") + scale_fill_brewer(palette = "Dark2") + theme_minimal() + guides(fill = FALSE)
-
-```
 
 #3. Normal distribution
 
@@ -341,11 +339,10 @@ sd(s25$employees)/sqrt(length(s25))
 Alrighty, time to pull some things together. We know: 
 
 * how to compute the mean of a variable in a sample 
-* how to compute the standard error of a sample to estimate the standard deviation of the sampling distribution
-* the mean of the sampling distribution is a good estimate of the mean in the population 
-* how many standard deviations away from the mean most observations are 
+* how a sample mean is likely to be within one or two standard dev of the population mean
+* how to compute the standard error of a sample to estimate the standard deviation of the population
 
-We can use these three things to create an _interval_ around the mean that quantifies the uncertainty of the estimate from a sample and gives us a _better idea about where the true population mean lies_. So, when you got a mean value and standard error for number of employees from a sample, you could use these to create a range of values where the true population mean for number of employees likely lies.
+We can use these four things to create an _interval_ around the mean that quantifies the uncertainty of the estimate from a sample and gives us a _better idea about where the true population mean lies_. So, when you got a mean value and standard error for number of employees from a sample, you could use these to create a range of values where the true population mean for number of employees likely lies.
 
 For example, open the smokers data set from \url{http://tinyurl.com/z2m3cgq}. This is a sample of 100 smokers from Missouri. Compute the mean and standard error of the mean for number of cigarettes smoked per day (numcigs):
 ```{r}
@@ -382,8 +379,6 @@ mean.numcigs - 1.96*err.numcigs
 The 95% confidence interval for the mean number of cigarettes per day is 16.97-20.18.
 
 Note that the number of standard deviations is a z-score, so the formulas are often written: 
-
-
 mean + z * standard error
 
 mean - z * standard error
