@@ -1,9 +1,6 @@
 ---
 title: 'Biostats week 5: Probability and Sampling Distributions'
-author: "Jenine Harris"
-output:
-  html_document:
-    df_print: paged
+output: html_document
 ---
 
 # Outline
@@ -38,34 +35,34 @@ There are many different probability distributions that most statistics in socia
 
 #2. The binomial distribution
 
-The binomial distribution is used when a variable has two possible outcomes. The most common example is flipping a coin, but in public health, social work, and social policy there are many variables that have two outcomes: alive & dead, smoker & non-smoker, healthy weight & unhealthy weight, depressed & not depressed. We could even consider our M&M example if we were interested in the probability of picking a red M&M or non-red M&M.
+The binomial distribution is used to show probability when a variable has two possible outcomes. The most common example is flipping a coin, but in public health, social work, and social policy there are many variables that have two outcomes: alive & dead, smoker & non-smoker, healthy weight & unhealthy weight, depressed & not depressed. We could even consider our M&M example if we were interested in the probability of picking a red M&M or non-red M&M.
 
 The binomial distribution is defined by two things: 
 
 * n - the number of observations (e.g., coin flips, people surveyed, M&Ms selected)   
-* p - the probability of _success_ (e.g., 50% chance of heads, 21% chance of being a smoker in Missouri, 20% chance of a red M&M)
+* p - the probability of _success_ (e.g., 50% chance of heads, 21% chance of being a smoker in Missouri, 20% chance of an orange M&M) 
 
-If we selected 20 M&Ms, and we knew that the likelihood of red was 20% or .2 for each selection, the binomial distribution function can tell us how likely it is we will choose exactly 10 red M&Ms:
+If we selected 40 M&Ms, and we knew that the likelihood of orange was 20% or .2 for each selection, the binomial distribution function can tell us how likely it is we will choose exactly 10 orange M&Ms. The 10 is represented by x in the formulas:
 
 \[
 f(x) = {{n}\choose{x}} \cdot p^x \cdot (1-p)^{(n-x)}
 \]
 
 \[
-f(10) = {{20}\choose{10}} \cdot .2^{10} \cdot (1-.2)^{(20-10)}
+f(10) = {{40}\choose{10}} \cdot .2^{10} \cdot (1-.2)^{(40-10)}
 \]
 
 \[
-f(10) = .002
+f(10) = .11
 \]
 
-There is a .2% probability of choosing exactly 10 red M&Ms if we chose 20 at random from a mix with 20% red M&Ms.
+There is an 11% probability of choosing exactly 10 orange M&Ms if we chose 40 at random from a mix with 20% orange M&Ms.
 
-Or, we can just let R do it for us using the `dbinom` command. The `dbinom` command takes three arguments: x, size, and prob. The first argument, `x` is the exact number of events to occur, `size` is the number selected, and `prob` is the probability of a single `x` occuring.
+Or, we can just let R do it for us using the `dbinom` command. The `dbinom` command takes three arguments: x, size, and prob. The first argument, `x` is the exact number of events to occur, `size` is the number selected (n), and `prob` is the probability of a single `x` occuring.
 
 ```{r}
-# find probability when x = 10, n = 20, p = .2
-dbinom(x = 10, size = 20, prob = .2)                  
+# find probability when x = 10, n = 40, p = .2
+dbinom(x = 10, size = 40, prob = .2)                  
 ```
 
 The binomial distribution can also be displayed graphically:
@@ -83,9 +80,6 @@ ggplot(data = bi_data, aes(x = x, y = y, fill = probability)) +
   xlab("Exact number of events to occur (x)") + 
   ylab("Probability (p)") +
   ggtitle("Binomial distribution for the probability of x with sample size 40 (n = 40)") + scale_fill_brewer(palette = "Dark2") + theme_minimal() + guides(fill = FALSE)
-
-
-
 
 ```
 
@@ -265,7 +259,7 @@ mean(mean.25samp)
 mean(hdemp$employees, na.rm = T)
 ```
 
-No, find mean number of employees in each of 50 random samples of 20 health departments. Luckily, R will do this for us automatically, we do not have to take 50 samples and then find the mean of the means:
+Now, find the mean number of employees in each of 50 random samples of 20 health departments. Luckily, R will do this for us automatically, we do not have to take 50 samples and then find the mean of the means:
 
 ```{r}
 # create a blank numeric vector with 50 entries
