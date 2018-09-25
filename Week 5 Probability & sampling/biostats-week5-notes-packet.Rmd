@@ -35,7 +35,7 @@ There are many different probability distributions that most statistics in socia
 
 #2. The binomial distribution
 
-The binomial distribution is used to show probability when a variable has two possible outcomes. The most common example is flipping a coin, but in public health, social work, and social policy there are many variables that have two outcomes: alive & dead, smoker & non-smoker, healthy weight & unhealthy weight, depressed & not depressed. We could even consider our M&M example if we were interested in the probability of picking a red M&M or non-red M&M.
+The binomial distribution is used to show probability when a variable has two possible outcomes. The most common example is flipping a coin, but in public health, social work, and social policy there are many variables that have two outcomes: alive & dead, smoker & non-smoker, healthy weight & unhealthy weight, policy or no policy, depressed & not depressed. We could even consider our M&M example if we were interested in the probability of picking an orange M&M or non-orange M&M.
 
 The binomial distribution is defined by two things: 
 
