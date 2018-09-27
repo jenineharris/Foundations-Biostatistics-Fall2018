@@ -309,21 +309,13 @@ Another characteristic of sampling distributions is that the standard deviation 
 
 where $\sigma$ is the population standard deviation and n is the size of the samples used to make the distribution. So, we could use the standard deviation of the sampling distribution to find the population standard deviation:
 
-```{r}
-# sampling distribution standard dev
-sd(means.of.our.10000samples)
-
-# mulitply by sqrt(n) to estimate population standard dev
-sd(means.of.our.10000samples)*sqrt(20)
-```
-
 Since we don't usually have the population standard deviation and we can't usually take 10,000 samples and get the standard deviation, an approximation to this value is called the _standard error_ and is computed:
 
 \[
 \frac{s}{\sqrt{n}}
 \]
 
-where s is the sample standard deviation and n is the sample size. This value estimates the population standard deviation.
+where s is the sample standard deviation and n is the sample size. This value estimates the sampling distribution standard deviation.
 
 We can compute the standard error for one of the samples of 25 health departments we took:
 ```{r}
@@ -331,7 +323,7 @@ We can compute the standard error for one of the samples of 25 health department
 mean(s25$employees)
 
 # se of sample 25 
-sd(s25$employees)/sqrt(length(s25))
+sd(s25$employees)/sqrt(20)
 ```
 
 #6. Estimating intervals
@@ -340,9 +332,9 @@ Alrighty, time to pull some things together. We know:
 
 * how to compute the mean of a variable in a sample 
 * how a sample mean is likely to be within one or two standard dev of the population mean
-* how to compute the standard error of a sample to estimate the standard deviation of the population
+* how to compute the standard error of a sample to estimate the standard deviation of the sampling distribution
 
-We can use these four things to create an _interval_ around the mean that quantifies the uncertainty of the estimate from a sample and gives us a _better idea about where the true population mean lies_. So, when you got a mean value and standard error for number of employees from a sample, you could use these to create a range of values where the true population mean for number of employees likely lies.
+We can use these three things to create an _interval_ around the mean that quantifies the uncertainty of the estimate from a sample and gives us a _better idea about where the true population mean lies_. So, when you got a mean value and standard error for number of employees from a sample, you could use these to create a range of values where the true population mean for number of employees likely lies.
 
 For example, open the smokers data set from \url{http://tinyurl.com/z2m3cgq}. This is a sample of 100 smokers from Missouri. Compute the mean and standard error of the mean for number of cigarettes smoked per day (numcigs):
 ```{r}
@@ -354,7 +346,7 @@ mean.numcigs <- mean(smokers$numcigs, na.rm=TRUE)
 mean.numcigs
 
 # standard error for the number of cigarettes per day
-err.numcigs <- sd(smokers$numcigs, na.rm=TRUE)/sqrt(length(smokers$numcigs))
+err.numcigs <- sd(smokers$numcigs, na.rm=TRUE)/sqrt(100)
 err.numcigs
 ```
 
@@ -363,8 +355,8 @@ Choose what sort of interval you would like. Most of the time you will see 95% i
 ....so....
 
 * 95% of values lie within 2 standard deviations of the mean (this is actually rounded up from 1.96) 
-* the standard error of a sample is a good estimate of the standard deviation in the population 
-* so most sample means will fall within 1.96 standard errors of the population mean 
+* the standard error of a sample is a good estimate of the standard deviation in the sampling distribution  
+* so most sample means will fall within 1.96 standard errors of the mean of the sample means, which is very close to the population mean 
 
 We got a sample mean of 18.58 cigarettes per day and a standard error of .81 for this mean. Compute the _95% confidence interval_.
 
@@ -391,7 +383,7 @@ Use the kable table to report means, sd, se, and CI for multiple variables at on
 # get numcigs mean, sd, se, ci
 mean.numcigs <- mean(smokers$numcigs, na.rm = TRUE)
 sd.numcigs <- sd(smokers$numcigs, na.rm = TRUE)
-se.numcigs <- sd.numcigs/sqrt(length(smokers$numcigs))
+se.numcigs <- sd.numcigs/sqrt(100)
 ciLower.numcigs <- mean.numcigs - 1.96*se.numcigs
 ciUpper.numcigs <- mean.numcigs + 1.96*se.numcigs
 
@@ -403,7 +395,7 @@ numcigs.stats <- c(mean = mean.numcigs, sd = sd.numcigs,
 # get age mean, sd, se, ci 
 mean.age <- mean(smokers$age, na.rm = TRUE)
 sd.age <- sd(smokers$age, na.rm = TRUE)
-se.age <- sd.age/sqrt(length(smokers$age))
+se.age <- sd.age/sqrt(100)
 ciLower.age <- mean.age - 1.96*se.age
 ciUpper.age <- mean.age + 1.96*se.age
 
