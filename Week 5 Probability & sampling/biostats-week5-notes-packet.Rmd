@@ -1,6 +1,7 @@
 ---
 title: 'Biostats week 5: Probability and Sampling Distributions'
-output: html_document
+output:
+  html_document: default
 ---
 
 # Outline
@@ -196,7 +197,7 @@ So, the mean number of employees in a state health department in 2010 was 2215.4
 How close could we get to this number if we only had enough time and money to collect data on 20 state health departments?
 
 ```{r}
-# sample 25 health departments at random 
+# sample 20 health departments at random 
 # find the mean number of employees in each sample
 # run the code 25 times and record the values
 s1 <- hdemp[sample(1:nrow(hdemp), 20, replace=FALSE),]
@@ -413,7 +414,7 @@ smokers.stats <- cbind(Characteristic, smokers.stats)
 
 # kable table with 1 digit after the decimal place
 library(kableExtra)
-kable(smokers.stats, "html", row.names = FALSE, digits = 1,
+kable(smokers.stats, "latex", row.names = FALSE, digits = 1,
       caption = "Table 1. Smoking characteristics of Missouri smokers (2013).") %>%
   kable_styling("condensed", full_width = TRUE)
 
