@@ -381,7 +381,9 @@ mean.numcigs - 1.96*err.numcigs
 
 The 95% confidence interval for the mean number of cigarettes per day is 16.97-20.18.
 
-Note that the number of standard deviations is a z-score, so the formulas are often written: 
+Note that the number of standard deviations is a z-score, so the formulas are often written:
+
+
 mean + z * standard error
 
 mean - z * standard error
