@@ -424,7 +424,7 @@ smokers.stats <- cbind(Characteristic, smokers.stats)
 
 # kable table with 1 digit after the decimal place
 library(kableExtra)
-kable(smokers.stats, "latex", row.names = FALSE, digits = 1,
+kable(smokers.stats, "html", row.names = FALSE, digits = 1,
       caption = "Table 1. Smoking characteristics of Missouri smokers (2013).") %>%
   kable_styling("condensed", full_width = TRUE)
 
