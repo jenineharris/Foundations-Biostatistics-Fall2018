@@ -310,6 +310,16 @@ Another characteristic of sampling distributions is that the standard deviation 
 
 where $\sigma$ is the population standard deviation and n is the size of the samples used to make the distribution. So, we could use the standard deviation of the sampling distribution to find the population standard deviation:
 
+\[
+s_{samp dist} = \frac{\sigma}{\sqrt{n}}
+\]
+
+so
+
+\[
+s_{samp dist} * {\sqrt{n}} = {\sigma}
+\]
+
 Since we don't usually have the population standard deviation and we can't usually take 10,000 samples and get the standard deviation, an approximation to this value is called the _standard error_ and is computed:
 
 \[
