@@ -1,0 +1,294 @@
+---
+title: "Week 6: Chi-squared workshop"
+output: html_document
+---
+
+# PART I: ANIMAL INJURY STUDY
+
+# What is chi-squared?
+
+Chi-squared is a statistical test to determine whether two categorical variables may be associated. For example:
+
+* Are people with different religious affiliations equally likely to be smokers or non-smokers? 
+
+* Are people with diabetes equally likely to exercise 3 or more time per week as those without diabetes?
+
+* Are herbivores and carnivores equally likely to be injured or not injured at the hands of a careless zookeeper?
+
+# What is chi-squared? 
+
+A chi-squared statistic is computed by finding the difference between what is _observed_ in your data and what is _expected_ *if there were no relationship between two variables*. 
+
+* Small values of chi-squared indicate there is little difference between observed and expected values
+    + Small chi-squared values indicate there is likely *no* relationship between the variables 
+
+* Large values of chi-squared indicate there is a big difference between what is observed in the data and what is expected 
+    + Large chi-squared values indicate there is likely a relationship between the variables
+
+The chi-squared probability distribution includes all possible values of chi-squared and the probability of each value. The question that the chi-squared distribution can help you answer is:
+
+* What is the probability that you would get a chi-squared as least as big as the one you calculated from your sample, if there were no relationship between the two variables in the population?
+
+# The chi-squared distribution 
+
+The chi-squared distribution looks different than the binomial or normal distributions. Specifically, it has one tail instead of two. Since the chi-squared statistic is _squared,_ it will never go below zero and the extreme values are always large and positive. The shape of the chi-squared distribution changes slightly with different sample sizes, similar to how the normal distribution changes with different 
+
+Run this code to see a few chi-squared distributions: 
+
+```{r echo=FALSE}
+par(mfrow=c(1,3))
+curve( dchisq(x, df=1), main = "Chi-squared dist (1 d.f.)",
+          from=0,to=40, xlab="chi-squared", ylab="probability under null")
+abline(v=3.84, col="orange", lty="dashed")
+curve( dchisq(x, df=4), main = "Chi-Squared dist (4 d.f.)",
+          from=0,to=40, xlab="chi-squared", ylab="probability under null")
+abline(v=9.49, col="orange", lty="dashed")
+curve( dchisq(x, df=9), main = "Chi-Squared dist (9 d.f.)",
+          from=0,to=40, xlab="chi-squared", ylab="probability under null")
+abline(v=16.92, col="orange", lty="dashed")
+```
+
+For each graph, the dotted line shows the cutoff where 95% of observations are to the left of the line and 5% are to the right of the line. 
+
+When a chi-squared statistic falls to the right of the line, this indicates there is a big difference between observed and expected values. This corresponds with a small probability that there is no relationship between the variables. In other words, the sample likely comes from a population where there is a relationship between the variables. 
+
+THE BOTTOM LINE...
+
+* Large values of chi-squared occur when there are big differences between observed and the values expected if there were no relationship. 
+* These big differences, therefore, suggest a relationship between the variables. 
+* The chi-squared distribution provides the probability that the differences between observed and expected would occur if there were no actual relationship between the variables. 
+* Large probabilities indicate it is likely there is no relationship, small probabilities indicate it is likely there is a relationship.
+
+# Conduct a chi-squared analysis
+
+Enter the data from your zookeeper study to conduct a chi-squared analysis to answer the third question. Enter your data in two vectors and then combine them into a data frame. For animal type enter "herbivore" or "carnivore"; for injured enter "yes" or "no".
+
+```{r}
+# enter the raw data
+animal.type <- c()
+injured <- c()
+
+# combine into data frame
+animal.injuries <- data.frame(animal.type, injured)
+```
+
+
+# Null hypothesis significance testing (NHIST)
+
+You have probably seen or heard or read something that claims a relationship is statistically significant. You may have even heard of the p < .05 cutoff before. This terminology comes primarily from the process of NHIST. NHIST starts with writing a null hypothesis which states that there is NO RELATIONSHIP or NO EFFECT between variables. 
+
+The process of NHIST is: 
+
+* Write the null and alternate hypotheses 
+* Compute the appropriate test statistic 
+* Calculate the probability that your test statistic is as big as it is if there is no relationship (i.e., the null is true) 
+* If the probability that the null is true is very small--less than 5%--reject the null hypothesis 
+* If the probability that the null is true is not small--5% or higher--retain the null hypothesis 
+
+# NHIST and chi-squared
+
+## Write the null and alternate hypotheses
+
+The null hypothesis testing in a chi-squared test is determining whether two categorical variables are related to one another. The first step is writing the null hypothesis. The null hypothesis states that there is no association between two things, while the alternate hypothesis states that there is a relationship between two things. For example, if the two variables of interest were smoking status and marital status, the hypotheses would be:
+
+_Null: There is no relationship between smoking status and marital status._
+
+_Alternate: There is a relationship between smoking status and marital status._
+
+Complete the null and alternate hypotheses for the careless zookeeper study:
+
+Null: There is no relationship between...
+
+Alternate: There is a relationship between...
+
+## Compute the appropriate test statistic 
+
+### Examine your data first!
+
+Before conducting a statistical test, ALWAYS examine your data using descriptive statistics and/or a graph appropriate for the types of variables you are working with. In this case, use statistics and a graph to make an informal prediction about whether you think there is a relationship animal type and injury.
+
+```{r}
+# statistics examining relationship between animal type and injury
+
+# graph examining the relationship between animal type and injury
+
+
+```
+
+Question: Based on your descriptive statistics and graph does it look like there may be a relationship between animal type and injury? Why or why not?
+
+
+
+### Calculate the test statistic 
+
+Now that you have made a prediction, calculate the test statistic. Install the `descr` package before running the analyses:
+
+```{r}
+# open the descr library to use the CrossTable command for chi-squared
+# install descr if needed first using the Tools menu
+library(descr)
+
+# calculate the chi-squared
+chi.animals <- CrossTable(x = animal.injuries$animal.type,   # enter one of the variables as x
+                          y = animal.injuries$injured,       # enter the other variable as y
+                          chisq=TRUE)                        # include the chi-squared in the output
+chi-animals
+```
+
+### Make the output less confusing 
+
+```{r}
+# clean up chi-squared output
+chi.animals.simp <- CrossTable(x = animal.injuries$animal.type,   # enter one of the variables as x
+                               y = animal.injuries$injured,       # enter the other variable as y
+                               chisq = TRUE,                      # include the chi-squared 
+                               prop.t = FALSE, prop.c = FALSE,    # remove percentages
+                               prop.chisq = FALSE)                # remove percentages
+chi.animals.simp
+```
+
+### Calculate the probability that your test statistic is as big as it is if there is no relationship (i.e., the null is true)
+
+The probability that the test statistic is as big as it is if there is no relationship is listed in the output from the analyses above as the p-value. The p-value is the percent of the time that a chi-squared as big as the one you computed would occure if there were no relationship in the population between the two variables.
+
+When this population is below a certain threshold that we choose, usually .05, we conclude that the relationship in the sample is likely to be a good representation of what is happening in the population.
+
+### If the probability that the null is true is very small--less than 5%--reject the null hypothesis; if the probability that the null is true is not small--5% or higher--retain the null hypothesis 
+
+Choose the appropriate statement and fill in the value of chi-squared and p:
+
+* I would reject the null hypothesis; there is a statistically significant association between animal type and injury (chi-squared = ; p  ).
+
+* I would fail to reject the null hypothesis; there is no statistically significant association between animal type and injury (chi-squared = ; p  ).
+
+We can visualize this chi-squared statistic on the distribution where the orange dotted lines shows us the cutoff for extreme values where the area under the curve to the right contains 5% of observations. The blue line is our chi-squared statistic. Run the code chunk to see the chi-squared distribution with the value computed.
+
+```{r echo=FALSE}
+# visualization of chi-squared distribution with chi-squared
+# from animal injury study
+curve(dchisq(x, df = chi.animals.simp$df), main = "Chi-squared dist",
+          from=0,to=40, xlab="chi-squared", ylab="probability under null")
+abline(v = qchisq(.95, df = chi.animals.simp$df), col="orange", lty="dashed")
+abline(v = chi.animals.simp$chisq, col = "blue")
+```
+
+# Learning more about the relationship OPTION 1
+
+The chi-squared statistic determines whether or not there is a statistically significant relationship between two categorical variables. To know what the relationship is, we can use the standardized residuals (like z-scores) to determine which of the frequencies in the CrossTable are significantly greater (or smaller) than we would expect to see just by chance. 
+
+The standardized residual subtracts the expected value in a cell from the observed value in a cell and divides by the square root of the expected value (think about standard error!):
+
+\[
+standardizedresidual =\frac{observed - expected}{\sqrt{expected}}
+\]
+
+## Check the standardized residuals with a crosstabs option
+
+```{r}
+# chi-squared with standardized residuals
+chi.animals.simp <- CrossTable(x = animal.injuries$animal.type,   # enter one of the variables as x
+                               y = animal.injuries$injured,       # enter the other variable as y
+                               chisq = TRUE,                      # include the chi-squared 
+                               sresid = TRUE,                     # include the standaridized resid
+                               prop.t = FALSE, prop.c = FALSE,    # remove percentages
+                               prop.chisq = FALSE)                # remove percentages
+chi.animals.simp
+```
+
+Standardized residuals greater than 2 indicate a higher frequency than expected in the cell. Standardized residuals less than -2 indicate a lower frequency than expected in the cell. For example, if the standardized residual for injured herbivores was 3.46 we would state: _Based on standardized residuals, there were significantly more injured herbivores than expected._ As another example, if the standardized residual for injured carnivores was -5.3 we would state: _Based on standardized residuals, there were significantly fewer injured carnivores than expected._
+
+Interpret your standardized residuals:
+
+
+
+
+
+
+# Learning more about the relationship OPTION 2 (2x2 tables only)
+
+If you have two variables and each has only two values, you can compute an odds ratio to determine how strong the relationship is between the "exposure" and the "disease."
+
+For the injured animals data we can set:
+
+- herbivore as the exposure
+- injury as the disease
+
+## Calculating the OR and a confidence interval
+
+```{r}
+# install the fmsb package before you begin
+library(fmsb)
+# enter frequencies a, b, c, d 
+# a is both "exposure" and "disease" (injured herbivores)
+# b is disease but not exposure (injured carnivores)
+# c is exposure but no disease (non-injured herbivores)
+# d is neither exposure nor disease (non-injured carnivores)
+oddsratio(16,4,5,21)
+```
+
+# Interpreting the OR and CI
+
+Like the confidence interval around the mean, the confidence interval around the odds ratio indicates what the odds ratio likely is in the population that the sample came from (given good sampling!). So, for example, in the animal injury example, an odds ratio of 16.8 with a 95% CI of 3.9-72.8 would be interpreted as: Herbivores have 16.8 times higher odds of injury compared to carnivores. In the population, the true value of this OR is likely between 3.9 and 72.8.
+
+We would usually write:
+
+Herbivores are 16.8 times more likely to be injured than carnivores (OR=16.8, 95% CI: 3.9-72.8). 
+
+Write the interpretation based on the OR and CI you computed above:
+
+
+# PART II: Relationship between smoking status and sex from NHANES
+
+Bring in the SMQ_H questionnaire data from the 2013-2014 NHANES and use chi-squared to answer the research question: 
+
+_Is there a relationship between sex and smoking status?_
+
+Include at least: 
+
+* The appropriate descriptive statistics and a graph examining the relationship before analyses 
+* A prediction about whether there is a relationship based on the descriptive statistics and graph 
+* The null and alternate hypotheses you are testing 
+* The chi-squared analysis 
+* A statement of whether you reject or fail to reject the null hypothesis, including the value of the chi-squared statistic and p-value 
+* An examination of the standardized residuals with conclusions about which (if any) groups had significantly higher or lower than expected frequencies 
+* A concluding statement about the relationship between sex and smoking status 
+
+Feel free to add additional R code chunks from the Insert menu at the top of this pane.
+
+```{r}
+# bring in the data
+
+
+
+```
+
+```{r}
+# descriptive statistics and a graph examining relationship 
+
+
+```
+
+Prediction: 
+
+Null hypothesis:
+
+Alternate hypothesis: 
+
+```{r}
+# chi-squared analysis with standardized residuals
+
+
+```
+
+Statement about null hypothesis: 
+
+Statement about standardized residuals: 
+
+Conclusion: 
+
+
+
+KNIT THE DOCUMENT TO MAKE SURE YOU'VE INCLUDED THE NECESSARY LIBRARIES AND DATA FRAMES. SUBMIT THE .RMD FILE TO BLACKBOARD.
+
+
+
