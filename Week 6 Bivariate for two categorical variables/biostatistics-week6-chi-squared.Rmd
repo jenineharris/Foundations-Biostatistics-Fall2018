@@ -31,7 +31,7 @@ The chi-squared probability distribution includes all possible values of chi-squ
 
 # The chi-squared distribution 
 
-The chi-squared distribution looks different than the binomial or normal distributions. Specifically, it has one tail instead of two. Since the chi-squared statistic is _squared,_ it will never go below zero and the extreme values are always large and positive. The shape of the chi-squared distribution changes slightly with different sample sizes, similar to how the normal distribution changes with different 
+The chi-squared distribution looks different than the binomial or normal distributions. Specifically, it has one tail instead of two. Since the chi-squared statistic is _squared,_ it will never go below zero and the extreme values are always large and positive. The shape of the chi-squared distribution changes slightly depending on the number of groups in your two categorical variables, similar to how the normal distribution changes with different values of the mean and standard deviation.
 
 Run this code to see a few chi-squared distributions: 
 
