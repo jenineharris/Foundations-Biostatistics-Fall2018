@@ -129,9 +129,9 @@ Now that you have made a prediction, calculate the test statistic. Install the `
 library(descr)
 
 # calculate the chi-squared
-chi.animals <- CrossTable(x = animal.injuries$animal.type,   # enter one of the variables as x
-                          y = animal.injuries$injured,       # enter the other variable as y
-                          chisq=TRUE)                        # include the chi-squared in the output
+chi.animals <- CrossTable(x = animal.injuries$animal.type,   # enter a variable as x
+                          y = animal.injuries$injured,       # enter other variable as y
+                          chisq=TRUE)                        # include chi-squared in output
 chi-animals
 ```
 
@@ -139,9 +139,9 @@ chi-animals
 
 ```{r}
 # clean up chi-squared output
-chi.animals.simp <- CrossTable(x = animal.injuries$animal.type,   # enter one of the variables as x
-                               y = animal.injuries$injured,       # enter the other variable as y
-                               chisq = TRUE,                      # include the chi-squared 
+chi.animals.simp <- CrossTable(x = animal.injuries$animal.type,   # enter a variable as x
+                               y = animal.injuries$injured,       # enter other variable as y
+                               chisq = TRUE,                      # include chi-squared 
                                prop.t = FALSE, prop.c = FALSE,    # remove percentages
                                prop.chisq = FALSE)                # remove percentages
 chi.animals.simp
@@ -155,47 +155,38 @@ When this population is below a certain threshold that we choose, usually .05, w
 
 ### If the probability that the null is true is very small--less than 5%--reject the null hypothesis; if the probability that the null is true is not small--5% or higher--retain the null hypothesis 
 
-Choose the appropriate statement and fill in the value of chi-squared and p:
+Choose the appropriate statement and _fill in the value of chi-squared and p_:
 
 * I would reject the null hypothesis; there is a statistically significant association between animal type and injury (chi-squared = ; p  ).
 
 * I would fail to reject the null hypothesis; there is no statistically significant association between animal type and injury (chi-squared = ; p  ).
 
-We can visualize this chi-squared statistic on the distribution where the orange dotted lines shows us the cutoff for extreme values where the area under the curve to the right contains 5% of observations. The blue line is our chi-squared statistic. Run the code chunk to see the chi-squared distribution with the value computed.
-
-```{r echo=FALSE}
-# visualization of chi-squared distribution with chi-squared
-# from animal injury study
-curve(dchisq(x, df = chi.animals.simp$df), main = "Chi-squared dist",
-          from=0,to=40, xlab="chi-squared", ylab="probability under null")
-abline(v = qchisq(.95, df = chi.animals.simp$df), col="orange", lty="dashed")
-abline(v = chi.animals.simp$chisq, col = "blue")
-```
-
 # Learning more about the relationship OPTION 1
 
-The chi-squared statistic determines whether or not there is a statistically significant relationship between two categorical variables. To know what the relationship is, we can use the standardized residuals (like z-scores) to determine which of the frequencies in the CrossTable are significantly greater (or smaller) than we would expect to see just by chance. 
+The chi-squared statistic determines whether or not there is a statistically significant relationship between two categorical variables. To know what the relationship is, we can use the standardized residuals (like z-scores) to determine which of the frequencies in the CrossTable are significantly greater (or smaller) than we would expect to see just by chance. Groups with large standardized residuals are contributing the most to the size of the chi-squared value, so they are the groups that are influencing most whether or not the chi-squared is significant.
 
-The standardized residual subtracts the expected value in a cell from the observed value in a cell and divides by the square root of the expected value (think about standard error!):
+The standardized residual is a z-score calculated by subtracting the expected value in a cell from the observed value in a cell and dividing by the square root of the expected value:
 
-\[
-standardizedresidual =\frac{observed - expected}{\sqrt{expected}}
-\]
+standardized residual = (observed - expected)/sqrt(expected) 
 
 ## Check the standardized residuals with a crosstabs option
 
 ```{r}
 # chi-squared with standardized residuals
-chi.animals.simp <- CrossTable(x = animal.injuries$animal.type,   # enter one of the variables as x
-                               y = animal.injuries$injured,       # enter the other variable as y
-                               chisq = TRUE,                      # include the chi-squared 
-                               sresid = TRUE,                     # include the standaridized resid
+chi.animals.simp <- CrossTable(x = animal.injuries$animal.type,   # enter a variables as x
+                               y = animal.injuries$injured,       # enter other variable as y
+                               chisq = TRUE,                      # include chi-squared 
+                               sresid = TRUE,                     # include stan resid
                                prop.t = FALSE, prop.c = FALSE,    # remove percentages
                                prop.chisq = FALSE)                # remove percentages
 chi.animals.simp
 ```
 
+Look at the key just above the table to know which rows represent which values. The first row represents the frequencies, the second is the percentages by row, and the third in each cell is the standardized residual.
+
 Standardized residuals greater than 2 indicate a higher frequency than expected in the cell. Standardized residuals less than -2 indicate a lower frequency than expected in the cell. For example, if the standardized residual for injured herbivores was 3.46 we would state: _Based on standardized residuals, there were significantly more injured herbivores than expected._ As another example, if the standardized residual for injured carnivores was -5.3 we would state: _Based on standardized residuals, there were significantly fewer injured carnivores than expected._
+
+Sometimes even when there is a statistically significant chi-squared, there will be no standardized residuals that are > 2 or < -2, in these cases, interpret the largest positive or negative standardized residual since this is the group with a frequency that is much higher or lower than expected. 
 
 Interpret your standardized residuals:
 
@@ -241,11 +232,15 @@ Write the interpretation based on the OR and CI you computed above:
 
 Bring in the SMQ_H questionnaire data from the 2013-2014 NHANES and use chi-squared to answer the research question: 
 
-_Is there a relationship between sex and smoking status?_
+_Is there a relationship between sex (RIAGENDR) and smoking status (SMQ040)?_ 
+
+Codebook showing how the sex variable RIAGENDR is coded: https://wwwn.cdc.gov/Nchs/Nhanes/2013-2014/DEMO_H.htm
+
+Codebook showing how the smoking status variable SMQ040 is coded: https://wwwn.cdc.gov/Nchs/Nhanes/2013-2014/SMQ_H.htm 
 
 Include at least: 
 
-* The appropriate descriptive statistics and a graph examining the relationship before analyses 
+* The appropriate descriptive statistics and an appropriate graph of your choice examining the relationship 
 * A prediction about whether there is a relationship based on the descriptive statistics and graph 
 * The null and alternate hypotheses you are testing 
 * The chi-squared analysis 
@@ -257,14 +252,27 @@ Feel free to add additional R code chunks from the Insert menu at the top of thi
 
 ```{r}
 # bring in the data
-
+library(RNHANES)
+nhanes2013 <- nhanes_load_data(file_name = "SMQ_H",
+                               year = "2013-2014",
+                               demographics = TRUE)
 
 
 ```
 
 ```{r}
-# descriptive statistics and a graph examining relationship 
+# use recode to clean the variables if needed
+# open the car library to use the recode command
 
+```
+
+
+```{r}
+# descriptive statistics examining relationship 
+table(smoking =  , sex = )
+prop.table(table(smoking =  , sex = ), margin = 2) 
+
+# graph examining relationship 
 
 ```
 
@@ -276,11 +284,18 @@ Alternate hypothesis:
 
 ```{r}
 # chi-squared analysis with standardized residuals
-
+library(descr)
+chi.sex.smoking <- CrossTable(x = ,                
+                              y = ,            
+                              chisq = TRUE, 
+                              sresid = TRUE,       
+                              prop.t = FALSE, prop.c = FALSE,    
+                              prop.chisq = FALSE)                
+chi.sex.smoking
 
 ```
 
-Statement about null hypothesis: 
+Statement rejecting or failing to reject null hypothesis: 
 
 Statement about standardized residuals: 
 
