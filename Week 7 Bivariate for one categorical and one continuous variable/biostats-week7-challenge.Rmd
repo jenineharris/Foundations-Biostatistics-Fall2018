@@ -1,0 +1,55 @@
+---
+title: "Week 7 Challenge"
+output: html_document
+---
+
+# Instructions
+
+The younger people are when they start smoking, the more poor health outcomes they have over time (see: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6086419/). As states start to change policy and legalize marijuana for recreational use, its use may increase and it will be important to understand the health consequences. 
+
+Use the NHANES 2015-2016 Drug Use (DUQ_I) data with demographics to learn more about the age people start using marijuana regularly (DUQ213) by answering the questions below in the Standard or Hacker version. Be sure to clean the variables first to get rid of any values that don't make sense (like 777, 999). For each question, include the following: 
+
+* The null and alternate hypotheses for the appropriate t-test or ANOVA
+* The appropriate t-test or ANOVA conducted with R code 
+* A statement about whether you reject or fail to reject the null hypothesis 
+* A check of the assumptions 
+* A statement about meeting or failing to meet each assumption 
+* The appropriate alternate test if any of the assumptions are failed 
+* An interpretation of the results including descriptive statistics (e.g., means or medians) and a graph supporting what you found
+
+Once you have completed the work for the three questions, format it to look like a brief report on smoking initiation: 
+
+* Delete all instructions 
+* Change the title at the top of the R Markdown document from "Week 7 Challenge" to "An analysis of regular marijuana use among 2015-2016 NHANES participants" 
+* Run a spell check by clicking on the button at the top with a checkmark and ABC and fix any spelling issues 
+* Knit the document to make sure everything works; fix anything that does not work 
+* Submit an Rmd file that knits without errors to Blackboard 
+
+## Standard edition
+
+1. Is 18 the mean age for people to start using marijuana regularly? (Hint: one-sample t-test with DUQ213 variable)
+
+```{r}
+
+```
+
+2. Does the mean age of starting regular marijuana use differ by sex? (Hint: independent samples t-test with DUQ213 and RIAGENDR) 
+
+```{r}
+
+```
+
+3. Does the mean age of starting regular marijuana use may vary by race/ethnicity? (Hint: ANOVA with DUQ213 and RIDRETH1 or RIDRETH3) If your results are significant, conduct the Bonferroni post-hoc test to determine which groups are the significantly  different.
+
+```{r}
+
+```
+
+4. Based on your results, who would you target with an intervention designed to decrease or delay smoking initation? 
+
+
+## Hacker edition
+
+Complete the standard edition with two changes: (1) if it is significant, follow-up the ANOVA in #3 with the Tukey Honestly Significant Differences (Tukey HSD) post-hoc test rather than the Bonferroni test, and (2) include a kable table with the mean age of starting regular marijuana use for males, females, each race/ethnicity, and altogether. 
+
+
