@@ -18,19 +18,19 @@ This packet reviews the basics of _hypothesis testing_ and several specific hypo
 
 #1. Null hypothesis significance testing (NHIST)
 
-You have probably seen or heard or read something that claims a relationship is statistically significant. You may have even heard of the magical p<.05 cutoff before. This terminology comes primarily from the process of NHIST. NHIST starts with writing a null hypothesis which states that there is NO RELATIONSHIP or NO EFFECT between variables.  
+Relationships among variables are often described as being *statistically significant* or *not statistically significant*. This terminology comes primarily from the process of NHIST. NHIST starts with writing a null hypothesis which states that there is NO RELATIONSHIP or NO EFFECT between variables.  
 
 The process of NHIST is: 
 
 #. Write the null and alternate hypotheses 
 #. Compute the appropriate test statistic 
 #. Calculate the probability that your test statistic is as big as it is if there is no relationship (i.e., the null is true) 
-#. If the probability that the null is true is very small--less than 5%--reject the null hypothesis 
+#. If the probability that the null is true is very small--less than 5%--reject the null hypothesis (if the p is low, the null must go!)
 #. If the probability that the null is true is not small--5% or higher--retain the null hypothesis 
 
-#2. One-sample t-test
+#2. One-sample t-test 
 
-The _one-sample t-test_ compares a sample mean to a hypothesized or population mean. For example, the red line represents in the graphic represents a hypothesized mean and the dotted line is the actual mean. The one-sample t-test compares the actual mean to the hypothesized mean to determine if the sample likely comes from a population with the hypothesized mean.
+The _one-sample t-test_ compares a sample mean to a hypothesized or population mean. For example, the dotted line represents in the graphic represents an actual observed mean and the red is the hypothesized or population mean. The one-sample t-test compares the actual mean to the hypothesized mean to determine if the sample likely comes from a population with the hypothesized mean.
 
 ```{r distributionImage1, echo=FALSE}
 library(ggplot2)
@@ -87,22 +87,23 @@ library(naniar)
 nSubjects = n_complete(smokeNHANES$numcigs)
 ```
 
-NHIST Step 1:
+NHIST Step 1: Write the null and alternate hypotheses 
 
 Null (H0): Smokers smoke an average of 20 cigarettes per day  
 Alternate (HA): Smokers do not smoke an average of 20 cigarettes per day
 
-Start with a graph to make a guess about what you think you are going to find:
+Start with a graph to make a guess about what you think you are going to find.
 ```{r plotHistOneSampleT, warning=FALSE, message=FALSE}
 # explore the data with a graph
 library(ggplot2)
 ggplot(data = smokeNHANES, aes(x = numcigs)) +
-  geom_histogram(bins = 50, na.rm = FALSE) +
+  geom_density(fill = 'pink') + 
   ggtitle("Number of cigarettes smoked by \n smokers each day (NHANES 2013-2014)")
 ```
 
 
-NHIST Step 2:
+NHIST Step 2: Compute the appropriate test statistic 
+
 $$t=\frac{`r meanCigs` - 20}{\frac{`r sdCigs`}{\sqrt{`r nSubjects`}}}=
 `r ((meanCigs - 20)/(sdCigs/sqrt(nSubjects)))`$$
 
@@ -112,9 +113,9 @@ $$t=\frac{`r meanCigs` - 20}{\frac{`r sdCigs`}{\sqrt{`r nSubjects`}}}=
 t.test(smokeNHANES$numcigs, mu=20)
 ```
 
-NHIST Step 3:
+NHIST Step 3:  Calculate the probability that your test statistic is as big as it is if there is no relationship (i.e., if the null is true)
 
-The t statistic is -40.181 and the p-value for the t-statistic is < 2.2e-16 or < .00000000000000022, which is lower than the standard cutoff of .05. Visually, the _critical region_ or _rejection region_ of the t-distribution is outside the dotted lines:
+The t-statistic is -40.181 and the p-value for the t-statistic is < 2.2e-16 or < .00000000000000022, which is lower than the standard cutoff of .05. Visually, the _critical region_ or _rejection region_ of the t-distribution is outside the dotted lines:
 
 ```{r tDist, echo=FALSE}
 # t-distribution 
@@ -127,11 +128,11 @@ abline(v=-1.96, col="orange", lty="dashed")
 
 Another way of saying this:
 
-The probability of getting a t-statistic of -40.181 or even more extreme, if the null hypothesis is true, is < .00000000000000022. That is a *very* low probability of getting such a large t-statistic, so the null is probably not true.
+The probability of getting a t-statistic of -40.181 or even more extreme, if the null hypothesis is true, is < .00000000000000022. That is a *very* low probability of getting such a large t-statistic, so the null is *probably not true*. We should *reject the null hypothesis*.
 
 **If p is low, the null must go.**
 
-NHIST Step 4 & 5: 
+NHIST Step 4 & 5: If the probability that the null is true is very small--less than 5%--reject the null hypothesis (if the p is low, the null must go!); if the probability that the null is true is not small--5% or higher--retain the null hypothesis.
 
 There is sufficient evidence to reject the null hypothesis. The mean of 10.41 cigarettes smoked per day is statistically significantly different from the hypothesized population mean of 20 cigarettes per day (t = -40.18; p < .05). The sample of smokers likely came from a population with a daily mean smoking rate of between 9.94 and 10.87 cigarettes per day (see confidence intervals from the t.test printout).
 
@@ -158,7 +159,7 @@ NHIST Step 1:
 
 H0: There is no difference in mean age of starting smoking for male and female smokers 
 
-HA: There is a difference in mean age of starting smoking for male and female  smokers
+HA: There is a difference in mean age of starting smoking for male and female smokers
 
 Start with plotting the two groups:
 ```{r indepTPlot, warning=FALSE, message=FALSE}
@@ -249,7 +250,7 @@ grid.arrange(p1, p2, p3, ncol=2, layout_matrix=layoutGrid,
 NHIST Step 2:
 
 \[
-t=\frac{\bar{x_1}-\bar{x_2}}{\sqrt{\frac{s_1^2}{N_1}+\frac{s_2^2}{N_2}}}
+t=\frac{m_1-m_2}{\sqrt{\frac{s_1^2}{n_1}+\frac{s_2^2}{n_2}}}
 \]
 
 Get means, standard deviations, and sample sizes for male and female:
@@ -360,15 +361,17 @@ The values in the small table are the p-values for t-tests of each pair of means
 
 All statistical tests make some underlying assumptions about the data being tested. Just like the mean is not a great indicator of central tendency when the distribution is skewed, statistical tests like the t-tests and ANOVA are not great when the data fail to meet the underlying assumptions. 
 
-The one-sample and independent samples t-tests and ANOVA rely on a few main assumptions: 
+The one-sample t-test, independent samples t-test, and ANOVA rely on a few main assumptions: 
 
-* Independence of observations: Each observation in the data set is unrelated to the others in the data set. If your data includes siblings, spouses, or other related observations, it may not meet this assumption. *See Dependent Samples T-test*
+* Independence of observations: Each observation in the data set is unrelated to the others in the data set. If your data includes siblings, spouses, or other related observations, it may not meet this assumption. *See Dependent Samples t-test*
 * Normal distribution: The outcome variable is normally distributed  
-* Homogeneity of variance: The groups have the same or similar variance 
+* Homogeneity of variance: The groups have the same or similar variance for the outcome (not applicable in the one-sample test because there is only one group)
+
+### How to test each assumption 
 
 _Independence of observations_ is not tested but instead is known based on how the data were collected. 
 
-_Normal distribution_ is checked visually using a histogram. It can also be tested statistically using the Shapiro-Wilk test. _The Shapiro-Wilk test tests the null hypothesis that the data is normally distributed_. 
+_Normal distribution_ is checked visually using a histogram. It can also be tested statistically using the Shapiro-Wilk test. _The Shapiro-Wilk test tests the null hypothesis that the data are normally distributed_. 
 
 First, check for the one-sample t-test:
 
@@ -380,7 +383,7 @@ hist(smokeNHANES$numcigs)
 shapiro.test(smokeNHANES$numcigs)
 ```
 
-Doesn't look normally distributed by the plot. For the S-W test, given the p-value less than .05, we reject the null hypothesis that numcigs is normally distributed and conclude that numcigs is not normally distributed.
+Doesn't look normally distributed by the plot. For the S-W test, given the p-value less than .05, we reject the null hypothesis that numcigs is normally distributed and conclude that numcigs is not normally distributed. This assumption is NOT MET.
 
 Try the age.onset for the independent samples t-test and ANOVA:
 
@@ -392,23 +395,23 @@ hist(smokeNHANES$age.smoking)
 shapiro.test(smokeNHANES$age.smoking)
 ```
 
-Doesn't look normally distributed by either the plot or the S-W test! Given the p-value less than .05, we reject the null hypothesis that age.smoking is normally distributed and conclude that age.smoking is not normally distributed. 
+Doesn't look normally distributed by either the plot or the S-W test! Given the p-value for the S-W test is less than .05, we reject the null hypothesis that age.smoking is normally distributed and conclude that age.smoking is not normally distributed. This assumption is NOT MET.
 
-_Homogeneity of variance_ is checked using the Levene Test. The Levene Test tests the null hypothesis that the variances are equal. To meet this assumption we DO NOT want to reject the null hypothesis. Since this is about groups, it is not relevant for the one-sample t-test. 
+_Homogeneity of variance_ is checked using the Levene Test. The Levene Test tests the null hypothesis that the variances are equal. To meet this assumption we DO NOT want to reject the null hypothesis. Since this is about equal variance across groups, it is not relevant for the one-sample t-test because that test has only one group. 
 
 ```{r levene1, message=FALSE, warning=FALSE}
 #Check the HoV of age.smoking from the independent samples t-test
 leveneTest(age.smoking ~ sex, data = smokeNHANES)
 ```
 
-The small p-value indicates we *rejected* the null hypothesis that the variances are equal, so we do not meet this assumption. 
+The small p-value indicates we *rejected* the null hypothesis that the variances are equal, so we do not meet this assumption. This assumption is NOT MET.
 
 ```{r, levene2, warning=FALSE, message=FALSE}
 #Check the HoV from the ANOVA
 leveneTest(age.smoking ~ race.eth, data = smokeNHANES)
 ```
 
-The small p-value indicates we did reject the null, which means we do not meet this assumption. 
+The small p-value indicates we did reject the null, which means we do not meet this assumption. This assumption is NOT MET.
 
 So, none of the tests met their assumptions! When data _do not_ meet the assumptions for a specific test there are 3 options: 
 
