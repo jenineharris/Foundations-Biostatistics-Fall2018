@@ -121,7 +121,7 @@ The t-statistic is -40.181 and the p-value for the t-statistic is < 2.2e-16 or <
 # t-distribution 
 x <- seq(-4, 4, length=100)
 y <- dnorm(x)
-plot(x, y, type="l", main="t-distribution")
+plot(x, y, type="l", main="t-distribution", xlab = "t-statistic", ylab = "Probability density")
 abline(v=1.96, col="orange", lty="dashed")
 abline(v=-1.96, col="orange", lty="dashed")
 ```
@@ -171,8 +171,8 @@ smokeNHANES$age.smoking <- car::recode(smokeNHANES$SMD030, "0 = NA;
 # compare male and female smoking age with density plot
 ggplot(data = smokeNHANES, aes(fill = sex, x = age.smoking)) + 
   geom_density(alpha=.5) + 
-  xlab("Participant sex") + 
-  ylab("Age started smoking (in years)") +
+  xlab("Age started smoking (in years)") + 
+  ylab("Probability density") +
   ggtitle("Age started smoking (NHANES, 2013-2014)")
 
 # compare male and female smoking age with boxplot
@@ -188,7 +188,7 @@ Check out some distributions with means shown:
 ```{r indepTDistributions, echo=FALSE, fig.width=8, fig.height=8}
 library(gridExtra)
 
-# let's make another toy dataset of z-scores
+# let's make another toy dataset of scores
 set.seed(500)
 
 group1 <- data.frame(scores = rnorm(n = 100, mean = 0, sd = 1),
@@ -207,7 +207,7 @@ p1 <- ggplot(data = dat2, aes(x = scores)) +
   geom_vline(xintercept = m1, color = "red") +
   geom_vline(xintercept = m2a, color = "blue") +
   coord_cartesian(xlim = c(-4,4), ylim = c(0,.5)) +
-  labs(x = "z-scores")
+  labs(x = "scores")
 
 
 # Now, let's keep our group 1, but what if group 2 had a much larger mean?
@@ -222,7 +222,7 @@ p2 <- ggplot(data = dat3, aes(x = scores)) +
   geom_vline(xintercept = m1, color = "red") +
   geom_vline(xintercept = m2b, color = "blue") +
   coord_cartesian(xlim = c(-4,4), ylim = c(0,.5)) +
-  labs(x = "z-scores")
+  labs(x = "scores")
 
 # and again...
 
@@ -237,7 +237,7 @@ p3 <- ggplot(data = dat4, aes(x = scores)) +
   geom_vline(xintercept = m1, color = "red") +
   geom_vline(xintercept = m2c, color = "blue") +
   coord_cartesian(xlim = c(-4,4), ylim = c(0,.5)) +
-  labs(x = "z-scores")
+  labs(x = "scores")
 
 layoutGrid = rbind(c(1,2), c(3,NA))
 grid.arrange(p1, p2, p3, ncol=2, layout_matrix=layoutGrid,
@@ -283,14 +283,14 @@ The p-value for the t-statistic is 1.705e-07 or .0000001705, which is lower than
 # t-distribution
 x <- seq(-4, 4, length=100)
 y <- dnorm(x)
-plot(x, y, type="l", main="t-distribution")
+plot(x, y, type="l", main="t-distribution", xlab = "t-statistic", ylab = "probability density")
 abline(v = 1.96, col="orange", lty="dashed")
 abline(v = -1.96, col="orange", lty="dashed")
 ```
 
 NHIST Step 4 & 5: 
 
-There is sufficient evidence to reject the null hypothesis (t = 5.25; p < .05). The mean age of smoking initiation for males (m = 17.48) is statistically significantly different from the mean age of smoking initiation for females (m = 18.66). Male smokers and female smokers in this sample likely come from populations with different mean ages of smoking initiation.
+There is sufficient evidence to reject the null hypothesis (t = 5.25; p < .05). The mean age of smoking initiation for males (m = 17.48) is statistically significantly different from the mean age of smoking initiation for females (m = 18.66). Male smokers and female smokers in this sample likely come from populations with different mean ages of smoking initiation. Males start smoking more than a year earlier than females.
 
 ####Bonus!
 
@@ -346,9 +346,9 @@ summary(race.smoking.age)
 
 NHIST Steps 3-5: 
 
-There is evidence that the means are statistically significantly different from one another (F(4, 2443) = 10.78; p < .05). The three groups likely have come from populations with different mean age of smoking initiation. 
+There is evidence that the means are statistically significantly different from one another (F(4, 2443) = 10.78; p < .05). The five groups likely have come from populations with different mean age of smoking initiation. 
 
-ANOVA is an _omnibus test_ so even though the graph and descriptive statistics show which group means seem different from one another, we need a statistical test to determine which means are statistically significantly different from one another. There are several different tests to choose from. The Bonferroni post-hoc test is one possibility: 
+ANOVA is an _omnibus test_ so even though the graph and descriptive statistics show which group means seem different from one another, we need a statistical test to determine which means are *statistically significantly* different from one another. There are several different tests to choose from. The Bonferroni post-hoc test is one possibility: 
 
 ```{r anovaPostHoc}
 # post-hoc test to determine which means are different
@@ -397,7 +397,7 @@ shapiro.test(smokeNHANES$age.smoking)
 
 Doesn't look normally distributed by either the plot or the S-W test! Given the p-value for the S-W test is less than .05, we reject the null hypothesis that age.smoking is normally distributed and conclude that age.smoking is not normally distributed. This assumption is NOT MET.
 
-_Homogeneity of variance_ is checked using the Levene Test. The Levene Test tests the null hypothesis that the variances are equal. To meet this assumption we DO NOT want to reject the null hypothesis. Since this is about equal variance across groups, it is not relevant for the one-sample t-test because that test has only one group. 
+_Homogeneity of variance_ is checked using the Levene Test. The Levene Test tests the null hypothesis that the variances are equal across groups. To meet this assumption we DO NOT want to reject the null hypothesis. Since this is about equal variance across groups, it is not relevant for the one-sample t-test because that test has only one group. 
 
 ```{r levene1, message=FALSE, warning=FALSE}
 #Check the HoV of age.smoking from the independent samples t-test
@@ -436,7 +436,7 @@ SIGN.test(smokeNHANES$numcigs, md=20)
 
 The s statistic is 58 and the p-value for the s-statistic is < 2.2e-16 or < .00000000000000022, which is lower than the standard cutoff of .05. 
 
-The Sign Test indicates that the NHANES participants do not come from a population that smokes a median number of cigarettes per day as 20 (s = 58; p < .05). The median in the sample is 10 with a 95% confidence interval of 9 to 10 cigarettes per day. The sample likely comes from a population of smokers that smokes a median of 9 to 10 cigarettes per day.
+The Sign Test indicates that the NHANES participants do not come from a population that smokes a median of 20 cigarettes per day of 20 (s = 58; p < .05). The median in the sample is 10 with a 95% confidence interval of 9 to 10 cigarettes per day. The sample likely comes from a population of smokers that smokes a median of 9 to 10 cigarettes per day.
 
 ## Alternative to the independent samples t-test 
 
@@ -465,7 +465,7 @@ wilcox.test(age.smoking ~ sex, data = smokeNHANES)
 
 ```
 
-In this case, it appears to be significant. Since this is a non-parametric test for data that are not normally distributed, compute medians to add some context:
+In this case, it appears to be significant. Since this is a non-parametric test for data that are not normally distributed, compute medians (instead of means) to add some context:
 
 ```{r mannWhit2}
 # table of medians and IQR
@@ -479,7 +479,7 @@ We can conclude that there is a statistically significant difference (W = 797420
 
 ## Alternative for ANOVA 
 
-Likewise, the non-parametric version of ANOVA is the _Kruskal-Wallis test_, which  examines ranks across groups like the Mann-Whitney U test, but for more than two groups. The two arguments for this test are x, which is the continuous variable and g, which is the groups. The command can fail if the groups variable is not a factor data type, so you can add as.factor to ensure it will run. 
+Likewise, the non-parametric version of ANOVA is the _Kruskal-Wallis test_, which examines ranks across groups like the Mann-Whitney U test, but for more than two groups. The two arguments for this test are x, which is the continuous variable and g, which is the groups. The command can fail if the groups variable is not a factor data type, so you can add as.factor to ensure it will run. 
 
 Try the Kruskal-Wallis test for age of smoking initiation by the race.eth variable:
 
