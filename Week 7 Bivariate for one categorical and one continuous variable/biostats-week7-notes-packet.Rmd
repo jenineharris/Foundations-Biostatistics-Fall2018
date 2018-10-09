@@ -355,7 +355,7 @@ ANOVA is an _omnibus test_ so even though the graph and descriptive statistics s
 pairwise.t.test(smokeNHANES$age.smoking, smokeNHANES$race.eth)
 ```
 
-The values in the small table are the p-values for t-tests of each pair of means. It appears that the mean age of smoking initiation for Non-Hispanic Blacks (m = 18.98) is significantly (p = .03) lower than for Mexican-Americans (m = 17.81). The age of initiation for Non-Hispanic Whites (m = 17.38) was statistically significantly (p < .05) lower than the age of initiation for Non-Hispanic Blacks (m = 18.98) and Other Race (m = 18.90) participants.
+The values in the small table are the p-values for t-tests of each pair of means. It appears that the mean age of smoking initiation for Non-Hispanic Blacks (m = 18.98) is significantly (p = .03) higher than for Mexican-Americans (m = 17.81). The age of initiation for Non-Hispanic Whites (m = 17.38) was statistically significantly (p < .05) lower than the age of initiation for Non-Hispanic Blacks (m = 18.98) and Other Race (m = 18.90) participants.
 
 #6. Testing assumptions
 
@@ -436,7 +436,7 @@ SIGN.test(smokeNHANES$numcigs, md=20)
 
 The s statistic is 58 and the p-value for the s-statistic is < 2.2e-16 or < .00000000000000022, which is lower than the standard cutoff of .05. 
 
-The Sign Test indicates that the NHANES participants do not come from a population that smokes a median of 20 cigarettes per day of 20 (s = 58; p < .05). The median in the sample is 10 with a 95% confidence interval of 9 to 10 cigarettes per day. The sample likely comes from a population of smokers that smokes a median of 9 to 10 cigarettes per day.
+The Sign Test indicates that the NHANES participants do not come from a population that smokes a median of 20 cigarettes per day (s = 58; p < .05). The median in the sample is 10 with a 95% confidence interval of 9 to 10 cigarettes per day. The sample likely comes from a population of smokers that smokes a median of 9 to 10 cigarettes per day.
 
 ## Alternative to the independent samples t-test 
 
@@ -506,7 +506,7 @@ print(smoking.age.race, nonnormal = "age.smoking")
 
 It appears that Mexican-Americans, Non-Hispanic white, and Other Hispanic all have median age of smoking initiation of 17 years old while Non-Hispanic Black and Other Race participants have a median of 18 years old for smoking initiation. 
 
-Like the post-hoc test for the t-test, to determine which of these groups are statistically significant from one another, a Dunn's test can be used to compare each pair of groups:
+Like the post-hoc test for the ANOVA, to determine which of these groups are statistically significant from one another, a Dunn's test can be used to compare each pair of groups:
 
 ```{r dunnTest, message=FALSE}
 # open the dunn.test package
@@ -514,7 +514,7 @@ library(dunn.test)
 dunn.test(x = smokeNHANES$age.smoking, g = smokeNHANES$race.eth)
 ```
 
-The Dunn's post-hoc test indicates that the age of smoking initiation distribution is significantly (p < .05) different for Non-Hispanic Blacks (med = 18) compared to Mexican-Americans (med = 17), Other Hispanics (med = 17), and Non-Hispanic Whites (med = 17). Other Race participants (med = 18) are also statistically significantly different (p < .05) from Other Hispanic and Non-Hispanic Whites for age of smoking initiation. Non-Hispanic Blacks and Other Race participants start smoking leter (med = 18) than the other groups (med = 17). 
+The Dunn's post-hoc test indicates that the age of smoking initiation distribution is significantly (p < .05) different for Non-Hispanic Blacks (med = 18) compared to Mexican-Americans (med = 17), Other Hispanics (med = 17), and Non-Hispanic Whites (med = 17). Other Race participants (med = 18) are also statistically significantly different (p < .05) from Other Hispanic and Non-Hispanic Whites for age of smoking initiation. Non-Hispanic Blacks and Other Race participants start smoking later (med = 18) than the other groups (med = 17). 
 
 # Optional Items
 
