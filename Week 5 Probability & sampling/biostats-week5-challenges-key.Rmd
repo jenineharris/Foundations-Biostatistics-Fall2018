@@ -1,0 +1,139 @@
+---
+title: "Biostats Week 5 Challenge"
+output: html_document
+---
+# Instructions 
+
+Use the Missouri smokers data set saved at http://tinyurl.com/z2m3cgq to answer the questions below in this R Markdown file. Choose either the standard or hacker edition below and delete the one you are not doing. Both editions are worth the same number of points. If you choose to complete and submit both editions, I will score whichever one shows up first in the document(s) you submit.
+
+You may want to use more than one code chunk to organize your coding. To add new code chunks in R, use the green `Insert` menu at the top of the pane and choose `R` to insert an R chunk. 
+
+Variables from a 2013 survey of Missouri smokers:
+
+* numcigs: Number of cigarettes smoked per day
+* ageonset: Age started smoking
+* yearssmoking: Number of years smoking
+* age: Age in years
+* VBMI4: Body mass index
+
+# Standard edition
+
+Create a well-formatted kable table that includes the mean, standard deviation, standard error, and 95% confidence interval for the following variables: numcigs, ageonset, yearssmoking, age, VBMI4. See above for the definitions of these variables. Clean up the out-of-range values from the age and VBMI4 variables before building the table. Write 1-2 paragraphs interpreting the means and confidence intervals reported in the table. Submit the R Markdown file to Blackboard before class.
+
+```{r}
+# open data
+smokers<-read.csv("http://tinyurl.com/z2m3cgq")
+
+# examine age and VBMI
+summary(smokers$age)
+summary(smokers$VBMI4)
+```
+
+```{r}
+# fix age and BMI
+# several ways to do this
+# use recode or subset
+smokers.clean <- subset(smokers, age < 100)
+smokers.final <- subset(smokers.clean, VBMI4 != 99999)
+
+# get numcigs mean, sd, se, ci
+mean.numcigs <- mean(smokers.final$numcigs, na.rm = TRUE)
+sd.numcigs <- sd(smokers.final$numcigs, na.rm = TRUE)
+se.numcigs <- sd.numcigs/sqrt(length(smokers.final$numcigs))
+ciLower.numcigs <- mean.numcigs - 1.96*se.numcigs
+ciUpper.numcigs <- mean.numcigs + 1.96*se.numcigs
+
+# put numcig stats into a vector
+numcigs.stats <- c(mean = mean.numcigs, sd = sd.numcigs, 
+                   se = se.numcigs, "Lower CI" = ciLower.numcigs, "Upper CI" = ciUpper.numcigs)
+
+
+# get age mean, sd, se, ci 
+mean.age <- mean(smokers.final$age, na.rm = TRUE)
+sd.age <- sd(smokers.final$age, na.rm = TRUE)
+se.age <- sd.age/sqrt(length(smokers.final$age))
+ciLower.age <- mean.age - 1.96*se.age
+ciUpper.age <- mean.age + 1.96*se.age
+
+# put age stats into a vector
+age.stats <- c(mean = mean.age, sd = sd.age, 
+                   se = se.age, "Lower CI" = ciLower.age, "Upper CI" = ciUpper.age)
+
+# get ageonset mean, sd, se, ci 
+mean.ageonset <- mean(smokers.final$ageonset, na.rm = TRUE)
+sd.ageonset <- sd(smokers.final$ageonset, na.rm = TRUE)
+se.ageonset <- sd.ageonset/sqrt(length(smokers.final$ageonset))
+ciLower.ageonset <- mean.ageonset - 1.96*se.ageonset
+ciUpper.ageonset <- mean.ageonset + 1.96*se.ageonset
+
+# put ageonset stats into a vector
+ageonset.stats <- c(mean = mean.ageonset, sd = sd.ageonset, 
+                   se = se.ageonset, "Lower CI" = ciLower.ageonset, "Upper CI" = ciUpper.ageonset)
+
+# get yearssmoking mean, sd, se, ci 
+mean.yearssmoking <- mean(smokers.final$yearssmoking, na.rm = TRUE)
+sd.yearssmoking <- sd(smokers.final$yearssmoking, na.rm = TRUE)
+se.yearssmoking <- sd.yearssmoking/sqrt(length(smokers.final$yearssmoking))
+ciLower.yearssmoking <- mean.yearssmoking - 1.96*se.yearssmoking
+ciUpper.yearssmoking <- mean.yearssmoking + 1.96*se.yearssmoking
+
+# put yearssmoking stats into a vector
+yearssmoking.stats <- c(mean = mean.yearssmoking, sd = sd.yearssmoking, 
+                   se = se.yearssmoking, "Lower CI" = ciLower.yearssmoking, "Upper CI" = ciUpper.yearssmoking)
+
+# get packyears mean, sd, se, ci 
+mean.packyears <- mean(smokers.final$packyears, na.rm = TRUE)
+sd.packyears <- sd(smokers.final$packyears, na.rm = TRUE)
+se.packyears <- sd.packyears/sqrt(length(smokers.final$packyears))
+ciLower.packyears <- mean.packyears - 1.96*se.packyears
+ciUpper.packyears <- mean.packyears + 1.96*se.packyears
+
+# put packyears stats into a vector
+packyears.stats <- c(mean = mean.packyears, sd = sd.packyears, 
+                   se = se.packyears, "Lower CI" = ciLower.packyears, "Upper CI" = ciUpper.packyears)
+
+# get VBMI4 mean, sd, se, ci 
+mean.VBMI4 <- mean(smokers.final$VBMI4, na.rm = TRUE)
+sd.VBMI4 <- sd(smokers.final$VBMI4, na.rm = TRUE)
+se.VBMI4 <- sd.VBMI4/sqrt(length(smokers.final$VBMI4))
+ciLower.VBMI4 <- mean.VBMI4 - 1.96*se.VBMI4
+ciUpper.VBMI4 <- mean.VBMI4 + 1.96*se.VBMI4
+
+# put VBMI4 stats into a vector
+VBMI4.stats <- c(mean = mean.VBMI4, sd = sd.VBMI4, 
+                   se = se.VBMI4, "Lower CI" = ciLower.VBMI4, "Upper CI" = ciUpper.VBMI4)
+
+# combine vectors into data frame
+smokers.stats <- rbind(numcigs.stats, age.stats, yearssmoking.stats, ageonset.stats,
+                       packyears.stats, VBMI4.stats)
+smokers.stats <- data.frame(smokers.stats)
+
+# add a variable for better row labels
+Characteristic <- c("Number of cigarettes per day", "Age in years", 
+                    "Years of smoking", "Age of smoking initiation",
+                    "Pack years", "Body mass index BMI")
+smokers.stats <- cbind(Characteristic, smokers.stats)
+
+# kable table with 1 digit after the decimal place
+library(kableExtra)
+kable(smokers.stats, "html", row.names = FALSE, digits = 1,
+      caption = "Table 1. Smoking characteristics of Missouri smokers (2013).") %>%
+  kable_styling("condensed", full_width = TRUE)
+
+```
+The mean number of cigarettes smoked per day by Missouri smokers is 18.8 cigarettes; the true or population mean value of cigarettes smoked per day by Missouri smokers likely lies between 17.2-19.5 (m=18.8; 95% CI=17.2-19.5). The mean age of smoking initiation for Missouri smokers is 18.4 (95% CI: 17.2-19.5) and the smokers in the sample had smoked for a mean of 29 years (95% CI: 26 - 32). The mean number of pack years for Missouri smokers was 28 (95% CI: 24 - 31.9) and they were an mean of 47.2 years old (95% CI: 44.1-50.4). The mean BMI for Missouri smokers was 27.5 (95% CI: 26.2-28.8).
+
+
+
+# Hacker edition
+
+Create a well-formatted kable table that includes the mean, standard deviation, standard error, and 90% confidence interval for the following variables: numcigs, ageonset, yearssmoking, age, VBMI4. See above for the definitions of these variables. Clean up the out-of-range values before computing means and CIs. Write 1-2 paragraphs interpreting the means and confidence intervals reported in the table. Modify your code chunks so: (1) the code chunks do not show up when the document is knitted, and (2) warnings and messages from the code chunks do not show up when the document is knitted. Submit the R Markdown file to Blackboard before class.
+
+```{r}
+
+```
+
+
+
+
+
