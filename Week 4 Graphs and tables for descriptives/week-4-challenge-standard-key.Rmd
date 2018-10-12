@@ -1,0 +1,156 @@
+---
+title: "Week 4 Challenge Standard"
+output: html_document
+---
+
+(1) Use `tableone` to create a basic table that includes the appropriate descriptive statistics for following variables from the NHANES Drug Use 2013-2014 questionnaire: DUQ200, DUQ210, DUQ240, DUQ260. 
+
+Before creating the table: 
+
+* recode the variables so they have clear variable names, clear category labels, and values that don't make sense are coded to `NA`  
+* check the distribution to decide which descriptive statistics to report for any continuous variables 
+
+```{r}
+# bring in data
+library(RNHANES)
+nhanes2013 <- nhanes_load_data(file_name = "DUQ_H",
+                               year = "2013-2014",
+                               demographics = TRUE)
+
+# open library for recoding 
+library(car)
+
+# recode DUQ200
+nhanes2013$marijuanaUse <- recode(nhanes2013$DUQ200,
+                                  "1 = 'Yes';
+                                  2 = 'No'; 7 = NA; 9 = NA")
+
+# recode DUQ210
+nhanes2013$age.first.mari <- recode(nhanes2013$DUQ210,
+                                  "6 = NA;
+                                  777 = NA; 999 = NA")
+
+# recode DUQ240 
+nhanes2013$cocaineUse <- recode(nhanes2013$DUQ240,
+                                  "1 = 'Yes';
+                                  2 = 'No'; 7 = NA; 9 = NA")
+
+# recode DUQ260
+nhanes2013$age.first.cocaine <- recode(nhanes2013$DUQ260,
+                                  "6 = NA;
+                                  777 = NA; 999 = NA")
+```
+
+```{r}
+# check distributions for continuous variables 
+library(ggplot2)
+ggplot(data = nhanes2013, aes(x = age.first.mari)) +
+  geom_histogram()
+ggplot(data = nhanes2013, aes(x = age.first.cocaine)) +
+  geom_histogram()
+
+```
+
+```{r}
+# create table using tableone 
+# open library
+library(tableone)
+
+# create table 
+drug.table <- CreateTableOne(vars = c("age.first.mari", "age.first.cocaine", 
+                                      'marijuanaUse','cocaineUse'), data = nhanes2013)
+
+# print out table basic
+print(drug.table, nonnormal = c('age.first.cocaine'),
+      showAllLevels = TRUE)
+
+```
+
+(2) Use `kableExtra` to create a fancy table that includes the appropriate descriptive statistics for the same four variables from question 1. Format the table so that all the information is needed to understand the values in the table. 
+
+```{r}
+# open the library
+library(kableExtra)
+
+# create the table with formatting 
+# get descriptives for marijuana use
+marijuana.use <- cbind(table(nhanes2013$marijuanaUse),
+                    round(100*(prop.table(table(nhanes2013$marijuanaUse))), 1))
+
+# add column names
+colnames(marijuana.use) <- c("Frequency", "Percentage")
+
+# make data frame
+marijuana.use <- data.frame(marijuana.use)
+
+# get descriptives for meth use
+cocaine.use <- cbind(table(nhanes2013$cocaineUse),
+                    round(100*(prop.table(table(nhanes2013$cocaineUse))), 1))
+
+# add column names
+colnames(cocaine.use) <- c("Frequency", "Percentage")
+
+# make data frame
+cocaine.use <- data.frame(cocaine.use)
+
+# combine data frames 
+drug.use <- rbind(marijuana.use, cocaine.use)
+
+# move row labels to a variable named Used
+drug.use <- data.frame(Used = row.names(drug.use), drug.use) 
+
+# replace row labels with accurate labels
+rownames(drug.use) <- c("Marijuana.no", "Marijuana.yes", "Cocaine.no", "Cocaine.yes")
+
+# recode No1 and Yes1 to No and Yes
+drug.use$Used <- recode(drug.use$Used, "'No1' = 'No'; 'Yes1' = 'Yes'")
+
+# change drug.use Used variable to string
+drug.use$Used <- as.character(drug.use$Used)
+
+# make vectors of the median and IQR for
+# age meth first use and age heroin first use
+age.mari.desc <- c("Marijuana (mean, sd)", round(mean(nhanes2013$age.first.mari, na.rm = T),1),
+                  round(sd(nhanes2013$age.first.mari, na.rm = T), 1))
+
+age.cocaine.desc <- c("Cocaine (median, IQR)", median(nhanes2013$age.first.cocaine, na.rm = T),
+                  IQR(nhanes2013$age.first.cocaine, na.rm = T))
+
+# add vectors as rows to the drug.use data frame
+drug.use.all <- rbind(drug.use, age.mari.desc, age.cocaine.desc)
+
+# print the data frame to check it
+drug.use.all
+
+# open kableExtra package
+library(kableExtra)
+  
+# table with all four variables
+kable(drug.use.all, "html", caption = "Drug use among NHANES 2013-2014 participants",
+      row.names = FALSE) %>%
+  kable_styling("striped", full_width = TRUE) %>%
+  group_rows("Ever used marijuana", 1, 2) %>%
+  group_rows("Ever used cocaine, crack, heroin, or meth", 3, 4) %>% 
+  group_rows("Age in years of first use", 5, 6) 
+```
+
+(3) Use `waffle` to create well-formatted waffle plots for the two categorical variables from question 1. Find colors on colorbrewer to distinguish the groups.
+
+```{r}
+# open the library
+library(waffle)
+
+
+# create the plots 
+waffle(table(nhanes2013$marijuanaUse)/50, rows=5,
+       title = "NHANES participants who ever used marijuana, 2013-2014",
+       colors = c("#af8dc3", "#7fbf7b", "white"))
+waffle(table(nhanes2013$cocaineUse)/50, rows=5,
+       title = "NHANES participants who ever used cocaine, crack,\nheroin, or meth, 2013-2014",
+       colors = c("#af8dc3", "#7fbf7b", "white"))
+
+```
+
+(4) Write a paragraph intepreting the information in the tables and waffle plot.
+
+More people have tried marijuana (54%) than cocaine, crack, heroin, or meth (16%). The mean age of first marijuana use was 17.1 (sd = 4.5), which was younger than the median age of first use of cocaine, crack, heroin, or meth (med = 20; IQR = 6).
