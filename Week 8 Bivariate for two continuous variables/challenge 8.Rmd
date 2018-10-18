@@ -1,0 +1,47 @@
+---
+title: "Challenge 8"
+output: html_document
+---
+Choose either the standard or hacker edition. Create a new R Markdown document and format it as a brief report to a non-profit working on sanitation access globally. Use ## at the beginning of a line of text to create a section heading if needed. Use ### to create a sub-heading if needed. Knit before submitting and fix any problems you find. Submit the .Rmd file only.
+
+## Standard edition 
+
+Use the data from this notes packet to develop a short report in R Markdown about the percentage of school-age females in school, basic sanitation, and poverty worldwide. Include appropriate descriptive statistics, graphs, correlation analyses, and partial correlation analyses. 
+
+Hide all R code chunks by adding options to the {r} at the top of each chunk, like this: {r warning = FALSE, message = FALSE, echo = FALSE} to hide the code chunk but include the statistical results output. Use ## at the beginning of a line of text to create a section heading with larger text if needed. Use ### to create a sub-heading if needed. 
+
+## Hacker edition
+
+Complete the standard edition adding inline r to report results throughout. That is, where possible, insert a small amount of r code into the text to report a result instead of retyping it from the output. Inline code allows you to write a reproducible document. If the data or analyses change in small or large ways, the numbers will automatically be updated throughout the document without you having to find every place you reported a result. 
+
+For example, you could report the median and IQR of `perc.in.school` by writing a code chunk and then copying the median into your text, like this:
+
+```{r}
+# bring in waterData file
+waterData <- read.csv("https://tinyurl.com/y7k5uqq9")
+
+# median females in school
+medPerInSch <- median(waterData$perc.in.school, na.rm = T)
+medPerInSch
+
+iqrPerInSch <- IQR(waterData$perc.in.school, na.rm = T)
+iqrPerInSch
+```
+
+* The median percentage of kids in school is 92.2 (med = 92.2; IQR = 12.7).
+
+Instead of typing 92.2, you can use inline code to print the values of `medPerInSch` and `iqrPerInSch`, like this:
+
+* The median percentage of kids in school is `r medPerInSch` (med = `r medPerInSch`; IQR = `r iqrPerInSch`).
+
+The code in the code chunk produced the median and stored it in *medPerInSch*. Then, the inline code told R to print the value of that object in the sentence. The r with single slanted apostrophes around it is like a mini code chunk that is *inline* with the text. 
+
+For short commands like mean, median, and IQR, the entire command can be run in the mini code chunk, like this: 
+
+* The median number of females in school is `r median(waterData$perc.in.school, na.rm = T)` (med = `r median(waterData$perc.in.school, na.rm = T)`; IQR = `r IQR(waterData$perc.in.school, na.rm = T)`). 
+
+If needed, add the round command with 1 decimal place: 
+
+* The median number of females in school is `r round(median(waterData$perc.in.school, na.rm = T), 1)` (med = `r round(median(waterData$perc.in.school, na.rm = T), 1)`; IQR = `r round(IQR(waterData$perc.in.school, na.rm = T), 1)`). 
+
+While conducting minor analyses directly in the text is useful, some code is just too long to include inline and should be run in a regular code chunk. 

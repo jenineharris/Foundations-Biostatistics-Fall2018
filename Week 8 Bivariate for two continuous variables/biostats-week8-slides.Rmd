@@ -1,0 +1,748 @@
+---
+title: "Biostats Week 8: Bivariate for two continuous variables"
+output: slidy_presentation
+---
+
+## Week 8 schedule
+
+* t-test review 
+* correlation workshop 
+* sign up for book club topic 
+
+<BR><BR> <center>
+
+![](https://imgs.xkcd.com/comics/correlation.png){ width=60% }
+</center>
+
+## Correlation workshop outline
+
+The remaining two-variable situation is when there are two continuous variables. Here is the outline for learning about *correlation* analyses: 
+
+#. Using graphs to make a prediction
+#. Computing and interpreting Pearson's r correlation coefficient
+#. Inference and correlation coefficients
+#. Assumption checking for correlation analyses
+#. Spearman's r correlation coefficient
+#. Partial correlations 
+
+## The clean water problem
+
+* The lack of access to clean water and sanitation worldwide impacts people living in poverty and poor women and girls in particular
+* Specifically, women and girls tend to be responsible for collecting water for their families, often walking long distances in unsafe areas and carrying heavy loads 
+* Lack of access to sanitation facilities also puts women and girls at greater risk for harassment and assault and keeps teenage girls out of school in many parts of the world
+
+<center>
+![](girl-water.jpg){ width=50% }
+</center>
+
+## The data 
+
+```{r warning = FALSE, message = FALSE, echo = FALSE}
+# bring in waterData file
+waterData <- read.csv("https://tinyurl.com/y7k5uqq9")
+```
+The World Health Organization data tracks water access and sanitation globally. The United Nations Educational, Scientific, and Cultural Organization (UNESCO) tracks education rates by sex globally. These two data sources are merged to create a data set that is saved here: https://tinyurl.com/y7k5uqq9 
+
+The observations are countries and the variables are:
+
+* country: the name of the country 
+* med.age: the median age of the population in the country 
+* perc.1dollar: percentage of the population living on $1 per day or less 
+* perc.basic2015sani: percentage of the population with basic sanitation access 
+* perc.safe2015sani: percentage of the population with safe sanitation access 
+* perc.basic2015water: percentage of the population with basic water access 
+* perc.safe2015water: percentage of the population with safe water access 
+* perc.in.school: percentage of school-age people in primary and secondary school  
+* female.in.school: percentage of female school-age people in primary and secondary school 
+* male.in.school: percentage of male school-age people in primary and secondary school  
+
+## Types of correlations 
+
+* _Negative correlations_ are when the values of one variable goes up, the values of the other go down  
+* _No correlation_ is when there is no discernable pattern in how two variables vary  
+* _Positive correlations_ are when the values of one variable goes up, the values of other also goes up (or when one goes down the other does too); both variables move together in the same direction  
+
+<center>
+```{r echo=FALSE, fig3, fig.height = 4, fig.width = 10}
+# visual examples of correlation types
+x <- c(1,2,3,4,5,6,7,8,9)
+y <- 1.4*x
+z <- -1.4*x
+a <- c(3,8,1,4,3,1,6,7,1)
+par(mfrow=c(1,3))
+plot(x,z, main="negative", ylab="y")
+plot(x,a, main="none",ylab="y")
+plot(x,y, main="positive")
+
+```
+</center>
+
+## Correlation strength 
+
+Correlations can range from -1 to 1.
+
+The size of the correlation (regardless of whether it is negative or positive) is its strength. While there is no firm cutoff, most resources will characterize correlation coefficients as: 
+
+* very weak 0 to .2
+* weak .2 to .39
+* moderate .4 to .59
+* strong .6 to .79 
+* very strong .8 to 1 
+
+## Pearson's r correlation coefficient calculation
+
+The most commonly used correlation coefficient is Pearson's r:
+
+<BR>
+\[
+r_{xy}=\frac{{\sum_{i=1}^n}(x_i-\bar{x})(y_i-\bar{y})}{(n-1){s_x}{s_y}}
+\]
+
+Where:
+
+* $i$ is an individual observation
+* $x_i$ is the value of x for each observation  
+* $\bar{x}$ is the mean of x 
+* $y_i$ is the value of y for each observation 
+* $\bar{y}$ is the mean of y 
+* $n$ is the sample size 
+* $s_x$ and $s_y$ are the standard deviations of x and y
+
+## Basic water access and percent of females in school
+
+```{r warning = FALSE, message = FALSE, echo = FALSE}
+# explore plot of female education and water
+# EXTRA
+library(ggplot2)
+ggplot(waterData, aes(y = female.in.school/100, x = perc.basic2015water/100)) + 
+  geom_smooth(method = "lm", se = FALSE, colour = "gray") +
+  geom_point(size = 2, colour = "#88398a") + 
+   
+  labs(y = "Percent of females in primary and secondary school",
+       x = "Percent with basic access to water") +
+  scale_x_continuous(labels = scales::percent) +
+  scale_y_continuous(labels = scales::percent)
+
+```
+
+## Pearson's r for female education and water
+
+A correlation coefficient can quantify the relationship:
+
+```{r}
+# compute the correlation coefficient
+cor(waterData$female.in.school, waterData$perc.basic2015water, use='complete')
+```
+
+The correlation of `r round(cor(waterData$female.in.school, waterData$perc.basic2015water, use='complete'), 2)` is positive and very strong. 
+
+The interpretation: 
+
+_The percent of females in school is very strongly positively correlated with the percent of citizens with basic access to drinking water (r = `r round(cor(waterData$female.in.school, waterData$perc.basic2015water, use='complete'), 2)`). As basic access to water goes up, the percent of school-age females in school also increases._ 
+
+## What is the correlation here?
+
+```{r warning = FALSE, message = FALSE, echo = FALSE}
+# explore plot of female education and poverty
+ggplot(waterData, aes(y = female.in.school/100, x = perc.1dollar/100)) + 
+  geom_smooth(method = "lm", se = FALSE, colour = "gray") +
+  geom_point(size = 2, colour = "#88398a") + 
+  labs(y = "Percentage of females in primary and secondary school",
+       x = "Percent living on less than $1/day") +
+  ggtitle("Relationship of female education and poverty in\ncountries worldwide") +
+  scale_x_continuous(labels = scales::percent) +
+  scale_y_continuous(labels = scales::percent)
+
+```
+
+## Computing the correlation coefficient
+
+```{r}
+# compute the correlation coefficient
+cor(waterData$female.in.school, waterData$perc.1dollar, use='complete')
+```
+
+Interpretation: 
+
+_The graph and correlation coefficient show a strong negative relationship between poverty and females in school (r = `r round(cor(waterData$female.in.school, waterData$perc.1dollar, use='complete'), 2)`). That is, as poverty goes up, female education goes down._ 
+
+## Check your understanding
+
+Interpret the correlation between female education and safe water access:
+
+```{r}
+# compute the correlation coefficient
+cor(waterData$female.in.school, waterData$perc.safe2015water, use = 'complete')
+
+```
+
+
+## Inference and correlation coefficients 
+
+The correlation coefficients and plots indicated that, for this sample of countries:
+
+* female education was positively correlated with basic water access and safe water access
+* female education was negatively correlated with poverty  
+
+These are the relationships in **some countries** (our sample), but do these relationships hold in **all countries** (the population)? 
+
+A statistical test can be used to determine if the sample comes from a population where there is a relationship between the two variables of interest. 
+
+## The null and alternate hypotheses 
+
+<BR>
+
+*For basic water access and percent of females in school:*
+
+* H0: There is no correlation between basic water access and female education (r = 0) 
+
+* HA: There is a correlation between basic water access and female education (r does not equal 0) 
+
+<BR><BR>
+
+*For poverty and percent of females in school:*
+
+* H0: There is no correlation between poverty and female education (r = 0) 
+
+* HA: There is a correlation between poverty and female education (r does not equal 0) 
+
+## The statistical test
+
+The null hypothesis can be tested by using *a variation on the one-sample t-test*, compare the correlation coefficient (instead of the mean) to a hypothesized value of zero. The formula for a one-sample t-test is:
+
+\[
+t=\frac{\bar{x}-\mu}{se_\bar{x}}
+\]
+
+The standard error for a correlation coefficient is computed:
+
+\[
+se_r=\sqrt\frac{1-r^2}{n-2}
+\]
+
+Substituting $r$ and the $se_r$ into the one-sample t-statistic formula and simplifying, we get:
+
+\[
+t=\frac{r\sqrt{n-2}}{\sqrt{1-r^2}}
+\]
+
+## Using the formula
+
+```{r echo = FALSE, warning=FALSE, error=FALSE, message=FALSE}
+# find the sample size using the nanian package or
+# subset the waterData to the poverty and fem educ vars
+# drop rows with NA
+library(tidyverse)
+completePovertyFemEduc <- drop_na(subset(waterData, 
+                                         select = c(perc.1dollar, 
+                                                    female.in.school)))
+
+```
+
+Use of this formula requires `r` and `n` 
+
+* r = `r cor(waterData$female.in.school, waterData$perc.1dollar, use='complete')`  
+* n = `r nrow(completePovertyFemEduc)`
+    
+\[
+t=\frac{-0.7144238\sqrt{64-2}}{\sqrt{1-(-0.7144238)^2}} = -8.0395
+\]
+
+## t-statistic and sampling distribution
+
+```{r echo=FALSE, message = FALSE, warning = FALSE, fig.height=4, fig.width=6}
+# t-distribution shaded under the curve for t of -8.04
+library(ggplot2)
+dat<-with(density(rt(100000, 62)),data.frame(x,y))
+ggplot(data = dat, aes(x = x, y = y)) +
+    geom_line() + geom_vline(xintercept = -8.04, color = "orange") + 
+    geom_segment(aes(x = -10, y = 0, xend = -3.5, yend = .0001)) + 
+    geom_segment(aes(x = 10, y = 0, xend = 4.75, yend = 0.001)) +
+    ylim(0,.5) + xlim(-10, 10) +
+    
+  xlab("t statistic") + ylab("Probability")+
+  ggtitle("Sampling distribution for t (df = 62) with line at t = -8.04")
+
+```
+
+* The area under the curve of the sampling distribution contains all possible values of the t-statistic for samples with 62 d.f. that _came from a population where r = 0_ 
+* The probability of getting a t-statistic of -8.04 (or larger) for a sample from _a population where r = 0_ is the shaded area under the curve to the left of the orange line
+* This is a very tiny probability of getting a sample where the t-statistic is this big (or bigger) _if r = 0 in the population_
+* So, _r is probably not 0 in the population that this sample came from_
+
+## What is the actual probability or p-value?
+
+Output from the `cor.test` function:
+```{r}
+# test for correlation coefficient
+corFemPov <- cor.test(waterData$female.in.school, waterData$perc.1dollar)
+corFemPov
+```
+
+* The correlation is r = `r round(corFemPov$estimate, 2)` 
+* The t-statistic is t = `r round(corFemPov$statistic, 2)` 
+* The degrees of freedom are d.f. = `r corFemPov$parameter`
+* The p-value is `r format(corFemPov$p.value, scientific = FALSE)` or p < .001
+* The 95% confidence interval for r is 95% CI: `r round(corFemPov$conf.int[2], 2)` to `r round(corFemPov$conf.int[1], 2)`
+
+## What about the null hypothesis?
+
+With a p-value this small, it is unlikely that the sample came from a population where r = 0, so...
+
+* REJECT THE NULL HYPOTHESIS, in favor of the alternate hypothesis that there is a correlation between poverty and female education (r is not equal to 0). 
+
+* The correlation is *statistically significant*, that is, it is statistically unlikely that it came from a population where r = 0.
+
+* Interpret the findings: 
+
+_The percent of people living on $1 per day or less is statistically significantly strongly negatively correlated with the percent of primary and secondary age females in school in a country (r = `r round(corFemPov$estimate, 2)`; t(`r corFemPov$parameter`) = `r round(corFemPov$statistic, 2)`; p < .001). The sample likely came from a population where the correlation between poverty and female education was between `r round(corFemPov$conf.int[2], 2)` and `r round(corFemPov$conf.int[1], 2)` (95% CI: `r round(corFemPov$conf.int[2], 2)` to `r round(corFemPov$conf.int[1], 2)`). As the percent of people living on $1 per day or less goes up, the percent of school-age females in school goes down._
+
+## Check your understanding
+
+Write the null and alternate hypotheses to test whether there is a correlation between female education and basic water access. Examine the output from a correlation test and interpret the results.
+
+* H0:  
+* HA: 
+
+```{r echo = FALSE}
+# test for correlation coefficient
+corFemWater <- cor.test(waterData$female.in.school, waterData$perc.basic2015water)
+corFemWater
+```
+
+Reject or fail to reject the null hypothesis?
+
+Write the interpretation: 
+
+## Assumption checking for Pearson's r 
+
+There are several assumptions for Pearson's r:
+
+* Both variables are continuous 
+* Both variables are normally distributed 
+* The relationship between the two variables is _linear_ (linearity) 
+* The variance is constant with the points distributed equally around the line (homoscedasticity) 
+
+<center>
+![](null-meme.png)</center>
+
+
+
+## Check assumption 1: Both variables are continuous
+
+Assumption 1: For the correlation between females in school and basic water access, both variables are continuous. The first assumption is MET. 
+
+## Check assumption 2: Both variables are normally distributed
+
+```{r message = FALSE, error = FALSE, warning = FALSE, echo=FALSE, fig.width = 6, fig.height=4}
+# check normality of female.in.school variable
+ggplot(waterData, aes(x = female.in.school)) + 
+  geom_histogram(fill = "#88398a", col = "grey") + 
+  labs(x = "Percentage of school-age females in school",
+       y = "Countries") +
+  ggtitle("Distribution of female education") 
+
+```
+
+* The data do not appear to be normally distributed. 
+* The distribution is very _left_ or _negatively_ skewed, where there are values that create a longer tail to the left of the histogram. 
+* The second assumption is NOT MET for this variable.
+
+## Check assumption 2: Both variables are normally distributed
+
+```{r  message = FALSE, error = FALSE, warning = FALSE, echo=FALSE, fig.width = 6, fig.height=4}
+# check normality of water access variable
+ggplot(waterData, aes(x = perc.basic2015water)) + 
+  geom_histogram(fill = "#88398a", col = "grey") + 
+   
+  labs(x = "Percent with basic water access",
+       y = "Countries") +
+  ggtitle("Distribution of water access for countries") 
+
+```
+
+* The histogram shows a distribution that is extremely _left skewed_. 
+* The assumption is NOT MET for this variable.
+
+## Check assumption 3: Linearity
+
+The linearity assumption is met if a scatterplot of the two variables shows a relationship *that falls along a line*. 
+
+The straight line in the plot appears to represent the relationship well, so this assumption may be met. If it is difficult to tell, a _Loess curve_ can be added to double-check. A Loess curve shows the actual relationship between the two variables without constraining the line to be straight (see orange line):
+
+```{r warning = FALSE, message = FALSE, echo = FALSE, fig.height = 4, fig.width = 6}
+# check linearity of plot of female education and water
+ggplot(waterData, aes(y = female.in.school, x = perc.basic2015water/100)) + 
+  geom_smooth(se = FALSE, colour = "orange") +
+  geom_smooth(method = "lm", se = FALSE, colour = "gray") + 
+  geom_point(size = 2, colour = "#88398a") + 
+   
+  labs(y = "Percentage of females in school",
+       x = "Percent with basic access to water") +
+  ggtitle("Relationship of female education and water access worldwide") +
+  scale_x_continuous(labels = scales::percent)
+
+```
+
+In this case, an orange Loess curve shows some minor deviation from linear at the lower percentages, but overall the relationship seems close to linear. This assumption is MET.
+
+## Wait, what does a non-linear relationship look like?
+
+A non-linear relationship might look like one of these graphs where the relationships that do not fall along a straight line:
+
+```{r echo = FALSE, fig.height=4}
+# create vectors
+x <- seq(-10, 10, 1)
+y <- x^2
+y2 <- x^3/10
+exampNonlin <- data.frame(x = x, y = y, z = 1)
+exampNonlin2 <- data.frame(x = x, y = y2, z = 2)
+examp <- rbind(exampNonlin, exampNonlin2)
+
+
+# plot non-linear relationship
+ggplot(examp, aes(y = y, x = x)) + 
+  geom_smooth(method = "lm", se = FALSE, colour = "#88398a") + 
+  geom_point(size = 2, colour = "gray") + 
+   
+  ggtitle("Non-linear relationship examples") +
+  facet_grid(. ~ z)
+  
+
+```
+
+Both of these plots show relationships between x and y, but the relationships are not linear. They fall along curves instead of along a straight line. 
+
+## Assumption 4: Homoscedasticity
+
+The final assumption is the equal distribution of points around the line, which is often called the assumption of *homoscedasticity*. In the plot below, the points seem closer to the line on the far right and then are a little more spread out around the line on the left. 
+
+```{r message = FALSE, error = FALSE, warning = FALSE, echo=FALSE, fig.height = 4, fig.width = 6}
+# check linearity of plot of female education and water
+ggplot(waterData, aes(y = female.in.school, x = perc.basic2015water/100)) + 
+  geom_smooth(method = "lm", se = FALSE, colour = "gray") + 
+  geom_point(size = 2, colour = "#88398a") + 
+   
+  labs(y = "Percentage of females in school",
+       x = "Percent with basic access to water") +
+  ggtitle("Relationship of female education and water access worldwide") +
+  scale_x_continuous(labels = scales::percent)
+
+```
+
+## Checking homoscedasticity statistically
+
+Although the difference in spread from the left to the right is not dramatic until the values are over 90% access to water, it might be worth using a statistical test to check whether the difference in spread from one end to the other is statistically significant. 
+
+A Breusch-Pagan test examines the **null hypothesis that the variance is constant**. 
+
+```{r message = FALSE, error = FALSE, warning = FALSE, echo = FALSE}
+# testing for equal variance
+library(lmtest)
+testVar <- bptest(waterData$female.in.school ~ waterData$perc.basic2015water)
+testVar
+
+pvalBp <- format(testVar)
+```
+
+* The Breusch-Pagan test statistic has a low p-value associated with it (BP = `r round(testVar$statistic, 2)`; p = `r format(round(testVar$p.value, 4), scientific = FALSE)`), indicating that the null hypothesis would be rejected. 
+
+* The null hypothesis was that the variance is constant, so this means that the assumption of constant variance is not met. 
+
+* This assumption is NOT MET. 
+
+## Assumption checking conclusion
+
+* In all, the Pearson's r analysis for female education and water access met two of the four assumptions. 
+
+* It failed the assumptions of normally distributed variables and homoscedasticity. 
+
+* **While the results of the correlation analysis can be reported, since it failed two assumptions, the results should not be generalized beyond the sample.** 
+
+* Rewrite your conclusion:
+
+_In the sample, the percent of people with basic water access is very strongly positively correlated with the percent of primary and secondary age females in school in a country (r = `r round(corFemWater$estimate, 2)`). As the percent of people living on $1 per day or less goes up, the percent of school-age females in school goes down._
+
+## What now? Spearman's rho correlation coefficient 
+
+One option for when assumptions are unmet for a correlation analysis is the Spearman's rank correlation coefficient, rho. 
+
+* Spearman's rho is computed by ranking each value for each variable from lowest to highest and then computing the extent to which the two variable ranks are the same. 
+* So, for a Spearman's rho of female education and water access, the values of female education would be ranked from lowest to highest and the values of water access would be ranked from lowest to highest. 
+* Then, once the ranks are assigned, the correlation coefficient is computed:
+
+\[
+rho=\frac{6{\sum{d^2}}}{n(n^2-1)}
+\]
+
+Where:
+
+* d is the difference between the ranks of the two variables
+* n is the number of observations 
+
+## Computing Spearman's rho 
+
+H0: There is no correlation between female education and water access (rho = 0)
+HA: There is a correlation between female education and water access (rho is not 0)
+
+```{r warning=FALSE, message=FALSE}
+# spearman correlation female education and water access
+spearCorrFemWater <- cor.test(waterData$female.in.school,
+                              waterData$perc.basic2015water, 
+                              method = "spearman")
+spearCorrFemWater
+```
+
+## Statistical significance of rho
+
+Instead of a t-statistic and p-value, the Spearman test reports the `S` test statistic, which is computed:
+
+\[
+S=(n^3-n)\frac{1-r_{ranked}}{6}
+\]
+
+Where $r_{ranked}$ is the Pearson's r for ranks of the values of the two variables. Weirdly, the S is not used to find the p-value (or really for anything), instead the p-value is determined by computing a t-statistic using a Pearson's r for the ranked values and n-2 degrees of freedom: 
+
+\[
+t=r_{ranked}\sqrt{\frac{n-2}{1-r^2}}
+\]
+
+If you wanted to examine how S and t are related, you could use algebra to isolate the common $r_{ranked}$ and solve for S or t, but for now, we will just use the t-statistic to determine the significance of rho.
+
+## Interpretating the Spearman's rho
+
+There is a statistically significant strong positive correlation between basic access to drinking water and female education ($rho$ = `r round(spearCorrFemWater$estimate, 2)`; p < .001). As the percent of the population with basic access to water increases, so does the percent of school-age females in school.
+
+## Assumptions for Spearman's rho 
+
+The assumptions for the Spearman's rho correlation are: 
+
+* The variables are at least ordinal on this scale:
+    + Nominal: Categories that don't have a logical order (e.g., religion, marital status) 
+    + *Ordinal*: Categories that have a logical order (e.g., highest level of school completed)
+    + *Interval*: Can only take specific values along a continuum (e.g., number of cars in a parking lot, number of people in class) 
+    + *Ratio*: Can take any value along a continuum (e.g., height, weight)
+* the relationship between the two variables must be **monotonic** 
+
+## Assumption 1: Variable types
+
+The female education and water variables are both *ratio*. This assumption is met.
+
+## Assumption 2: Monotonic relationship
+
+A **monotonic** relationship is a relationship where one variable goes up as the other variable goes up, or one variable goes down while the other goes up. That is, the relationship does not have to follow a straight line, it can curve as long as it is always heading in the same direction. Here are a couple of examples to demonstrate: 
+
+```{r echo = FALSE, message = FALSE, warning = FALSE, fig.height=4}
+# create vectors
+set.seed(123)
+expon <- rlnorm(100)
+y1 <- (-expon^2)*3
+y2 <- (expon^3)/1.5
+a <- (seq(-25, 24.5, .5))^2
+
+exampNonlin <- data.frame(x = expon, y = y1, z = "monotonic (negative correlation)")
+exampNonlin2 <- data.frame(x = expon, y = y2, z = "monotonic (positive correlation)")
+exampNonlin3 <- data.frame(x = expon, y = a, z = "not monotonic")
+examp2 <- rbind(exampNonlin, exampNonlin2, exampNonlin3)
+
+# plot non-linear relationship
+# check linearity of plot of female education and water
+library(ggplot2)
+ggplot(examp2, aes(y = y, x = x)) + 
+    geom_point(colour = "gray") + 
+  geom_jitter(width = 4, colour = "gray") +
+    geom_smooth(se = FALSE, colour = "#88398a") +
+     
+  ggtitle("Relationship examples") +
+  facet_grid(. ~ z)
+  
+```
+
+## Assumption 2: Testing the assumption
+
+```{r warning = FALSE, message = FALSE, fig.width = 6, fig.height = 4, echo=FALSE}
+# check monotonic of plot of female education and water
+ggplot(waterData, aes(y = female.in.school, x = perc.basic2015water/100)) + 
+  geom_smooth(se = FALSE, colour = "orange") +
+  geom_point(size = 2, colour = "gray") + 
+   
+  labs(y = "Percentage of females in school",
+       x = "Percent with basic access to water") +
+  ggtitle("Relationship of female education and water access worldwide") +
+  scale_x_continuous(labels = scales::percent)
+
+```
+
+The line suggests that the relationship between female education and water access meets the monotonic assumption since the values of female education consistently go up as the values of access to water go up. The relationship does not change direction. This assumption IS MET.
+
+## Spearman's rho conclusion
+
+Given the analyses meet both assumptions, report and interpret the Spearman correlation coefficient. 
+
+The interpretation: 
+
+_There is a statistically significant positive correlation between basic access to drinking water and female education ($rho$ = `r round(spearCorrFemWater$estimate, 2)`; p < .001). As the percent of the population with basic access to water increases, so does the mean years of education for female citizens. The data meet the assumptions for Spearman's rho._
+
+## Partial correlations
+
+What if female education and water access are both related to poverty? What if this relationship is influencing how they are related to each other? 
+
+There is a method called _partial correlation_ for examining how multiple variables overlap. Examine a few Venn Diagrams with different patterns of shared variance to clarify the idea:
+
+```{r echo = FALSE, message=FALSE, warning=FALSE, fig.height = 6}
+# draw venn diagrams
+# THIS MAY NOT WORK WITHOUT APPROPRIATE JAVA INSTALLED ON COMPUTER
+library(venneuler)
+
+venn3 <- venneuler(c(Educ = 100, Water = 100, Poverty = 100, 
+                     "Educ&Water" = 30, "Educ&Poverty" = 30, "Poverty&Water" = 30,
+                     "Educ&Water&Poverty" = 10))
+venn3.2 <- venneuler(c(Educ = 100, Water = 100, Poverty = 100, 
+                     "Educ&Water" = 20, "Educ&Poverty" = 20, "Poverty&Water" = 80,
+                     "Educ&Water&Poverty" = 20))
+venn3.3 <- venneuler(c(Educ = 100, Water = 100, Poverty = 100, 
+                     "Educ&Water" = 80, "Educ&Poverty" = 80, "Poverty&Water" = 20,
+                     "Educ&Water&Poverty" = 10))
+venn3.4 <- venneuler(c(Educ = 100, Water = 100, Poverty = 100, 
+                     "Educ&Water" = 80, "Educ&Poverty" = 10, "Poverty&Water" = 20,
+                     "Educ&Water&Poverty" = 10))
+
+par(mfrow=c(2,2), mar = c(0, 0, 1, 0))
+plot(venn3)
+plot(venn3.2)
+plot(venn3.3)
+plot(venn3.4)
+
+
+
+```
+
+## Shared variance
+
+* The different amounts of overlap representing the amounts of shared variance among the variables. 
+
+* For example, we might be interested in how much overlap there is between female education and water access after accounting for poverty. 
+
+* In the Venn Diagrams, this would be the overlap between yellow and green only. 
+
+```{r echo = FALSE, message=FALSE, warning=FALSE, fig.height = 6}
+# draw venn diagrams
+plot(venn3.4)
+```
+
+
+## Calculating partial correlations
+
+The output shows the partial correlation between each pair of variables, while accounting for, or *controlling* for, the third variable. Partial correlation can be computed using Pearson's r or Spearman's rho depending on which assumptions are met. These are Spearman's rho given that the variables did not meet the Pearson's assumptions.
+
+```{r echo = FALSE, warning=FALSE, message=FALSE}
+# open the partial correlation package
+library(ppcor)
+
+# create a data frame with only female education
+# poverty and water access
+# find the column number for variables of interest by looking at the data frame
+waterDataSmall <- na.omit(waterData[ , c(3, 6, 9)])
+
+# conduct partial correlation
+educWaterPovertySpear <- pcor(waterDataSmall, method = "spearman")
+educWaterPovertySpear$estimate
+```
+
+Interpret one of these:
+
+Controlling for poverty, the partial correlation between female education and basic water access is moderate ($rho$ = `r round(educWaterPovertySpear$estimate[2,3],2)`).
+
+## Partial correlation significance
+
+```{r echo = FALSE}
+# print out p-values
+educWaterPovertySpear$p.value
+```
+
+The p-values indicate statistical significance for several of the correlation coefficients, including the correlation between females in school and basic water access.
+
+Interpret a partial correlation:
+
+*The partial correlation between percent of females in school and the percentage of citizens who have basic water access was moderate, positive, and statistically significant ($r_s$ = `r round(educWaterPovertySpear$estimate[2, 3], 2)`; t = `r round(educWaterPovertySpear$statistic[2, 3], 2)`; p =.0004). Even after poverty is accounted for, increased basic water access is related to increased percent of females in school.*
+
+## Assumption checking
+
+The assumptions that applied to the two variables for a Pearson's r or Spearman's rho correlation would apply to all three variables for the corresponding partial correlation. 
+
+So, in this case, each variable would need to be at least interval and each pair of variables would need to have a monotonic relationship. 
+
+* Assumption 1: Variable type
+    + The variables are ratio, so this assumption IS MET.
+
+* Assumption 2: Monotonic relationship
+
+```{r warning = FALSE, message = FALSE, fig.height = 4, echo = FALSE}
+# check monotonic of plot of female education and poverty
+library(gridExtra)
+library(grid)
+p1 <- ggplot(waterData, aes(y = female.in.school, x = perc.1dollar/100)) + 
+  geom_smooth(se = FALSE, colour = "gray40") +
+  geom_point(size = 2, colour = "#88398a") + 
+   
+  labs(y = "Percent of females in school",
+       x = "Percent living on $1 or less per day") +
+  ggtitle("Relationship of female education and\npoverty worldwide") +
+  scale_x_continuous(labels = scales::percent)
+
+# check monotonic of plot of water access and poverty
+p2 <- ggplot(waterData, aes(y = perc.basic2015water/100, x = perc.1dollar/100)) + 
+  geom_smooth(se = FALSE, colour = "gray40") +
+  geom_point(size = 2, colour = "#88398a") + 
+  labs(y = "Percent with basic water access",
+       x = "Percent living on $1 or less per day") +
+  ggtitle("Relationship of water access and\npoverty worldwide") +
+  scale_x_continuous(labels = scales::percent) +
+  scale_y_continuous(labels = scales::percent)
+
+grid.arrange(p1, p2, ncol = 2, nrow = 1)
+```
+
+## Assumption checking results
+
+In this case the analyses appear to meet the monotonic assumption for the poverty variable and the female education variable but not for the poverty variable and the basic water access variable. 
+
+The results can still be reported, but without meeting the assumptions for the statistical test, interpreting the statistical significance is a problem. 
+
+In situations like this there are a few possible strategies including: (1) interpreting the results for the sample only, and (2) recoding one of the variables to be categorical and using a different type of analysis. 
+
+## Interpretation
+
+Re-write the interpretation given the assumptions were not met:  
+
+_The partial Spearman's rho correlation between mean years of education for females and the percentage of citizens who have basic water access was moderate and positive ([\rho\] = `r round(educWaterPovertySpear$estimate[2, 3], 2)`. Even after poverty is accounted for, an increased basic water access was related to increased years of education for female citizens in this sample of countries._
+
+## Other options...proceed with caution
+
+* In addition to the two strategies above, many people transform variables by taking the square root, log, or inverse of the variable values. 
+* These transformations often work to help analysts meet a normality assumption or other assumptions for a particular type of analysis. 
+* Although transformation of variables allows meeting of assumptions, the interpretation of results suffers. 
+* For example, instead of reporting that the percentage of females in school is positively correlated with poverty rate, an inverse transformation of poverty rate would result in the interpretation that the percentage of females in school is positively correlated with the inverse of the poverty rate. 
+* For this reason (and a few others), do your best to avoid data transformations whenever possible. 
+
+## And finally...
+
+Just because two variables are statistically significantly very strongly correlated does not mean that one causes the other.
+
+<center>
+![](https://i.dailymail.co.uk/i/pix/2014/05/28/article-2640550-1E45C57300000578-400_634x281.jpg)
+</center>
+
+## The end
+
+The challenge is on GitHub
+
+<center>
+![](https://i.pinimg.com/originals/15/d1/1e/15d11e8b2c4e0e4934a82e27b8437206.jpg)
+</center>
+
+
+
+
+
+
