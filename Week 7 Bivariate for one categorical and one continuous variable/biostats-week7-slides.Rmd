@@ -1,0 +1,595 @@
+---
+title: 'Week 7: Bivariate tests for one categorical and one continuous variable'
+author: "Jenine Harris"
+date: "October 18, 2018"
+output: slidy_presentation
+---
+
+## Week 8 schedule
+
+* t-test activity 
+* t-test workshop 
+* sign up for book club topic 
+
+<center>
+![](brace-yourself-stats-are-coming.jpg){ width=50% } 
+</center>
+
+
+## Workshop outline
+
+These slides review the basics of _hypothesis testing_ and several specific hypothesis tests to compare continuous variables across groups:
+
+* Review null hypothesis significance testing (NHIST)
+* One-sample t-test
+* Independent samples t-test
+* Dependent or paired t-test
+* Analysis of Variance (ANOVA)
+* Testing assumptions
+* Alternative tests after not meeting assumptions
+* Extra stuff
+
+
+## Null hypothesis significance testing (NHIST)
+
+Relationships among variables are often described as being *statistically significant* or *not statistically significant* as a result of NHIST. 
+
+The process of NHIST is: 
+
+* Write the null and alternate hypotheses 
+* Compute the appropriate test statistic 
+* Calculate the probability that your test statistic is as big as it is if there is no relationship (i.e., the null is true) 
+* If the probability that the null is true is very small--less than 5%--reject the null hypothesis (if the p is low, the null must go!)
+* If the probability that the null is true is not small--5% or higher--retain the null hypothesis 
+
+## One-sample t-test 
+
+* The _one-sample t-test_ compares a **sample mean** to a **hypothesized** or **population mean**. 
+
+* For example, we might hypothesize that the mean number of cigarettes a smoker smokes is 20, since this is the number of cigarettes in one pack. 
+
+* To test NHANES smokers against this hypothetical mean, we can compare the mean number of cigarettes smoked per day during the past 30 days by the NHANES participants to the hypothetical value of 20. 
+
+## Write the null and alternate hypotheses
+
+* Null (H0): Smokers smoke an average of 20 cigarettes per day (m = 20) 
+* Alternate (HA): Smokers do not smoke an average of 20 cigarettes per day (m is not equal to 20) 
+
+## Examine the data
+
+```{r plotHistOneSampleT, warning=FALSE, message=FALSE, fig.height = 2}
+# Bring in the NHANES smoker data call it smokeNHANES
+library(RNHANES)
+smokeNHANES <- nhanes_load_data(file_name = "SMQ_H", 
+                                year = "2013-2014", 
+                                demographics = TRUE)
+
+# clean the number of cigarettes variable
+library(car)
+smokeNHANES$numcigs <- car::recode(smokeNHANES$SMD650, "777 = NA; 999 = NA")
+
+# explore the data with a graph
+library(ggplot2)
+ggplot(data = smokeNHANES, aes(x = numcigs)) + 
+  geom_density(fill = 'pink') + 
+  ggtitle("Number of cigarettes smoked by smokers each day (NHANES 2013-2014)")
+```
+
+## Compute the appropriate test statistic 
+
+The one-sample t-test uses the t-statistic (sort of like a z-statistic) to test whether a sample came from a population with the hypothesized mean: 
+
+\[
+t=\frac{m-\mu}{\frac{s}{\sqrt{n}}}
+\]
+
+*  $m$ is the sample mean
+*  $\mu$ is the population mean (or hypothetical mean)
+*  $s$ is the sample standard deviation
+*  $n$ is the sample size
+
+
+## Get mean, sd, n from R and compute
+```{r message=FALSE, echo = FALSE, results = 'hide'}
+# mean and standard deviation for number of cigarettes
+meanCigs <- mean(smokeNHANES$numcigs, na.rm = TRUE)
+sdCigs <- sd(smokeNHANES$numcigs, na.rm = TRUE)
+
+# use naniar library to get sample size 
+# naniar command n_complete gets sample size treating NA as missing
+library(naniar)
+nSubjects <- n_complete(smokeNHANES$numcigs)
+```
+```{r message=FALSE}
+# mean and standard deviation for number of cigarettes
+mean(smokeNHANES$numcigs, na.rm = TRUE)
+sd(smokeNHANES$numcigs, na.rm = TRUE)
+
+# use naniar library to get sample size treating NA as missing
+library(naniar)
+n_complete(smokeNHANES$numcigs)
+```
+
+$$t=\frac{`r meanCigs` - 20}{\frac{`r sdCigs`}{\sqrt{`r nSubjects`}}}=
+`r ((meanCigs - 20)/(sdCigs/sqrt(nSubjects)))`$$
+
+## Find the probability of your test statistic 
+
+* The area under the curve of the sampling distribution contains all possible values of the one-sample t-statistic for samples with 1245 d.f. that _came from a population where m = 20_ 
+* The probability of getting a t-statistic of -40.181 (or larger) for a sample from _a population where m = 20_ is the area under the curve to the left of the orange line
+* This is a very tiny probability of getting a sample where the t-statistic is this big (or bigger) _if m = 20 in the population_
+* So, _the mean (m) is probably not 20 in the population that this sample came from_
+
+```{r echo=FALSE, fig.height = 2, message=FALSE, warning = FALSE}
+# t-distribution 
+
+library(ggplot2)
+dat<-with(density(rt(100000, 1245)),data.frame(x,y))
+ggplot(data = dat, aes(x = x, y = y)) +
+    geom_line() + geom_vline(xintercept = -40.181, color = "orange") + # vline adds a vertical line
+    geom_segment(aes(x = -50, y = 0, xend = -3.5, yend = .0001)) +     # formatting the curve
+    geom_segment(aes(x = 50, y = 0, xend = 4.75, yend = 0.001)) +      # formatting the curve
+    ylim(0,.5) + xlim(-50, 50) +
+    xlab("t statistic") + ylab("Probability")+
+    ggtitle("Sampling distribution for t (df = 1245) with line at t = -40.181")
+```
+
+## Use R to compute the actual p-value
+
+```{r}
+# conduct the t-test with the hypothesized population mean (mu) as 20
+t.test(smokeNHANES$numcigs, mu=20)
+```
+
+* The t-statistic is -40.181 and the p-value for the t-statistic is < 2.2e-16, which is less than .05 
+* The probability of getting a t-statistic of -40.181 or even more extreme, *if the null hypothesis is true*, is < .00000000000000022 
+* That is a *very* low probability of getting such a large t-statistic, so the null is *probably not true*. We should *reject the null hypothesis*.
+
+## Interpret the results
+
+* There is sufficient evidence to reject the null hypothesis 
+* The mean of 10.41 cigarettes smoked per day is statistically significantly different from the hypothesized mean of 20 cigarettes per day (t = -40.18; p < .05)
+* The sample of smokers likely came from a population with a daily mean smoking rate of between 9.94 and 10.87 cigarettes per day (see confidence intervals from the t.test printout)
+
+**Altogether:** A one-sample t-test comparing the mean number of cigarettes NHANES participants smoke per day to a hypothesized mean of 20 found that the mean of 10.41 cigarettes (sd = 8.43) smoked per day by NHANES participants is statistically significantly different from 20 cigarettes per day (t = -40.18; p < .05). The sample of smokers likely came from a population with a daily mean smoking rate of between 9.94 and 10.87 cigarettes per day (95% CI: 9.94-10.87).
+
+## Independent samples t-test
+
+* Instead of comparing one mean to a hypothesized or population mean, the independent samples t-test compares the means of two groups to each other to see if they likely come from a population where the two groups had the same mean
+* In the NHANES smoker data there are males and females
+* Some research shows female smokers start at younger ages than male smokers 
+* We can use the independent samples t-test to find out if this is the case  
+
+## Write the null and alternate hypotheses
+
+* H0: There is no difference in mean age of starting smoking for male and female smokers 
+* HA: There is a difference in mean age of starting smoking for male and female smokers 
+
+```{r}
+# recode the variables
+smokeNHANES$sex <- car::recode(smokeNHANES$RIAGENDR, "1 = 'Male'; 2 = 'Female'")
+smokeNHANES$age.smoking <- car::recode(smokeNHANES$SMD030, "0 = NA; 
+                              777 = NA; 999 = NA")
+```
+
+## Explore the data with graphs 
+
+```{r warning=FALSE, message=FALSE, echo = FALSE, fig.height = 5}
+# compare male and female smoking age with density plot
+p1 <- ggplot(data = smokeNHANES, aes(fill = sex, x = age.smoking)) + 
+  geom_density(alpha=.5) + 
+  xlab("Age started smoking (in years)") + 
+  ylab("Probability density") +
+  ggtitle("Age started smoking\n(NHANES, 2013-2014)")
+
+# compare male and female smoking age with boxplot
+# fill the boxes with different colors by adding an aes
+# to the geom_boxpolt option with the categorical variable for fill
+p2 <- ggplot(data = smokeNHANES, aes(x = sex, y = age.smoking)) + 
+  geom_boxplot(aes(fill = sex)) + 
+  xlab("Participant sex") + 
+  ylab("Age started smoking (in years)") +
+  ggtitle("Age started smoking\n(NHANES, 2013-2014)")
+
+# use grid packages to put multiple graphs on a single row
+library(gridExtra)
+library(grid)
+grid.arrange(p1, p2, ncol = 2, nrow = 1)
+```
+
+
+## Calculate the test statistic
+
+By hand: 
+\[
+t=\frac{m_1-m_2}{\sqrt{\frac{s_1^2}{n_1}+\frac{s_2^2}{n_2}}}
+\]
+Or, with R:
+```{r}
+# t-test for age smoking initiation by sex
+age.smoke.sex.t <- t.test(smokeNHANES$age.smoking ~ smokeNHANES$sex)
+age.smoke.sex.t
+```
+
+## Find the probability of t under the null
+
+* The area under the curve of the sampling distribution contains all possible values of the t-statistic for samples with `r round(age.smoke.sex.t$parameter, 2)` d.f. that _came from a population where the means are equal_ 
+* The probability of getting a t-statistic of `r round(age.smoke.sex.t$statistic,2)` (or larger) for a sample from _a population where the means are equal_ is the area under the curve to the right of the orange line
+* This is a very tiny probability of getting a sample where the t-statistic is this big (or bigger) _if the means are equal in the population_
+* So, _the mean ages of smoking initiation are probably not equal for males and females in the population that this sample came from_
+
+```{r echo=FALSE, fig.height = 2.5, message=FALSE, warning = FALSE}
+# t-distribution 
+dat<-with(density(rt(100000, age.smoke.sex.t$parameter)),data.frame(x,y))
+ggplot(data = dat, aes(x = x, y = y)) +
+    geom_line() + geom_vline(xintercept = age.smoke.sex.t$statistic, color = "orange") + 
+    geom_segment(aes(x = -8, y = 0, xend = -3.5, yend = .0001)) + 
+    geom_segment(aes(x = 8, y = 0, xend = 4.5, yend = 0.001)) +
+    ylim(0,.5) + xlim(-8, 8) +
+    xlab("t statistic") + ylab("Probability")+
+  ggtitle("Sampling distribution for t (df = 1867.1) with line at t = 5.25")
+```
+
+## Write a conclusion/interpretation 
+
+* There is sufficient evidence to reject the null hypothesis (t = `r round(age.smoke.sex.t$statistic, 2)`; p < .05). 
+* The mean age of smoking initiation for males is statistically significantly different the mean age of smoking initiation for females. 
+* Male smokers and female smokers in this sample likely come from a population with different mean ages of smoking initiation for males and females. 
+* Males start smoking earlier (m = `r round(age.smoke.sex.t$estimate[2], 2)`, sd = `r round(tapply(smokeNHANES$age.smoking, smokeNHANES$sex, mean, na.rm = TRUE)[2],2)`) than females (m = `r round(age.smoke.sex.t$estimate[2], 2)`, sd = `r round(tapply(smokeNHANES$age.smoking, smokeNHANES$sex, mean, na.rm = TRUE)[1], 2)`).
+
+Altogether:
+
+An independent samples t-test comparing the mean age of smoking initiation by sex for NHANES participants found that there is a statistically significant difference between males and females (t = `r round(age.smoke.sex.t$statistic, 2)`; p < .05). Males start smoking earlier (m = `r round(age.smoke.sex.t$estimate[2], 2)`, sd = `r tapply(smokeNHANES$age.smoking, smokeNHANES$sex, mean, na.rm = TRUE)[2]`) than females (m = `r round(age.smoke.sex.t$estimate[2], 2)`, sd = `r tapply(smokeNHANES$age.smoking, smokeNHANES$sex, mean, na.rm = TRUE)[1]`).
+
+## Dependent samples t-test
+
+* Sometimes the means you want to compare will be related (not independent groups).
+* For example, the mean number of cigarettes smoked or the mean BMI before and after an intervention. 
+* When the two groups being compared are related (same people before & after, siblings, spouses, or two otherwise matched groups) an adjustment to the t-test to account for the non-independence is used. 
+* Everything else about the test stays the same! *See the Dalgaard text for more information.*
+
+## Comparing 3 or more means with Analysis of Variance (ANOVA)
+
+* When you have three or more group means to compare you need something a little fancier than a t-test. 
+* The statistical test for comparing means across 3 or more groups is ANOVA. 
+* For example, we could test the mean age of smoking initiation by race/hispanic origin. 
+
+Clean the data:
+```{r warning=FALSE, message=FALSE}
+# recode the race-eth variable
+smokeNHANES$race.eth <- car::recode(smokeNHANES$RIDRETH1, "1 = 'Mexican-Amer';
+2 = 'Other Hispanic'; 3 = 'White Non-Hisp'; 4 = 'Black Non-Hisp';
+5 = 'Other Race'")
+
+# this is a factor variable or a category, so tell R to treat it as such!
+smokeNHANES$race.eth <- factor(smokeNHANES$race.eth)
+```
+
+## Write the null and alternate hypotheses
+
+* H0: There is no difference in the mean age of smoking initation across race/ethnicity groups.  
+* HA: There is a difference in the means. 
+
+Explore with a graph:
+```{r warning=FALSE, message=FALSE, fig.height=3}
+# plot race-eth by groups 
+ggplot(data = smokeNHANES, aes(x = race.eth, y = age.smoking)) + 
+  geom_boxplot(aes(fill = race.eth)) + 
+  xlab("Participant race") + 
+  ylab("Age started smoking (in years)") +
+  ggtitle("Age started smoking (NHANES, 2013-2014)") +
+  theme(axis.text.x = element_text(angle=45, hjust=1)) 
+```
+
+## Calculate the test statistic
+
+* In ANOVA, the test statistic is F
+* F is the ratio of between-group variability to within-group variability
+
+\[
+F=\frac{between-group-variability}{within-group-variability}
+\]
+
+* Is there more difference *between* groups than there is *within* groups?
+```{r warning=FALSE, message=FALSE, fig.height=4, echo = FALSE}
+# plot race-eth by groups 
+ggplot(data = smokeNHANES, aes(x = race.eth, y = age.smoking)) + 
+  geom_boxplot(aes(fill = race.eth)) + 
+  xlab("Participant race") + 
+  ylab("Age started smoking (in years)") +
+  ggtitle("Age started smoking (NHANES, 2013-2014)") +
+  theme(axis.text.x = element_text(angle=45, hjust=1)) 
+```
+
+## Use R to calculate F
+
+```{r}
+# use aov for ANOVA
+race.smoking.age <- aov(age.smoking ~ race.eth, data = smokeNHANES)
+summary(race.smoking.age)
+```
+
+* F = 10.78
+* p < .05 
+
+## Find the probability of F under the null
+
+* The area under the curve of the sampling distribution contains all possible values of the F-statistic for samples with 4 and 2443 d.f. that _came from a population where the means are equal_ 
+* The probability of getting an F-statistic of 10.78 (or larger) for a sample from _a population where the means are equal_ is the area under the curve to the right of the orange line
+* This is a very tiny probability of getting a sample where the t-statistic is this big (or bigger) _if the means are equal in the population_
+* So, _the mean ages of smoking initiation are probably not equal across race/ethnicity groups in the population that this sample came from_
+
+```{r tDist, echo=FALSE, fig.height = 3, message=FALSE, warning = FALSE}
+# F distribution 
+# rf command creates data following F distribution
+dat<-with(density(rf(100000, 4, 2443)),data.frame(x,y))
+ggplot(data = dat, aes(x = x, y = y)) +
+    geom_line() + geom_vline(xintercept = 10.78, color = "orange") + 
+    geom_segment(aes(x = 7, y = 0, xend = 12, yend = 0.001)) +
+    xlim(0, 12) +
+    xlab("t statistic") + ylab("Probability")+
+  ggtitle("Sampling distribution for F (df = 4, 2443) with\nline at F = 10.78")
+```
+
+## Write a conclusion/interpretation 
+
+* There is sufficient evidence to reject the null hypothesis (F(4, 2443) = 10.78; p < .05) 
+* The mean age of smoking initiation is not equal across race/ethnicity groups
+* The five groups likely have come from a population where mean age of smoking initiation differs by race/ethnicity
+
+means:
+```{r echo = FALSE}
+# use tapply to find means of groups
+# checkout the apply family of commands
+# https://www.r-bloggers.com/r-tutorial-on-the-apply-family-of-functions/ 
+# or on DataCamp: https://www.datacamp.com/community/tutorials/r-tutorial-apply-family
+meansRaceEth <- tapply(X = smokeNHANES$age.smoking, INDEX = smokeNHANES$race.eth, FUN = mean, na.rm = TRUE)
+meansRaceEth
+```
+
+sd:
+```{r echo = FALSE}
+sdRaceEth <- tapply(X = smokeNHANES$age.smoking, INDEX = smokeNHANES$race.eth, FUN = sd, na.rm = TRUE)
+sdRaceEth
+```
+
+Altogether:
+
+An ANOVA analysis comparing the mean age of smoking initiation found a statistically significant difference (F(4, 2443) = 10.78; p < .05) in the means for Black non-Hispanic (m = `r round(meansRaceEth[1], 1)`; sd = `r round(sdRaceEth[1], 1)`), Mexican-American (m = `r round(meansRaceEth[2], 1)`, sd = `r round(sdRaceEth[2], 1)`), Other Hispanic (m = `r round(meansRaceEth[3], 1)`, sd = `r round(sdRaceEth[3], 1)`), Other Race (m = `r round(meansRaceEth[4], 1)`, sd = `r round(sdRaceEth[4], 1)`), and White non-Hispanic (m = `r round(meansRaceEth[5], 1)`, sd = `r round(sdRaceEth[5], 1)`) NHANES participants. 
+
+## Which groups are different?
+
+* ANOVA is an _omnibus test_ so even though the graph and descriptive statistics show which group means seem different from one another, we need a statistical test to determine which means are *statistically significantly* different from one another. 
+
+* If the ANOVA is NOT SIGNFICANT, the post-hoc test is NOT NEEDED because there are no differences among the means
+
+## Conduct the post-hoc test
+
+* There are several different post-hoc tests to choose from
+* The **Bonferroni post-hoc test** is one possibility 
+* The Bonferroni post-hoc test uses the t-test to compare means, but adjusts the p-value so that the overall chance of being wrong across several tests (the familywise alpha) stays below 5% 
+
+```{r}
+# post-hoc test to determine which means are different 
+# x is continuous variable, g is groups (categorical variable)
+pairwise.t.test(x = smokeNHANES$age.smoking, g = smokeNHANES$race.eth)
+```
+
+## Interpret the post-hoc test
+
+* The values in the Bonferroni table are the p-values for t-tests of each pair of means. 
+* It appears that the mean age of smoking initiation for Non-Hispanic Blacks (m = 18.98) is significantly (p = .03) higher than for Mexican-Americans (m = 17.81). 
+* The age of initiation for Non-Hispanic Whites (m = 17.38) was statistically significantly (p < .05) lower than the age of initiation for Non-Hispanic Blacks (m = 18.98) and Other Race (m = 18.90) participants. 
+
+Altogether:
+
+An ANOVA analysis comparing the mean age of smoking initiation found a statistically significant difference (F(4, 2443) = 10.78; p < .05) in the means for Black non-Hispanic (m = `r round(meansRaceEth[1], 1)`; sd = `r round(sdRaceEth[1], 1)`), Mexican-American (m = `r round(meansRaceEth[2], 1)`, sd = `r round(sdRaceEth[2], 1)`), Other Hispanic (m = `r round(meansRaceEth[3], 1)`, sd = `r round(sdRaceEth[3], 1)`), Other Race (m = `r round(meansRaceEth[4], 1)`, sd = `r round(sdRaceEth[4], 1)`), and White non-Hispanic (m = `r round(meansRaceEth[5], 1)`, sd = `r round(sdRaceEth[5], 1)`) NHANES participants. A Bonferroni post-hoc analysis indicated that the mean age of smoking initiation for Non-Hispanic Blacks was significantly higher than for Mexican-Americans and the age of initiation for Non-Hispanic Whites was statistically significantly lower than for Non-Hispanic Blacks or Other Race participants.
+
+## Testing assumptions
+
+All statistical tests make some underlying assumptions about the data being tested. Just like the mean is not a great indicator of central tendency when the distribution is skewed, statistical tests like t-tests and ANOVA are not great when the data fail to meet the underlying assumptions. 
+
+The one-sample t-test, independent samples t-test, and ANOVA rely on a few main assumptions: 
+
+* Independence of observations: Each observation in the data set is unrelated to the others in the data set. If your data includes siblings, spouses, or other related observations, it may not meet this assumption. *See Dependent Samples t-test*
+* Normal distribution: The outcome variable is normally distributed  
+* Homogeneity of variance: The groups have the same or similar variance for the outcome **(not applicable in the one-sample test because there is only one group)**
+
+## Testing the independence of observations
+
+_Independence of observations_ is not tested but instead is known based on how the data were collected. 
+
+## Testing for normal distribution
+
+_Normal distribution_ is checked visually using a histogram or statistically using the Shapiro-Wilk test. First, check visually for the one-sample t-test:
+
+```{r fig.height = 3}
+# check the distribution of numcigs
+hist(smokeNHANES$numcigs)
+```
+
+That is not normally distributed. The plot is right-skewed. The Shapiro-Wilk test tests the null hypothesis that the data are normally distributed for the variable of interest.
+
+## Statistical test of normality
+
+```{r}
+# check normality statistically with the Shapiro-Wilk test
+shapiro.test(smokeNHANES$numcigs)
+```
+
+The p-value less than .05, we reject the null hypothesis that numcigs is normally distributed. We conclude that numcigs is not normally distributed. This assumption is NOT MET.
+
+## Testing for normal distribution
+
+Try the age.onset for the independent samples t-test and ANOVA:
+
+```{r fig.height = 3, echo=FALSE}
+# check the distribution of age.smoking
+hist(smokeNHANES$age.smoking) 
+```
+
+```{r echo=FALSE}
+# check normality statistically with the Shapiro-Wilk test
+shapiro.test(smokeNHANES$age.smoking)
+```
+
+Doesn't look normally distributed by either the plot or the S-W test! Given the p-value for the S-W test is less than .05. This assumption is NOT MET.
+
+## Testing homogeneity of variance
+
+* _Homogeneity of variance_ is checked using the Levene Test. 
+* The Levene Test tests the null hypothesis that the variances are equal across groups. 
+* To meet this assumption we DO NOT want to reject the null hypothesis. 
+* Since this is about equal variance across groups, it is not relevant for the one-sample t-test because that test has only one group. 
+
+```{r message=FALSE, warning=FALSE}
+# Check the HoV of age.smoking from the independent samples t-test
+leveneTest(age.smoking ~ sex, data = smokeNHANES)
+```
+
+The small p-value indicates we *rejected* the null hypothesis that the variances are equal, so we do not meet this assumption. This assumption is NOT MET.
+
+## Testing the homogeneity of variance
+
+```{r, levene2, warning=FALSE, message=FALSE}
+# Check the HoV from the ANOVA
+leveneTest(age.smoking ~ race.eth, data = smokeNHANES)
+```
+
+The small p-value indicates we did reject the null, which means we do not meet this assumption. This assumption is NOT MET.
+
+## What happens when assumptions are not met?
+
+So, none of the tests met their assumptions! When data _do not_ meet the assumptions for a specific test there are 3 options: 
+
+* Use an alternative test (the non-parametric version)  
+* Transform the continuous variable to meet the normality assumption and try again 
+* Report your results as not meeting assumptions and therefore not generalizable beyond the sample
+
+## Alternative to the one-sample t-test
+
+The non-parametric version of the one-sample t-test is the Sign Test. The Sign Test computes whether the median is statistically significantly different than some population or hypothesized median. So, instead of comparing the sample mean to the mu, the Sign Test compares the sample median to a population or hypothesized median, like this:
+
+* H0: The median number of cigarettes smoked per day by NHANES smokers is 20 (med = 20). 
+* HA: The median number of cigarettes smoked per day by NHANES smokers is not 20 (med does not equal 20).
+
+## Conduct the Sign Test
+
+```{r, signTest, message=FALSE}
+# conduct the sign with the hypothesized 
+# population median as 20 
+# be sure the BSDA package is installed beforehand
+library(BSDA)
+SIGN.test(smokeNHANES$numcigs, md=20)
+```
+
+## Interpret the Sign Test
+
+The s statistic is 58 and the p-value for the s-statistic is < 2.2e-16 or < .00000000000000022, which is lower than the standard cutoff of .05. 
+
+Interpretation: The Sign Test indicates that the NHANES participants do not come from a population that smokes a median of 20 cigarettes per day (s = 58; p < .05). The median in the sample is 10 with a 95% confidence interval of 9 to 10 cigarettes per day. The sample likely comes from a population of smokers who smoke a median of 9 to 10 cigarettes per day.
+
+## Alternative to the independent samples t-test 
+
+The non-parametric version of the independent samples t-test is the Mann-Whitney U test (also called the Wilcoxon test). Although sometimes interpreted as the difference in medians, the Mann-Whitney U test actually puts all the observations from both groups in order from lowest and highest and ranks them. The sums of the ranks for observations in the two groups are then compared. The null and alternate hypothesis would be:
+
+* H0: Age of smoking initiation is equally distributed for males and females
+* HA: Age of smoking initiation is not equally distributed for males and females 
+
+## Exploring the data
+
+Revisiting the distributions from earlier:
+
+```{r warning=FALSE, message=FALSE, fig.height = 3}
+# compare male and female smoking age with density plot
+ggplot(data = smokeNHANES, aes(fill = sex, x = age.smoking)) + 
+  geom_density(alpha=.5) + 
+  xlab("Participant sex") + 
+  ylab("Age started smoking (in years)") +
+  ggtitle("Age started smoking (NHANES, 2013-2014)")
+```
+
+## Conducting the Mann-Whitney U test
+
+```{r} 
+# testing for differences in distributions 
+wilcox.test(age.smoking ~ sex, data = smokeNHANES)
+
+```
+
+## Examine the medians and make a conclusion
+
+In this case, it appears to be significant. Since this is a non-parametric test for data that are not normally distributed, compute medians (instead of means) to add some context:
+
+```{r}
+# tables of medians and IQR
+library(tableone)
+smoking.age.sex <- CreateTableOne(vars = "age.smoking", 
+                                  strata = "sex", 
+                                  data = smokeNHANES)
+print(smoking.age.sex, nonnormal = "age.smoking")
+```
+
+We can conclude that there is a statistically significant difference (W = 797420; p = .0002) in the distribution of age of initation for males and females. Males likely start smoking at an earlier age (med = 17 years) than females (med = 18 years).
+
+## Alternative for ANOVA 
+
+Likewise, the non-parametric version of ANOVA is the _Kruskal-Wallis test_, which examines ranks across groups like the Mann-Whitney U test, but for more than two groups. The two arguments for this test are x, which is the continuous variable and g, which is the groups. The command can fail if the groups variable is not a factor data type, so you can add as.factor to ensure it will run. 
+
+Try the Kruskal-Wallis test for age of smoking initiation by the race.eth variable:
+
+* H0: The distribution of the age of smoking initiation is the same by race/ethnicity.
+* HA: The distribution of the age of smoking initiation differs by race/ethnicity.
+
+```{r}
+# examine distributions across groups 
+kruskal.test(x = smokeNHANES$age.smoking, g = as.factor(smokeNHANES$race.eth))
+```
+
+## Interpreting Kruskal-Wallis 
+
+In this case, it appears to be significant. So, we can conclude that there is a statistically significant difference (K-W chi-squared = 61.59; p < .05) in the distribution of age of smoking initiation by race/ethnicity. A table can add some additional context: 
+
+```{r echo = FALSE}
+# table of medians and IQR for age of smoking initiation
+smoking.age.race <- CreateTableOne(vars = "age.smoking", 
+                                  strata = "race.eth", 
+                                  data = smokeNHANES)
+print(smoking.age.race, nonnormal = "age.smoking")
+```
+
+It appears that Mexican-Americans, Non-Hispanic white, and Other Hispanic all have median age of smoking initiation of 17 years old while Non-Hispanic Black and Other Race participants have a median of 18 years old for smoking initiation. 
+
+## Post-hoc test for Mann-Whitney U
+
+Like Bonferroni for ANOVA, use a Dunn's test to compare distributions for each pair of groups:
+
+```{r message=FALSE, eval = FALSE}
+# be sure dunn.test is installed
+# open the dunn.test package
+# enter the continuous variable as x, the categorical as g (groups)
+library(dunn.test)
+dunn.test(x = smokeNHANES$age.smoking, g = smokeNHANES$race.eth)
+```
+
+## Dunn test output
+
+```{r message=FALSE, echo = FALSE}
+# be sure dunn.test is installed
+# open the dunn.test package
+# enter the continuous variable as x, the categorical as g (groups)
+library(dunn.test)
+dunn.test(x = smokeNHANES$age.smoking, g = smokeNHANES$race.eth)
+```
+
+## Interpret post-hoc test 
+
+The Dunn's post-hoc test indicates that the age of smoking initiation distribution is significantly (p < .05) different for Non-Hispanic Blacks (med = 18) compared to Mexican-Americans (med = 17), Other Hispanics (med = 17), and Non-Hispanic Whites (med = 17). Other Race participants (med = 18) are also statistically significantly different (p < .05) from Other Hispanic and Non-Hispanic Whites for age of smoking initiation. Non-Hispanic Blacks and Other Race participants start smoking later (med = 18) than the other groups (med = 17). 
+
+## THE END
+
+* The challenge is on GitHub
+* The RMD used to create these slides is on GitHub and includes all the code used throughout and extra annotation for any new commands or new command options
+
+<center>
+![](test-all-assumptions.jpg)
