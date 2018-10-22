@@ -235,11 +235,11 @@ ggplot(data = dat, aes(x = x, y = y)) +
 * There is sufficient evidence to reject the null hypothesis (t = `r round(age.smoke.sex.t$statistic, 2)`; p < .05). 
 * The mean age of smoking initiation for males is statistically significantly different the mean age of smoking initiation for females. 
 * Male smokers and female smokers in this sample likely come from a population with different mean ages of smoking initiation for males and females. 
-* Males start smoking earlier (m = `r round(age.smoke.sex.t$estimate[2], 2)`, sd = `r round(tapply(smokeNHANES$age.smoking, smokeNHANES$sex, mean, na.rm = TRUE)[2],2)`) than females (m = `r round(age.smoke.sex.t$estimate[2], 2)`, sd = `r round(tapply(smokeNHANES$age.smoking, smokeNHANES$sex, mean, na.rm = TRUE)[1], 2)`).
+* Males start smoking earlier (m = `r round(age.smoke.sex.t$estimate[2], 2)`, sd = `r round(tapply(smokeNHANES$age.smoking, smokeNHANES$sex, sd, na.rm = TRUE)[2],2)`) than females (m = `r round(age.smoke.sex.t$estimate[1], 2)`, sd = `r round(tapply(smokeNHANES$age.smoking, smokeNHANES$sex, sd, na.rm = TRUE)[1], 2)`).
 
 Altogether:
 
-An independent samples t-test comparing the mean age of smoking initiation by sex for NHANES participants found that there is a statistically significant difference between males and females (t = `r round(age.smoke.sex.t$statistic, 2)`; p < .05). Males start smoking earlier (m = `r round(age.smoke.sex.t$estimate[2], 2)`, sd = `r tapply(smokeNHANES$age.smoking, smokeNHANES$sex, mean, na.rm = TRUE)[2]`) than females (m = `r round(age.smoke.sex.t$estimate[2], 2)`, sd = `r tapply(smokeNHANES$age.smoking, smokeNHANES$sex, mean, na.rm = TRUE)[1]`).
+An independent samples t-test comparing the mean age of smoking initiation by sex for NHANES participants found that there is a statistically significant difference between males and females (t = `r round(age.smoke.sex.t$statistic, 2)`; p < .05). Males start smoking earlier (m = `r round(age.smoke.sex.t$estimate[2], 2)`, sd = `r round(tapply(smokeNHANES$age.smoking, smokeNHANES$sex, sd, na.rm = TRUE)[2],2)`) than females (m = `r round(age.smoke.sex.t$estimate[1], 2)`, sd = `r round(tapply(smokeNHANES$age.smoking, smokeNHANES$sex, sd, na.rm = TRUE)[1],2)`).
 
 ## Dependent samples t-test
 
@@ -316,7 +316,7 @@ summary(race.smoking.age)
 
 * The area under the curve of the sampling distribution contains all possible values of the F-statistic for samples with 4 and 2443 d.f. that _came from a population where the means are equal_ 
 * The probability of getting an F-statistic of 10.78 (or larger) for a sample from _a population where the means are equal_ is the area under the curve to the right of the orange line
-* This is a very tiny probability of getting a sample where the t-statistic is this big (or bigger) _if the means are equal in the population_
+* This is a very tiny probability of getting a sample where the F-statistic is this big (or bigger) _if the means are equal in the population_
 * So, _the mean ages of smoking initiation are probably not equal across race/ethnicity groups in the population that this sample came from_
 
 ```{r tDist, echo=FALSE, fig.height = 3, message=FALSE, warning = FALSE}
@@ -408,9 +408,11 @@ _Normal distribution_ is checked visually using a histogram or statistically usi
 hist(smokeNHANES$numcigs)
 ```
 
-That is not normally distributed. The plot is right-skewed. The Shapiro-Wilk test tests the null hypothesis that the data are normally distributed for the variable of interest.
+That is not normally distributed. The plot is right-skewed. 
 
-## Statistical test of normality
+## Statistical test of normality (Shapiro-Wilk)
+
+The Shapiro-Wilk test tests the null hypothesis that the data are normally distributed for the variable of interest.
 
 ```{r}
 # check normality statistically with the Shapiro-Wilk test
@@ -470,8 +472,8 @@ So, none of the tests met their assumptions! When data _do not_ meet the assumpt
 
 The non-parametric version of the one-sample t-test is the Sign Test. The Sign Test computes whether the median is statistically significantly different than some population or hypothesized median. So, instead of comparing the sample mean to the mu, the Sign Test compares the sample median to a population or hypothesized median, like this:
 
-* H0: The median number of cigarettes smoked per day by NHANES smokers is 20 (med = 20). 
-* HA: The median number of cigarettes smoked per day by NHANES smokers is not 20 (med does not equal 20).
+* H0: The median number of cigarettes smoked per day by smokers is 20 (med = 20). 
+* HA: The median number of cigarettes smoked per day by smokers is not 20 (med does not equal 20).
 
 ## Conduct the Sign Test
 
@@ -517,9 +519,11 @@ wilcox.test(age.smoking ~ sex, data = smokeNHANES)
 
 ```
 
+With a small p-value, the test appears to indicate that the null should be rejected. There is a statistically significant difference in the distribution of ages when males and females start smoking (W = 797420; p = .0002).
+
 ## Examine the medians and make a conclusion
 
-In this case, it appears to be significant. Since this is a non-parametric test for data that are not normally distributed, compute medians (instead of means) to add some context:
+Since this is a non-parametric test for data that are not normally distributed, compute medians (instead of means) to add some context:
 
 ```{r}
 # tables of medians and IQR
@@ -534,12 +538,14 @@ We can conclude that there is a statistically significant difference (W = 797420
 
 ## Alternative for ANOVA 
 
-Likewise, the non-parametric version of ANOVA is the _Kruskal-Wallis test_, which examines ranks across groups like the Mann-Whitney U test, but for more than two groups. The two arguments for this test are x, which is the continuous variable and g, which is the groups. The command can fail if the groups variable is not a factor data type, so you can add as.factor to ensure it will run. 
+Likewise, the non-parametric version of ANOVA is the _Kruskal-Wallis test_, which examines ranks across groups like the Mann-Whitney U test, but for more than two groups. 
 
 Try the Kruskal-Wallis test for age of smoking initiation by the race.eth variable:
 
 * H0: The distribution of the age of smoking initiation is the same by race/ethnicity.
 * HA: The distribution of the age of smoking initiation differs by race/ethnicity.
+
+In R, the two arguments for this test are x, which is the continuous variable and g, which is the groups. The command can fail if the groups variable is not a factor data type, so you can add as.factor to ensure it will run. 
 
 ```{r}
 # examine distributions across groups 
@@ -589,7 +595,7 @@ The Dunn's post-hoc test indicates that the age of smoking initiation distributi
 ## THE END
 
 * The challenge is on GitHub
-* The RMD used to create these slides is on GitHub and includes all the code used throughout and extra annotation for any new commands or new command options
+* The RMD used to create these slides is on GitHub and includes all the code used throughout and extra annotation for any new commands or new command options along with some fancy [optional] options for writing R Markdown documents for those of you who are interested! 
 
 <center>
 ![](test-all-assumptions.jpg)
