@@ -327,7 +327,7 @@ ggplot(data = dat, aes(x = x, y = y)) +
     geom_line() + geom_vline(xintercept = 10.78, color = "orange") + 
     geom_segment(aes(x = 7, y = 0, xend = 12, yend = 0.001)) +
     xlim(0, 12) +
-    xlab("t statistic") + ylab("Probability")+
+    xlab("F statistic") + ylab("Probability")+
   ggtitle("Sampling distribution for F (df = 4, 2443) with\nline at F = 10.78")
 ```
 
@@ -378,12 +378,12 @@ pairwise.t.test(x = smokeNHANES$age.smoking, g = smokeNHANES$race.eth)
 ## Interpret the post-hoc test
 
 * The values in the Bonferroni table are the p-values for t-tests of each pair of means. 
-* It appears that the mean age of smoking initiation for Non-Hispanic Blacks (m = 18.98) is significantly (p = .03) higher than for Mexican-Americans (m = 17.81). 
-* The age of initiation for Non-Hispanic Whites (m = 17.38) was statistically significantly (p < .05) lower than the age of initiation for Non-Hispanic Blacks (m = 18.98) and Other Race (m = 18.90) participants. 
+* It appears that the mean age of smoking initiation for non-Hispanic Blacks (m = 18.98) is significantly (p = .03) higher than for Mexican-Americans (m = 17.81). 
+* The age of initiation for non-Hispanic Whites (m = 17.38) was statistically significantly (p < .05) lower than the age of initiation for non-Hispanic Blacks (m = 18.98) and Other Race (m = 18.90) participants. 
 
 Altogether:
 
-An ANOVA analysis comparing the mean age of smoking initiation found a statistically significant difference (F(4, 2443) = 10.78; p < .05) in the means for Black non-Hispanic (m = `r round(meansRaceEth[1], 1)`; sd = `r round(sdRaceEth[1], 1)`), Mexican-American (m = `r round(meansRaceEth[2], 1)`, sd = `r round(sdRaceEth[2], 1)`), Other Hispanic (m = `r round(meansRaceEth[3], 1)`, sd = `r round(sdRaceEth[3], 1)`), Other Race (m = `r round(meansRaceEth[4], 1)`, sd = `r round(sdRaceEth[4], 1)`), and White non-Hispanic (m = `r round(meansRaceEth[5], 1)`, sd = `r round(sdRaceEth[5], 1)`) NHANES participants. A Bonferroni post-hoc analysis indicated that the mean age of smoking initiation for Non-Hispanic Blacks was significantly higher than for Mexican-Americans and the age of initiation for Non-Hispanic Whites was statistically significantly lower than for Non-Hispanic Blacks or Other Race participants.
+An ANOVA analysis comparing the mean age of smoking initiation found a statistically significant difference (F(4, 2443) = 10.78; p < .05) in the means for Black non-Hispanic (m = `r round(meansRaceEth[1], 1)`; sd = `r round(sdRaceEth[1], 1)`), Mexican-American (m = `r round(meansRaceEth[2], 1)`, sd = `r round(sdRaceEth[2], 1)`), Other Hispanic (m = `r round(meansRaceEth[3], 1)`, sd = `r round(sdRaceEth[3], 1)`), Other Race (m = `r round(meansRaceEth[4], 1)`, sd = `r round(sdRaceEth[4], 1)`), and White non-Hispanic (m = `r round(meansRaceEth[5], 1)`, sd = `r round(sdRaceEth[5], 1)`) NHANES participants. A Bonferroni post-hoc analysis indicated that the mean age of smoking initiation for non-Hispanic Blacks was significantly higher than for Mexican-Americans and the age of initiation for non-Hispanic Whites was statistically significantly lower than for non-Hispanic Blacks or Other Race participants.
 
 ## Testing assumptions
 
@@ -435,7 +435,7 @@ hist(smokeNHANES$age.smoking)
 shapiro.test(smokeNHANES$age.smoking)
 ```
 
-Doesn't look normally distributed by either the plot or the S-W test! Given the p-value for the S-W test is less than .05. This assumption is NOT MET.
+Doesn't look normally distributed by either the plot or the S-W test! The p-value for the S-W test is less than .05. This assumption is NOT MET.
 
 ## Testing homogeneity of variance
 
@@ -506,8 +506,8 @@ Revisiting the distributions from earlier:
 # compare male and female smoking age with density plot
 ggplot(data = smokeNHANES, aes(fill = sex, x = age.smoking)) + 
   geom_density(alpha=.5) + 
-  xlab("Participant sex") + 
-  ylab("Age started smoking (in years)") +
+  xlab("Age started smoking (in years)") + 
+  ylab("Probability density") +
   ggtitle("Age started smoking (NHANES, 2013-2014)")
 ```
 
@@ -564,7 +564,7 @@ smoking.age.race <- CreateTableOne(vars = "age.smoking",
 print(smoking.age.race, nonnormal = "age.smoking")
 ```
 
-It appears that Mexican-Americans, Non-Hispanic white, and Other Hispanic all have median age of smoking initiation of 17 years old while Non-Hispanic Black and Other Race participants have a median of 18 years old for smoking initiation. 
+It appears that Mexican-Americans, non-Hispanic White, and Other Hispanic all have median age of smoking initiation of 17 years old while non-Hispanic Black and Other Race participants have a median of 18 years old for smoking initiation. 
 
 ## Post-hoc test for Mann-Whitney U
 
@@ -590,7 +590,7 @@ dunn.test(x = smokeNHANES$age.smoking, g = smokeNHANES$race.eth)
 
 ## Interpret post-hoc test 
 
-The Dunn's post-hoc test indicates that the age of smoking initiation distribution is significantly (p < .05) different for Non-Hispanic Blacks (med = 18) compared to Mexican-Americans (med = 17), Other Hispanics (med = 17), and Non-Hispanic Whites (med = 17). Other Race participants (med = 18) are also statistically significantly different (p < .05) from Other Hispanic and Non-Hispanic Whites for age of smoking initiation. Non-Hispanic Blacks and Other Race participants start smoking later (med = 18) than the other groups (med = 17). 
+The Dunn's post-hoc test indicates that the age of smoking initiation distribution is significantly (p < .05) different for non-Hispanic Blacks (med = 18) compared to Mexican-Americans (med = 17), Other Hispanics (med = 17), and non-Hispanic Whites (med = 17). Other Race participants (med = 18) are also statistically significantly different (p < .05) from Other Hispanic and non-Hispanic Whites for age of smoking initiation. non-Hispanic Blacks and Other Race participants start smoking later (med = 18) than the other groups (med = 17). 
 
 ## THE END
 
