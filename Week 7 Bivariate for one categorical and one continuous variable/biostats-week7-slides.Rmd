@@ -1,11 +1,9 @@
 ---
 title: 'Week 7: Bivariate tests for one categorical and one continuous variable'
-author: "Jenine Harris"
-date: "October 18, 2018"
 output: slidy_presentation
 ---
 
-## Week 8 schedule
+## Week 7 schedule
 
 * t-test activity 
 * t-test workshop 
