@@ -574,7 +574,7 @@ Given the analyses meet both assumptions, report and interpret the Spearman corr
 
 The interpretation: 
 
-_There is a statistically significant positive correlation between basic access to drinking water and female education ($rho$ = `r round(spearCorrFemWater$estimate, 2)`; p < .001). As the percent of the population with basic access to water increases, so does the mean years of education for female citizens. The data meet the assumptions for Spearman's rho._
+_There is a statistically significant positive correlation between basic access to drinking water and female education ($rho$ = `r round(spearCorrFemWater$estimate, 2)`; p < .001). As the percent of the population with basic access to water increases, so does the percent of female citizens in school. The data meet the assumptions for Spearman's rho._
 
 ## Partial correlations
 
@@ -615,7 +615,7 @@ plot(venn3.4)
 
 * The different amounts of overlap representing the amounts of shared variance among the variables. 
 
-* For example, we might be interested in how much overlap there is between female education and water access after accounting for poverty. 
+* For example, we might be interested in how much overlap there is between female education and basic water access after accounting for poverty. 
 
 * In the Venn Diagrams, this would be the overlap between yellow and green only. 
 
@@ -628,19 +628,30 @@ plot(venn3.4)
 
 ## Calculating partial correlations
 
-The output shows the partial correlation between each pair of variables, while accounting for, or *controlling* for, the third variable. Partial correlation can be computed using Pearson's r or Spearman's rho depending on which assumptions are met. These are Spearman's rho given that the variables did not meet the Pearson's assumptions.
+* The output shows the partial correlation between each pair of variables, while accounting for, or *controlling* for, the third variable. 
+* Partial correlation can be computed using Pearson's r or Spearman's rho depending on which assumptions are met.
 
 ```{r warning=FALSE, message=FALSE}
 # open the partial correlation package
 library(ppcor)
 
-# create a data frame with only female education, poverty, water access
-# remove NA values
-# find the column number for variables of interest by looking at the data frame
-waterDataSmall <- na.omit(waterData[ , c(3, 6, 9)])
+# pcor only runs on data with no NA values
+# make a small data set with only the variables of interest
+keepVars <- c("perc.1dollar", "female.in.school", "perc.basic2015water")
+# subset
+waterDataSmall <- waterData[keepVars]
+# remove NA
+waterDataSmall <- na.omit(waterDataSmall)
 
 # conduct partial correlation
 educWaterPovertySpear <- pcor(waterDataSmall, method = "spearman")
+
+```
+## Interpret partial correlation  
+
+Print the partial correlations:
+
+```{r warning=FALSE, message=FALSE}
 # print partial correlations
 educWaterPovertySpear$estimate
 ```
