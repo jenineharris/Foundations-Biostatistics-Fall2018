@@ -2,17 +2,17 @@
 title: "Challenge 8"
 output: html_document
 ---
-Choose either the standard or hacker edition. Create a new R Markdown document and format it as a brief report to a non-profit working on sanitation access globally. Use ## at the beginning of a line of text to create a section heading if needed. Use ### to create a sub-heading if needed. Knit before submitting and fix any problems you find. Submit the .Rmd file only.
+Choose either the standard or hacker edition. Create a new R Markdown document and format it as a brief report to a non-profit working on sanitation access globally. Use ## at the beginning of a line of non-code text (outside the code chunks) to create a section heading if needed. Use ### to create a sub-heading if needed. Knit before submitting and fix any problems you find. Submit the .Rmd file only.
 
 ## Standard edition 
 
-Use the data from this notes packet to develop a short report in R Markdown about the percentage of school-age females in school, basic sanitation, and poverty worldwide. Include appropriate descriptive statistics, graphs, correlation analyses, and partial correlation analyses. 
+Use the data from the week 8 slides to develop a short report in R Markdown about the percentage of school-age females in school, basic sanitation, and poverty worldwide. Include appropriate descriptive statistics, graphs, correlation analyses, and partial correlation analyses. 
 
-Hide all R code chunks by adding options to the {r} at the top of each chunk, like this: {r warning = FALSE, message = FALSE, echo = FALSE} to hide the code chunk but include the statistical results output. Use ## at the beginning of a line of text to create a section heading with larger text if needed. Use ### to create a sub-heading if needed. 
+Hide all R code chunks by adding options to the {r} at the top of each chunk, like this: {r warning = FALSE, message = FALSE, echo = FALSE} to hide the code chunk but include the statistical results output.
 
 ## Hacker edition
 
-Complete the standard edition adding inline r to report results throughout. That is, where possible, insert a small amount of r code into the text to report a result instead of retyping it from the output. Inline code allows you to write a reproducible document. If the data or analyses change in small or large ways, the numbers will automatically be updated throughout the document without you having to find every place you reported a result. 
+Complete the standard edition adding inline r to report results throughout. That is, where possible, insert a small amount of r code into the non-code text to report a result instead of retyping it from the output. Inline code allows you to write a reproducible document. If the data or analyses change in small or large ways, the numbers will automatically be updated throughout the document without you having to find every place you reported a result. 
 
 For example, you could report the median and IQR of `perc.in.school` by writing a code chunk and then copying the median into your text, like this:
 
@@ -44,4 +44,4 @@ If needed, add the round command with 1 decimal place:
 
 * The median number of females in school is `r round(median(waterData$perc.in.school, na.rm = T), 1)` (med = `r round(median(waterData$perc.in.school, na.rm = T), 1)`; IQR = `r round(IQR(waterData$perc.in.school, na.rm = T), 1)`). 
 
-While conducting minor analyses directly in the text is useful, some code is just too long to include inline and should be run in a regular code chunk. 
+While conducting minor analyses directly in the text is useful, some code is just too long to include inline and should be run in a regular code chunk. Knit this set of instructions to see how the inline code works!
