@@ -1,18 +1,31 @@
 ---
 title: "Biostats Week 8: Bivariate for two continuous variables"
-output: slidy_presentation
+output: 
+    slidy_presentation: 
+        highlight: haddock
 ---
+
+```{r setup, include=FALSE}
+# To change this to a packet for printing instead of slides
+# delete the line in the heading at the top that says "output:" and all the lines after it 
+# up to the --- (leave the --- there)
+# replace with one line that says "output: html_document" in the output field
+# to any of the code chunks you want to see in the packet, add echo = TRUE 
+# inside the curly brackets around the {r} at the top of the chunk like this
+# {r echo=TRUE} and knit to make a packet
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo=FALSE)
+```
 
 ## Week 8 schedule
 
 * t-test review 
 * correlation workshop 
-* sign up for book club topic 
 
 <BR><BR> <center>
 
 ![](https://imgs.xkcd.com/comics/correlation.png){ width=60% }
 </center>
+
 
 ## Correlation workshop outline
 
@@ -37,7 +50,7 @@ The remaining two-variable situation is when there are two continuous variables.
 
 ## The data 
 
-```{r warning = FALSE, message = FALSE, echo = FALSE}
+```{r}
 # bring in waterData file
 waterData <- read.csv("https://tinyurl.com/y7k5uqq9")
 ```
@@ -63,7 +76,7 @@ The observations are countries and the variables are:
 * _Positive correlations_ are when the values of one variable goes up, the values of other also goes up (or when one goes down the other does too); both variables move together in the same direction  
 
 <center>
-```{r echo=FALSE, fig3, fig.height = 4, fig.width = 10}
+```{r fig.height = 4, fig.width = 10}
 # visual examples of correlation types
 x <- c(1,2,3,4,5,6,7,8,9)
 y <- 1.4*x
@@ -110,7 +123,7 @@ Where:
 
 ## Basic water access and percent of females in school
 
-```{r warning = FALSE, message = FALSE, echo = FALSE}
+```{r}
 # explore plot of female education and water
 # EXTRA
 library(ggplot2)
@@ -129,7 +142,7 @@ ggplot(waterData, aes(y = female.in.school/100, x = perc.basic2015water/100)) +
 
 A correlation coefficient can quantify the relationship:
 
-```{r}
+```{r echo = TRUE}
 # compute the correlation coefficient
 cor(waterData$female.in.school, waterData$perc.basic2015water, use='complete')
 ```
@@ -142,7 +155,7 @@ _The percent of females in school is very strongly positively correlated with th
 
 ## What is the correlation here?
 
-```{r warning = FALSE, message = FALSE, echo = FALSE}
+```{r}
 # explore plot of female education and poverty
 ggplot(waterData, aes(y = female.in.school/100, x = perc.1dollar/100)) + 
   geom_smooth(method = "lm", se = FALSE, colour = "gray") +
@@ -157,7 +170,7 @@ ggplot(waterData, aes(y = female.in.school/100, x = perc.1dollar/100)) +
 
 ## Computing the correlation coefficient
 
-```{r}
+```{r echo = TRUE}
 # compute the correlation coefficient
 cor(waterData$female.in.school, waterData$perc.1dollar, use='complete')
 ```
@@ -170,7 +183,7 @@ _The graph and correlation coefficient show a strong negative relationship betwe
 
 Interpret the correlation between female education and safe water access:
 
-```{r}
+```{r echo = TRUE}
 # compute the correlation coefficient
 cor(waterData$female.in.school, waterData$perc.safe2015water, use = 'complete')
 
@@ -228,7 +241,7 @@ t=\frac{r\sqrt{n-2}}{\sqrt{1-r^2}}
 
 ## Calculate the test statistic for poverty and female education
 
-```{r echo = FALSE, warning=FALSE, error=FALSE, message=FALSE}
+```{r}
 # find the sample size using the nanian package or
 # subset the waterData to the poverty and fem educ vars
 # drop rows with NA
@@ -250,7 +263,7 @@ t=\frac{-0.7144238\sqrt{64-2}}{\sqrt{1-(-0.7144238)^2}} = -8.0395
 
 ## Find the probability of the test statistic
 
-```{r echo=FALSE, message = FALSE, warning = FALSE, fig.height=4, fig.width=6}
+```{r fig.height=4, fig.width=6}
 # t-distribution shaded under the curve for t of -8.04
 library(ggplot2)
 dat<-with(density(rt(100000, 62)),data.frame(x,y))
@@ -273,7 +286,7 @@ ggplot(data = dat, aes(x = x, y = y)) +
 ## Use R to compute the actual p-value 
 
 Output from the `cor.test` function:
-```{r}
+```{r echo = TRUE}
 # test for correlation coefficient
 corFemPov <- cor.test(waterData$female.in.school, waterData$perc.1dollar)
 corFemPov
@@ -302,7 +315,7 @@ Write the null and alternate hypotheses to test whether there is a correlation b
 * H0:  
 * HA: 
 
-```{r echo = FALSE}
+```{r}
 # test for correlation coefficient
 corFemWater <- cor.test(waterData$female.in.school, waterData$perc.basic2015water)
 corFemWater
@@ -332,7 +345,7 @@ Assumption 1: For the correlation between females in school and basic water acce
 
 ## Check assumption 2: Both variables are normally distributed
 
-```{r message = FALSE, error = FALSE, warning = FALSE, echo=FALSE, fig.width = 6, fig.height=4}
+```{r fig.width = 6, fig.height=4}
 # check normality of female.in.school variable
 ggplot(waterData, aes(x = female.in.school)) + 
   geom_histogram(fill = "#88398a", col = "grey") + 
@@ -348,7 +361,7 @@ ggplot(waterData, aes(x = female.in.school)) +
 
 ## Check assumption 2: Both variables are normally distributed
 
-```{r  message = FALSE, error = FALSE, warning = FALSE, echo=FALSE, fig.width = 6, fig.height=4}
+```{r fig.width = 6, fig.height=4}
 # check normality of water access variable
 ggplot(waterData, aes(x = perc.basic2015water)) + 
   geom_histogram(fill = "#88398a", col = "grey") + 
@@ -367,7 +380,7 @@ The linearity assumption is met if a scatterplot of the two variables shows a re
 
 The straight line in the plot appears to represent the relationship well, so this assumption may be met. If it is difficult to tell, a _Loess curve_ can be added to double-check. A Loess curve shows the actual relationship between the two variables without constraining the line to be straight (see orange line):
 
-```{r warning = FALSE, message = FALSE, echo = FALSE, fig.height = 4, fig.width = 6}
+```{r fig.height = 4, fig.width = 6}
 # check linearity of plot of female education and water
 ggplot(waterData, aes(y = female.in.school, x = perc.basic2015water/100)) + 
   geom_smooth(se = FALSE, colour = "orange") +
@@ -386,7 +399,8 @@ In this case, an orange Loess curve shows some minor deviation from linear at th
 
 A non-linear relationship might look like one of these graphs where the relationships that do not fall along a straight line:
 
-```{r echo = FALSE, fig.height=4}
+```{r fig.height=4}
+# EXAMPLE FOR DEMO ONLY 
 # create vectors
 x <- seq(-10, 10, 1)
 y <- x^2
@@ -412,7 +426,7 @@ Both of these plots show relationships between x and y, but the relationships ar
 
 The final assumption is the equal distribution of points around the line, which is often called the assumption of *homoscedasticity*. In the plot below, the points seem closer to the line on the far right and then are a little more spread out around the line on the left. 
 
-```{r message = FALSE, error = FALSE, warning = FALSE, echo=FALSE, fig.height = 4, fig.width = 6}
+```{r fig.height = 4, fig.width = 6}
 # check linearity of plot of female education and water
 ggplot(waterData, aes(y = female.in.school, x = perc.basic2015water/100)) + 
   geom_smooth(method = "lm", se = FALSE, colour = "gray") + 
@@ -430,7 +444,7 @@ Although the difference in spread from the left to the right is not dramatic unt
 
 A Breusch-Pagan test examines the **null hypothesis that the variance is constant**. 
 
-```{r message = FALSE, error = FALSE, warning = FALSE}
+```{r}
 # testing for equal variance
 library(lmtest)
 testVar <- bptest(waterData$female.in.school ~ waterData$perc.basic2015water)
@@ -478,7 +492,7 @@ H0: There is no correlation between female education and water access (rho = 0)
 
 HA: There is a correlation between female education and water access (rho is not 0)
 
-```{r warning=FALSE, message=FALSE}
+```{r echo = TRUE}
 # spearman correlation female education and water access
 spearCorrFemWater <- cor.test(waterData$female.in.school,
                               waterData$perc.basic2015water, 
@@ -513,7 +527,7 @@ The assumptions for the Spearman's rho correlation are:
 * The variables are at least ordinal on this scale:
     + Nominal: Categories that don't have a logical order (e.g., religion, marital status) 
     + *Ordinal*: Categories that have a logical order (e.g., highest level of school completed)
-    + *Interval*: Can only take specific values along a continuum (e.g., number of cars in a parking lot, number of people in class) 
+    + *Interval*: Can only take certain values and values are in order where the differences between the values are evenly spaced (e.g., income in $5,000 increments)
     + *Ratio*: Can take any value along a continuum (e.g., height, weight)
 * the relationship between the two variables must be **monotonic** 
 
@@ -525,7 +539,7 @@ The female education and water variables are both *ratio*. This assumption is me
 
 A **monotonic** relationship is a relationship where one variable goes up as the other variable goes up, or one variable goes down while the other goes up. That is, the relationship does not have to follow a straight line, it can curve as long as it is always heading in the same direction. Here are a couple of examples to demonstrate: 
 
-```{r echo = FALSE, message = FALSE, warning = FALSE, fig.height=4}
+```{r fig.height=4}
 # create vectors
 # EXTRA FOR DEMO ONLY
 set.seed(123)
@@ -554,7 +568,7 @@ ggplot(examp2, aes(y = y, x = x)) +
 
 ## Assumption 2: Testing the assumption
 
-```{r warning = FALSE, message = FALSE, fig.width = 6, fig.height = 4}
+```{r fig.width = 6, fig.height = 4}
 # check monotonic of plot of female education and water
 ggplot(waterData, aes(y = female.in.school, x = perc.basic2015water/100)) + 
   geom_smooth(se = FALSE, colour = "orange") +
@@ -582,7 +596,7 @@ What if female education and water access are both related to poverty? What if t
 
 There is a method called _partial correlation_ for examining how multiple variables overlap. Examine a few Venn Diagrams with different patterns of shared variance to clarify the idea:
 
-```{r echo = FALSE, message=FALSE, warning=FALSE, fig.height = 5}
+```{r fig.height = 5}
 # draw venn diagrams
 # THIS MAY NOT WORK WITHOUT APPROPRIATE JAVA INSTALLED ON COMPUTER
 # EXTRA FOR DEMO ONLY
@@ -619,7 +633,7 @@ plot(venn3.4)
 
 * In the Venn Diagrams, this would be the overlap between yellow and green only. 
 
-```{r echo = FALSE, message=FALSE, warning=FALSE, fig.height = 4}
+```{r fig.height = 4}
 # draw venn diagrams
 # EXTRA FOR DEMO ONLY
 plot(venn3.4)
@@ -631,7 +645,7 @@ plot(venn3.4)
 * The output shows the partial correlation between each pair of variables, while accounting for, or *controlling* for, the third variable. 
 * Partial correlation can be computed using Pearson's r or Spearman's rho depending on which assumptions are met.
 
-```{r warning=FALSE, message=FALSE}
+```{r}
 # open the partial correlation package
 library(ppcor)
 
@@ -647,44 +661,31 @@ waterDataSmall <- na.omit(waterDataSmall)
 educWaterPovertySpear <- pcor(waterDataSmall, method = "spearman")
 
 ```
-## Interpret partial correlation  
+## Print partial correlations with test statistic and p-values  
 
-Print the partial correlations:
-
-```{r warning=FALSE, message=FALSE}
-# print partial correlations
-educWaterPovertySpear$estimate
-```
-
-Interpretation example:
-
-Controlling for poverty, the partial correlation between female education and basic water access is moderate ($rho$ = `r round(educWaterPovertySpear$estimate[2,3],2)`).
-
-## Partial correlation significance
+Print the partial correlation output:
 
 ```{r}
-# print out p-values
-educWaterPovertySpear$p.value
+# print partial correlations
+educWaterPovertySpear
 ```
 
-The p-values indicate statistical significance for several of the correlation coefficients, including the correlation between females in school and basic water access.
+## Partial correlation interpretation
 
-Interpretation:
-
-The partial correlation between percent of females in school and the percent of citizens who have basic water access was moderate, positive, and statistically significant ($rho_{partial}$ = `r round(educWaterPovertySpear$estimate[2, 3], 2)`; t = `r round(educWaterPovertySpear$statistic[2, 3], 2)`; p =.0004). Even after poverty is accounted for, increased basic water access is related to increased percent of females in school.
+The partial correlation between percent of females in school and the percent of citizens who have basic water access was moderate, positive, and statistically significant ($rho_{partial}$ = `r round(educWaterPovertySpear$estimate[2, 3], 2)`; s = `r round(educWaterPovertySpear$statistic[2, 3], 2)`; p =.0004). Even after poverty is accounted for, increased basic water access is related to increased percent of females in school.
 
 ## Assumption checking
 
 The assumptions that applied to the two variables for a Pearson's r or Spearman's rho correlation would apply to all three variables for the corresponding partial correlation. 
 
-So, in this case, each variable would need to be at least interval and each pair of variables would need to have a monotonic relationship. 
+So, in this case, each variable would need to be at least ordinal and each pair of variables would need to have a monotonic relationship. 
 
 * Assumption 1: Variable type
     + The variables are ratio, so this assumption IS MET.
 
 * Assumption 2: Monotonic relationship
 
-```{r warning = FALSE, message = FALSE, fig.height = 4, echo = FALSE}
+```{r fig.height = 4}
 # check monotonic of plot of female education and poverty
 library(gridExtra)
 library(grid)
