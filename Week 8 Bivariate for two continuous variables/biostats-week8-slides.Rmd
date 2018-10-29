@@ -59,12 +59,12 @@ The World Health Organization data tracks water access and sanitation globally. 
 The observations are countries and the variables are:
 
 * country: the name of the country 
-* med.age: the median age of the population in the country 
-* perc.1dollar: percent of the population living on $1 per day or less 
-* perc.basic2015sani: percent of the population with basic sanitation access 
-* perc.safe2015sani: percent of the population with safe sanitation access 
-* perc.basic2015water: percent of the population with basic water access 
-* perc.safe2015water: percent of the population with safe water access 
+* med.age: the median age of the people in the country 
+* perc.1dollar: percent of the people living on $1 per day or less 
+* perc.basic2015sani: percent of the people with basic sanitation access 
+* perc.safe2015sani: percent of the people with safe sanitation access 
+* perc.basic2015water: percent of the people with basic water access 
+* perc.safe2015water: percent of the people with safe water access 
 * perc.in.school: percent of school-age people in primary and secondary school  
 * female.in.school: percent of female school-age people in primary and secondary school 
 * male.in.school: percent of male school-age people in primary and secondary school  
@@ -199,7 +199,7 @@ The correlation coefficients and plots indicated that, for this sample of countr
 
 These are the relationships in **some countries** (our sample), but do these relationships hold in **all countries** (the population)? 
 
-A statistical test can be used to determine if the sample comes from a population where there is a relationship between the two variables of interest. 
+A statistical test can be used to determine if the sample of countries comes from a population of all countries where there is a relationship between the two variables of interest. 
 
 ## The null and alternate hypotheses 
 
@@ -302,11 +302,11 @@ corFemPov
 
 * There is sufficient evidence to reject the null hypothesis 
 
-* The correlation is *statistically significant*, that is, it is statistically unlikely that it came from a population where r = 0.
+* The correlation is *statistically significant*, that is, it is statistically unlikely that it came from a population of countries where r = 0.
 
 * Interpret the findings: 
 
-The percent of people living on 1 dollar per day or less is statistically significantly strongly negatively correlated with the percent of primary and secondary age females in school in a country (r = `r round(corFemPov$estimate, 2)`; t(`r corFemPov$parameter`) = `r round(corFemPov$statistic, 2)`; p < .001). The sample likely came from a population where the correlation between poverty and female education was between `r round(corFemPov$conf.int[2], 2)` and `r round(corFemPov$conf.int[1], 2)` (95% CI: `r round(corFemPov$conf.int[2], 2)` to `r round(corFemPov$conf.int[1], 2)`). As the percent of people living on $1 per day or less goes up, the percent of school-age females in school goes down.
+The percent of people living on 1 dollar per day or less is statistically significantly strongly negatively correlated with the percent of primary and secondary age females in school in a country (r = `r round(corFemPov$estimate, 2)`; t(`r corFemPov$parameter`) = `r round(corFemPov$statistic, 2)`; p < .001). The sample of countries likely came from a population of countries where the correlation between poverty and female education was between `r round(corFemPov$conf.int[2], 2)` and `r round(corFemPov$conf.int[1], 2)` (95% CI: `r round(corFemPov$conf.int[2], 2)` to `r round(corFemPov$conf.int[1], 2)`). As the percent of people living on $1 per day or less goes up, the percent of school-age females in school goes down.
 
 ## Check your understanding
 
@@ -518,7 +518,7 @@ If you wanted to examine how S and t are related, you could use algebra to isola
 
 ## Interpretating the Spearman's rho
 
-There is a statistically significant strong positive correlation between basic access to drinking water and female education ($rho$ = `r round(spearCorrFemWater$estimate, 2)`; p < .001). As the percent of the population with basic access to water increases, so does the percent of school-age females in school.
+There is a statistically significant strong positive correlation between basic access to drinking water and female education ($rho$ = `r round(spearCorrFemWater$estimate, 2)`; p < .001). As the percent of the people with basic access to water increases, so does the percent of school-age females in school.
 
 ## Assumptions for Spearman's rho 
 
@@ -588,7 +588,7 @@ Given the analyses meet both assumptions, report and interpret the Spearman corr
 
 The interpretation: 
 
-_There is a statistically significant positive correlation between basic access to drinking water and female education ($rho$ = `r round(spearCorrFemWater$estimate, 2)`; p < .001). As the percent of the population with basic access to water increases, so does the percent of female citizens in school. The data meet the assumptions for Spearman's rho._
+_There is a statistically significant positive correlation between basic access to drinking water and female education ($rho$ = `r round(spearCorrFemWater$estimate, 2)`; p < .001). As the percent of citizens with basic access to water increases, so does the percent of female citizens in school. The data meet the assumptions for Spearman's rho._
 
 ## Partial correlations
 
