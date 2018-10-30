@@ -1,0 +1,15 @@
+---
+title: "Challenge 9"
+output: html_document
+---
+Choose either the standard or hacker edition. Create a new R Markdown document and format it as a brief report examining the relationship between characteristics of countries and happiness globally. Use ## at the beginning of a line of non-code text (outside the code chunks) to create a section heading if needed. Use ### to create a sub-heading if needed. Knit before submitting and fix any problems you find. Submit the .Rmd file only.
+
+## Standard edition 
+
+Use the data from the week 9 slides to develop a short report in R Markdown about the relationship between social support and happiness worldwide. Include appropriate descriptive statistics, graphs, and linear regression analysis. If assumptions are failed, just report they are failed, no need to do an alternate analysis. 
+
+Hide all R code chunks by adding options to the {r} at the top of each chunk, like this: {r warning = FALSE, message = FALSE, echo = FALSE} to hide the code chunk but include the statistical results output.
+
+## Hacker edition
+
+Complete the standard edition. Add gdpPerPerson to your linear model. Interpret the results. Check its assumptions, adding the assumption of *no multicollinearity* that applies when there is more than one continuous predictor in a model. Multicollinearity is when two continuous predictors in a model are too highly correlated with each other and so one needs to be removed. Multicollinearity is checked in one of two ways: (1) conduct a correlation of the two variables; if r > .7, they are too highly correlated to both be in the model (FAIL assumption); (2) compute VIF, if the square root of the VIF are > 2, they are too highly correlated to both be in the model (FAIL assumption).  

@@ -1,0 +1,718 @@
+---
+title: 'Biostatistics week 9: Simple linear regression'
+output: 
+    slidy_presentation: 
+        highlight: haddock
+---
+
+```{r setup, include=FALSE}
+# To change this to a packet for printing instead of slides
+# delete the line in the heading at the top that says "output:" and all the lines after it 
+# up to the --- (leave the --- there)
+# replace with one line that says "output: html_document" in the output field
+# to any of the code chunks you want to see in the packet, add echo = TRUE 
+# inside the curly brackets around the {r} at the top of the chunk like this
+# {r echo=TRUE} and knit to make a packet
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo=FALSE)
+```
+
+## Schedule for today
+
+* Chi-squared and t-test review activity
+* Simple linear regression workshop
+* Challenge time
+
+<center>
+![](pumpkin.jpg){ width=50% }</center>
+
+## Outline
+
+These slides cover the basics of _simple linear regression_:
+
+* Linear models 
+* Simple linear regression 
+* Predictor significance 
+* Model significance 
+* Model fit 
+* Assumption checking 
+* Alternate models 
+
+## What makes people happy?
+
+- Most countries measure success by the gross national product (GNP), or how economically productive the country is
+- Bhutan has long measured gross national happiness (GNH) instead, focusing on how happy its citizens are instead of how much they produce
+- The Global Happiness Council (GHC) has recently started to follow the lead of Bhutan and develop a World Happiness Report
+- The 2018 World Happiness report (http://worldhappiness.report/ed/2018/) measures mean national happiness and characteristics of a country that influence happiness
+- The data for country happiness and several related characteristics is linked as an Excel file on the World Happiness Report website 
+
+## Bring in the world happiness data
+
+- The data are in raw form here: https://s3.amazonaws.com/happiness-report/2018/WHR2018Chapter2OnlineData.xls 
+- The codebooks are linked here: 
+https://s3.amazonaws.com/happiness-report/2018/Appendix1ofChapter2.pdf
+
+```{r echo=TRUE, eval=FALSE}
+# DATA IMPORT
+# Bring in the raw data from online using the readxl package to read Excel
+# and the httr package to read and store the URL
+# the readxl package can read directly from on your computer, but needs 
+# intermediate help to read directly from the internet
+library(readxl)
+library(httr)
+# get URL where data are
+happyURL <- "https://s3.amazonaws.com/happiness-report/2018/WHR2018Chapter2OnlineData.xls"
+# put data in a temp file on your computer
+GET(happyURL, write_disk(tf <- tempfile(fileext = ".xls")))
+# load the fifth spreadsheet from the temp file for characteristics
+happyWorld <- read_xls(tf, sheet = 5)
+```
+
+```{r include=FALSE}
+# DATA IMPORT
+# Bring in the raw data from online using the readxl package to read Excel
+# and the httr package to read and store the URL
+# the readxl package can read directly from on your computer, but needs 
+# intermediate help to read directly from the internet
+library(readxl)
+library(httr)
+# get URL where data are
+happyURL <- "https://s3.amazonaws.com/happiness-report/2018/WHR2018Chapter2OnlineData.xls"
+# put data in a temp file on your computer
+GET(happyURL, write_disk(tf <- tempfile(fileext = ".xls")))
+# load the fifth spreadsheet from the temp file for characteristics
+happyWorld <- read_xls(tf, sheet = 5)
+```
+## Select relevant variables and rename 
+
+```{r echo = TRUE}
+# DATA MANAGEMENT
+# remove unneeded columns
+happyWorld <- happyWorld[ , c(-2, -4, -5, -9,
+                                      -11, -13, -15)]
+# add better variable names to the columns
+names(happyWorld) <- c("country", "happiness", "gdpPerPerson", 
+                           "lifeExpect", "socialSupport",
+                           "freedom", "generosity", "corruption")
+
+```
+
+## Happiness variables
+
+In importing the data, I selected the following variables from the available data and renamed them for easier use: 
+
+* **country:** name of the country
+* **happiness:** mean national score for where you are between best
+possible life for you (10) and the bottom of the ladder represents the worst possible
+life for you (0)
+* **gdpPerPerson:** gross domestic product per person 
+* **lifeExpect:** when born, years of expected healthy life ahead
+* **socialSupport:** having someone to count on in times of trouble
+* **freedom:** satisfied with freedom to choose what to do with your life 
+* **generosity:** have you donated money to a charity in the past month 
+* **corruption:** is corruption widespread in business and government
+
+## Linear models in general
+
+Linear models use the basic idea of a line to explain and predict things about relationships among variables. To build and use linear models, it is useful to remember the equation for a line:
+
+y = mx + b
+
+Where:
+
+* m is the slope of the line 
+* b is the y-intercept of the line, or the value of y when x = 0 
+* x and y are the coordinates of each point along the line
+
+## Linear model in statistics
+
+In statistics, the same formula is written many ways, two of the most common are:
+
+y = $b_0$ + $b_1x$
+
+y = c + $b_1x$ 
+
+* $b_1$ is the slope
+* $b_0$ or $c$ is the y-intercept
+* x and y are the coordinates of each point along the line 
+
+## Linear model vocabulary
+
+y = $b_0$ + $b_1x$
+
+* When using the linear model in practice, the $y$ variable is called the _dependent_ or _outcome_ variable. 
+* The $x$ variable(s) is/are called the _independent_ or _predictor_ variable(s). 
+* Occasionally you might even see a $\beta$ rather than a $b$, however, typically Greek letters are only used for _population_ values so in work with samples the lower-case b is more appropriate. 
+
+## Using the linear model 
+
+For example, we could use the linear model to see how life expectancy is related to happiness in countries around the world. 
+
+$happiness = b_0 + b_1{life.expectancy}$
+
+To get an idea of what you might find, start with a plot: 
+
+```{r fig.height = 4}
+# plot of life expectancy and happiness
+# see https://ggplot2.tidyverse.org/ for info on how to use ggplot2
+# and many options for plotting
+library(ggplot2)
+ggplot(happyWorld, aes(y = happiness, x = lifeExpect)) + 
+  #geom_smooth(method = "lm", se = FALSE, colour = "gray") +
+  geom_point(size = 2, colour = "#88398a") + 
+  labs(y = "Mean national happiness where\n10 is happiest",
+       x = "Years healthy life expected") + theme_bw() +
+  ylim(0,10) +
+  ggtitle("Happiness and life expectancy")
+```
+
+## Interpreting the plot
+
+* As years of healthy life expected increase, happiness increases
+    + this suggests a positive slope 
+* The y-intercept is hard to guess because the x-axis does not go to zero, so it is hard to anticipate where a line through the data would cross if extended to 0 
+* Try a new graph, changing the limits of x and y so they go to 0: 
+
+```{r echo = TRUE, eval = FALSE}
+# plot of life expectancy and happiness
+# see https://ggplot2.tidyverse.org/ for info on how to use ggplot2
+# and many options for plotting
+library(ggplot2)
+ggplot(happyWorld, aes(y = happiness, x = lifeExpect)) + 
+  geom_point(size = 2, colour = "#88398a") + 
+  labs(y = "Mean national happiness where\n10 is happiest",
+       x = "Years healthy life expected") + theme_bw() +
+  ylim(0,10) + xlim(0,90)+
+  ggtitle("Happiness and life expectancy")
+```
+
+## Graph with axes going to 0 
+
+```{r}
+# plot of life expectancy and happiness
+# see https://ggplot2.tidyverse.org/ for info on how to use ggplot2
+# and many options for plotting
+library(ggplot2)
+ggplot(happyWorld, aes(y = happiness, x = lifeExpect)) + 
+  #geom_smooth(method = "lm", se = FALSE, colour = "gray") +
+  geom_point(size = 2, colour = "#88398a") + 
+  labs(y = "Mean national happiness where\n10 is happiest",
+       x = "Years healthy life expected") + theme_bw() +
+  ylim(0,10) + xlim(0,90)+
+  ggtitle("Happiness and life expectancy")
+```
+
+* It looks like a line through the data would cross the y-axis below 0
+    + this suggests a negative y-intercept  
+
+## How is the regression line determined?
+
+* The formulas used aim to get the line as close as possible to all of the points
+    + The formula for the slope is: 
+    
+\[
+b_1=\frac{\sum(Y_i-\bar{Y})(X_i-\bar{X})}{\sum(X_i-\bar{X})^2} 
+\]
+
+* The intercept is then computed by entering the slope, the mean of x, and the mean of y into the formula for a line and solving for $b_0$
+* Statistically, this approach minimizes the distances between each point and the regression line 
+
+```{r fig.height = 4}
+# plot with regression line
+ggplot(happyWorld, aes(y = happiness, x = lifeExpect)) + 
+  geom_smooth(method = "lm", se = FALSE, colour = "gray") +
+  geom_point(size = 2, colour = "#88398a") + 
+  labs(y = "Mean national happiness where\n10 is happiest",
+       x = "Years healthy life expected") + theme_bw() +
+  ylim(0,10)+
+  ggtitle("Happiness and life expectancy")
+```
+
+
+
+## Visualizing residuals 
+
+* The line represents the predicted values of happiness for each value of life expectancy
+* The line is not perfect, it gets close to the points but does not reach them, leaving _residual_ or unexplained information 
+* Residuals are the difference between what we observed in each country and what the regression line predicted (similar to chi-squared idea of observed and expected!), like this:
+
+```{r fig.height = 4}
+# FOR DEMO ONLY!!
+# followed this tutorial https://drsimonj.svbtle.com/visualising-residuals
+# make smaller data frame with complete cases and 
+# variables of interest
+happyWorldSmall <- na.omit(happyWorld[ , c(2,4)])
+# add predicted values and residuals to the data
+happyWorldSmall$predicted <- predict(lm(happiness ~ lifeExpect, data = happyWorldSmall))
+happyWorldSmall$residuals <- residuals(lm(happiness ~ lifeExpect, data = happyWorldSmall))
+
+#create graph
+library(ggplot2)
+ggplot(happyWorldSmall, aes(x = lifeExpect, y = happiness)) +
+  geom_smooth(method = "lm", se = FALSE, color = "lightgrey") +
+  geom_segment(aes(xend = lifeExpect, yend = predicted), alpha = .2) +
+  # > Color adjustments made here...
+  geom_point(colour = "#88398a") +  # Color mapped here
+  theme_bw() +
+  ggtitle("Relationship between life expectancy and happiness\nin a sample of countries") + ylab("Mean happiness score of citizens") + xlab("Mean life expectancy in years")
+
+```
+
+
+## Finding the actual slope and intercept
+
+To find the slope and the intercept of the regression line, use the _linear model_ or _lm_ command in R:
+
+```{r echo = TRUE}
+# simple linear regression to find slope
+# and intercept
+happiByLifeExpect <- lm(happiness ~ lifeExpect, data = happyWorld)
+summary(happiByLifeExpect)
+```
+
+## Interpreting the output
+
+The output shows a y-intercept of -1.80 and a slope of .11. Substitute these into the model:
+
+$happiness = -1.80228 + .11446{lifeExpect}$
+
+Use this to predict mean happiness for countries whose people have a 60 year life expectancy:
+
+$happiness = -1.80228 + .11449*{60} = 5.06$
+
+Based on the linear regression model, countries with a 60 year life expectancy have a mean happiness of 5.06 on a scale of 0 to 10.
+
+## Cool but where are the p-values?
+
+In addition to knowing the model and predicting values, there are three other things to determine from a regression model:  
+
+* Is the slope statistically significantly different from 0? 
+* Is the model statistically significantly better than the mean?  
+* How well does the model fit the data? 
+
+## Is the slope statistically significantly different from 0?
+
+* Write the null and alternate hypotheses:
+    + H0: There is no difference between the slope of the line and 0 (slope = 0). 
+    + HA: There is a difference between the slope of the line and 0 (slope does not equal 0).
+* Calculate the t-statistic for a one-sample t-test comparing the slope to 0  
+
+\[
+t=\frac{b_1 - 0}{se}
+\]
+
+* Reject or retain the null 
+* Make a conclusion
+
+## Calculate t and determine probability
+
+\[
+t=\frac{b_1 - 0}{se} = \frac{0.11446 - 0}{0.00732} = 15.636
+\]
+
+```{r fig.height = 3}
+library(ggplot2)
+dat<-with(density(rt(10000, 2)),data.frame(x,y))
+ggplot(data = dat, aes(x = x, y = y)) +
+    geom_line() + geom_vline(xintercept = 15.636, color = "orange") +
+    xlim(-20, 20) +
+  xlab("t statistic") + ylab("Probability") + theme_bw() +
+  ggtitle("Sampling distribution for t (df = 1) with line at t = 15.636")
+```
+
+* The area under the curve of the sampling distribution contains all possible values of the t-statistic for samples with 1 d.f. that _came from a population where slope = 0_ 
+* The probability of getting a t-statistic of 15.636 (or larger) if the sample came from _a population where slope = 0_ is the area under the curve to the right of the orange line
+* This is a very tiny probability of getting a sample where the t-statistic is this big (or bigger) _if slope = 0 in the population_
+* So, _slope is probably not 0 in the population that this sample came from_
+
+## Make a conclusion
+
+* There is sufficient evidence to reject the null hypothesis 
+
+* The slope is *statistically significantly* different from 0, that is, it is statistically unlikely that it came from a population where slope = 0.
+
+* Interpret the findings: 
+
+Life expectancy is a statistically significant predictor of happiness ($b_1$ = .11; t = 15.64; p < .05). In the sample, for every one year life expectancy goes up in a country, happiness in that country goes up .11 on a scale from 0 to 10. 
+
+## The conclusion is missing something
+
+* Typically we would like to be able to say something about what is going on in the population that our sample comes from
+* Confidence intervals are useful for this 
+* Confidence intervals can be computed for the intercept and slope using the confint command:
+
+```{r echo = TRUE}
+# confidence intervals for the slope and intercept
+confint(happiByLifeExpect)
+```
+
+* So, the slope in the sample is .11, but in the population the likely value of the slope is between .10 and .13.
+
+## Interpret the results
+
+Life expectancy is a statistically significant predictor of happiness ($b_1$ = .11; t = 15.64; p < .05). In the sample, for every one year life expectancy goes up in a country, happiness in the country goes up .11. The true slope for all countries is between .10 and .13, so the sample of countries comes from a population of countries where there is likely a .10 to .13 increase in happiness with every one-year increase in life expectancy of its citizens (95% CI: .10 - .13). 
+
+## But that's not all!
+
+* We are not only interested in the slope, but also the whole regression equation
+* That is, does the regression line gets us any closer to understanding the outcome compared the mean value of the outcome would. 
+    + Essentially, is the gray line better than the blue line at getting close to the data points?
+* For a regression equation with only one variable in it (i.e., simple linear regression), this is going to seem redundant to examining the slope 
+
+```{r fig.height = 4}
+# plot of life expectancy and happiness
+# see https://ggplot2.tidyverse.org/ for info on how to use ggplot2
+# and many options for plotting
+library(ggplot2)
+ggplot(happyWorld, aes(y = happiness, x = lifeExpect)) + 
+  geom_smooth(method = "lm", se = FALSE, colour = "gray") +
+  geom_point(size = 2, colour = "#88398a") + 
+  labs(y = "Mean national happiness where\n10 is happiest",
+       x = "Years healthy life expected") + theme_bw() +
+  geom_hline(yintercept = mean(happyWorld$happiness, na.rm = TRUE), color = "blue") +
+  ggtitle("Happiness and life expectancy")
+  
+```
+
+## Write a null and alternate hypothesis 
+
+* H0: There is no difference between the regression model and the mean in explaining happiness. 
+* HA: The regression model is better than the mean in explaining happiness.
+
+## Calculate the test statistic 
+
+* The test statistic for the null hypothesis in linear regression is the F-statistic 
+* The F-statistic is a ratio of explained information to unexplained information
+
+\[
+F = \frac{MS_M}{MS_R}
+\]
+
+* $MS_M$ is the mean squared difference between model and mean ($MS_M$ is mean squares MODEL) (left)
+* $MS_R$ is the mean squared difference between model and observation, also known as the residual ($MS_R$ is mean squares RESIDUAL) (right)
+
+```{r}
+# packages for multiplot display
+library(gridExtra)
+library(grid)
+
+#total variance plot
+totVar <- ggplot(happyWorldSmall, aes(x = lifeExpect, y = happiness)) +
+  #geom_smooth(method = "lm", se = FALSE, color = "orange") +
+  geom_segment(aes(xend = lifeExpect, yend = mean(happyWorldSmall$happiness)), alpha = .2) +
+  geom_point(colour = "#88398a") +  
+  theme_bw() +
+  geom_hline(yintercept = mean(happyWorld$happiness, na.rm = TRUE), color = "blue") +
+  ylab("Mean happiness score") + xlab("") +ggtitle("Total variance")
+
+# unexplained variance plot
+unexpVar <- ggplot(happyWorldSmall, aes(x = lifeExpect, y = happiness)) +
+  geom_smooth(method = "lm", se = FALSE, color = "orange") +
+  geom_segment(aes(xend = lifeExpect, yend = predicted), alpha = .2) +
+  geom_point(colour = "#88398a") +  
+  theme_bw() +
+ xlab("Mean years life expectancy")+ylab("")+ ggtitle("Unexplained variance (residual)")
+
+# explained variance plot
+expVar <- ggplot(happyWorldSmall, aes(x = lifeExpect, y = happiness)) +
+  geom_smooth(method = "lm", se = FALSE, color = "orange") +
+  geom_segment(aes(xend = lifeExpect, y = predicted, yend = mean(happyWorldSmall$happiness)), alpha = .2) +
+ # geom_segment(aes(xend = , yend = predicted), alpha = .2) +
+  geom_point(colour = "#88398a") + 
+  theme_bw() +
+  geom_hline(yintercept = mean(happyWorld$happiness, na.rm = TRUE), color = "blue") + ylab("") + xlab("") + ggtitle("Explained variance (model)")+
+ xlab("Mean years life expectancy")+ylab("Mean happiness score")
+
+grid.arrange(expVar, unexpVar, totVar, ncol = 2, nrow = 2)
+
+```
+
+## The probability of F
+
+* The area under the curve of the sampling distribution contains all possible values of the F-statistic for samples with 1 and 151 d.f. that _came from a population where the null was true_ 
+* The probability of getting an F-statistic of 244.5 (or larger) for a sample from _a population where the null was true_ is the area under the curve to the right of the orange line
+* This is a very tiny probability of getting a sample where the F-statistic is this big (or bigger) _if the null was true in the population_
+* So, _the null is not likely true_
+
+```{r fig.height = 4}
+# F distribution 
+# rf command creates data following F distribution
+dat<-with(density(rf(100000, 1, 151)),data.frame(x,y))
+ggplot(data = dat, aes(x = x, y = y)) +
+    geom_line() + geom_vline(xintercept = 244.5, color = "orange") + 
+    geom_segment(aes(x = 7, y = 0, xend = 300, yend = 0.001)) +
+    xlim(-10, 300) +
+    xlab("F statistic") + ylab("Probability")+
+  ggtitle("Sampling distribution for F (df = 1, 151) with\nline at F = 244.5")
+```
+
+## Write a conclusion/interpretation
+
+* There is sufficient evidence to reject the null hypothesis (F(1, 151) = 244.5; p < .05) 
+* A linear model with life expectancy as the independent variable was significantly better than the mean at explaining or predicting happiness
+* The countries likely came from a population of countries where happiness can be explained or predicted by life expectancy 
+
+Altogether:
+
+A linear model predicting mean happiness in countries by life expectancy in years was statistically significantly better than the mean (F(1, 151) = 244.5; p < .05). Life expectancy is a statistically significant predictor of happiness ($b_1$ = .11; p < .05). In the sample, for every one year life expectancy goes up in a country, happiness in the country goes up .11. The true slope for all countries is between .10 and .13, so the sample of countries comes from a population of countries where there is a .10 to .13 increase in happiness with every one-year increase in life expectancy of its citizens (95% CI: .10 - .13).
+
+## How well does the model fit?
+
+* So far we know: 
+    + The value and meaning of the slope and intercept 
+    + The significance of the slope 
+    + The significance of the overall model 
+* We can also predict values of happiness by using the model
+* The final measure to report with a linear model is the model fit
+* The model fit is calculated by:  
+    + using the model to predict the outcome for each observation 
+    + finding the correlation between the observed values of the outcome and the predicted values 
+    + squaring the correlation to get the percent of variance
+
+## Predicted values
+
+* To predict the level of happiness in each country based on the model, we could look at the life expectancy for each country and compute its happiness by hand using the model equation: $happiness = -1.80228 + .11446{lifeExpect}$ 
+* Fortunately, R has a command that will do it for us
+* Add the predicted values to the happyWorldSmall data frame with this code:
+```{r echo = TRUE}
+# predict values and add to data frame 
+happyWorldSmall$predicted <- predict(lm(happiness ~ lifeExpect, data = happyWorldSmall)) 
+# correlation between the observed outcome "happiness"
+# and the predicted happiness score 
+obsPredCorr <- cor(happyWorldSmall$happiness, happyWorldSmall$predicted)
+# square the correlation
+obsPredCorr^2
+```
+
+* $R^2$ = `r round(obsPredCorr^2, 2)` 
+* `r round(100*(obsPredCorr^2), 2)`% of the variance in happiness is accounted for by the model
+
+## Reporting regression results
+
+Once you know all of these things, you can report your results. Regression result reporting includes:
+
+- an interpretation of the value of the slope in the sample and the likely value of the slope in the population ($b_1$ and its 95% CI)  
+- the significance of the slope (t and p)  
+- the significance of the model (F and p)  
+- the fit of the model (R-squared)  
+
+Interpretation: An linear regression analysis of the relationship between life expectancy in a country and happiness found a statistically significant (t = 15.64; p < .05) slope of .11. For every one year increase in life expectancy, there is a .11 increase in happiness ($b_1$ = .11; 95% CI: .10 - .13). The regression model was better than the mean value of happiness at explaining happiness [F(1, 151) = 244.5; p < .05] and the model explained 61.8% of the variation in the outcome ($R^2$ = .618).
+
+## Assumption checking for linear regression
+
+There are four primary assumptions for simple linear regression (LINE acronym):
+
+* Linearity 
+* Independence of residuals 
+* Normality of residuals
+* Equal variance (homoscedasticity) 
+
+<center>
+![](test-all-assumptions.jpg)
+</center>
+
+## Check assumption 1: Linearity
+
+Because linear regression can have more than one predictor, instead of examining scatterplots of the outcome with each predictor, this assumption is most commonly tested by plotting one of two options: 
+
+* observed values and predicted values 
+* residuals and predicted values (preferred)
+
+```{r fig.height = 4}
+# check linearity of plot of residuals and predicted values 
+ggplot(happyWorldSmall, aes(y = residuals, x = predicted)) + 
+  geom_smooth(method = "lm", se = FALSE, colour = "gray") +
+  geom_smooth(se = FALSE, colour = "orange") +
+  geom_point(size = 2, colour = "#88398a") + 
+  labs(y = "Residuals (unexplained variability)",
+       x = "Predicted happiness") + theme_bw() + 
+  ggtitle("Residuals and predicted values")
+
+```
+
+* In this case, an orange Loess curve shows some major deviation from linear at the lower happiness scores. 
+* Bigger residuals mean the model is WORSE at predicting lower happiness scores 
+* This assumption is NOT MET
+
+## Check assumption 2: Independence of residuals 
+
+* If residuals are related (e.g., the residual of one observation is dependent on the residual of another), this suggests the observations are related 
+* Check using the Durbin-Watson test 
+    + Durbin-Watson tests the null hypothesis that the residuals are independent 
+    
+```{r echo = TRUE}
+# test the residuals for independence 
+library(lmtest)
+dwtest(happiByLifeExpect)
+
+```
+* p-value is quite high, we retain the null
+* The assumption is MET
+
+## Check assumption 3: Normality of residuals 
+
+* QQ-plot compares the distribution of variable to a normal distribution 
+* If the variable is normally distributed it will fall along the line
+
+```{r echo = TRUE, fig.height = 4}
+# plot outcome
+ggplot(happyWorldSmall, aes(sample = residuals)) + 
+  geom_qq(col = "#88398a") + 
+  stat_qq_line(col = "gray") +
+  labs(x = "Theoretical normal distribution",
+       y = "Residuals distribution") + theme_bw() +
+  ggtitle("Distribution of residuals") 
+```
+
+## Looks pretty normal, check statistically
+
+The Shapiro-Wilk test tests the null hypothesis that the residuals are normal.
+
+```{r echo = TRUE}
+# check normality statistically with the Shapiro-Wilk test
+shapiro.test(happyWorldSmall$residuals)
+```
+We failed to reject the null hypothesis that the residuals are normal. Assumption is MET.
+
+## Check Assumption 4: Equal variance (homoscedasticity)
+
+Use the Breusch-Pagan test to test the null that the variance is constant. 
+
+```{r echo = TRUE}
+# testing for equal variance
+library(lmtest)
+testVar <- bptest(happyWorldSmall$happiness ~ happyWorldSmall$lifeExpect)
+testVar
+```
+
+* The p-value is high, we retain the null that the variance is constant. Assumption is MET.
+
+## Assumption checking results
+
+* Met three of the four assumptions 
+* Failed linearity 
+
+<center>
+
+![](failed-assumptions.jpg){ width=50% }
+</center>
+
+## Alternatives 
+
+There is no one specific test that is the alternative to simple linear regression. Some of the options for dealing with failed assumptions are:
+
+* Report the results only using descriptive statistics (no generalizing!) 
+* Include other variables that may explain the outcome 
+* Recode the dependent or independent variable(s) into categories and analyze with the appropriate test 
+* Transform the outcome or predictor(s) 
+    + Only an option when the non-linear relationship is monotonic (curves up or curves down, not both)
+* Use a spline when it looks like there may be two or more distinct relationships
+    + models parts of the data separately
+* Give up and have a snack  
+
+## Transforming for failing linearity 
+
+* Only useful when the relationship is *monotonic* 
+* If your plot to check linearity looks like any one of these, use the transformation indicated:
+
+![](nonlinear-tranform.png)
+
+## Is relationship monotonic? 
+
+* Nope. Cannot use transformation.
+
+```{r fig.height = 4}
+# examine 
+ggplot(happyWorld, aes(y = happiness, x = lifeExpect)) + 
+  geom_smooth(se = FALSE, colour = "orange") +
+  geom_point(size = 2, colour = "#88398a") + 
+  labs(y = "Mean national happiness where\n10 is happiest",
+       x = "Years healthy life expected") + theme_bw() +
+  ylim(0,10) 
+```
+
+* If you could, here are some examples of how to create the new variables:
+```{r eval = FALSE, echo = TRUE}
+# square the outcome 
+# make a new variable of the squared outcome 
+# use the new variable as the outcome and try again
+happyWorldSmall$squareHappiness <- happyWorldSmall$happiness^2
+# square root of the outcome 
+happyWorldSmall$sqRootHappiness <- sqrt(happyWorldSmall$happiness)
+
+```
+
+## Recode the variables into categories and use ANOVA or Kruskal-Wallis
+
+* Example of recoding life expectancy into a 3-category variable
+* Use ANOVA or the non-parametric alternative 
+
+```{r echo = TRUE}
+# example of recoding life expectancy 
+# recode 0 to 55 years old as low
+# 55.1
+library(car)
+happyWorldSmall$lifeExpCat <- recode(happyWorldSmall$lifeExpect, 
+                                     "lo:55 = 'low';
+                                     55.1:70 = 'moderate';
+                                     70.1:hi = 'high'")
+table(happyWorldSmall$lifeExpCat)
+
+
+```
+
+
+## Try a spline (this is fancy!)
+
+* Sometimes it might appear that there are two or more different relationships going on between the independent and dependent variables
+* A spline anlaysis estimates the slope of the regression  line on either side of a *knot* or point where the relationship appears to change  
+
+```{r}
+# require the splines package
+require(splines)
+# use lm with a cutoff at 55 years of life expectancy
+happiSpline55 <- lm(happiness ~ bs(lifeExpect, degree = 1, knots = 55), data = happyWorldSmall)
+summary(happiSpline55)
+```
+
+## Interpreting spline output (visualize)
+
+```{r fig.height = 4}
+# get predicted values and add to data frame 
+happyWorldSmall$predSpline <- predict(happiSpline55)
+
+# make a plot
+ggplot(happyWorldSmall, aes(x = lifeExpect, y = happiness)) +
+  geom_point(colour = "#88398a") + 
+  geom_point(aes(y = predSpline), color = "gray") + 
+  geom_line(aes(y = predSpline)) +
+  theme_bw() +
+  ylab("Mean happiness score of citizens") + xlab("Life expectancy in years") +
+  ggtitle("Spline regression of happiness by life expectancy")
+
+```
+
+
+* Intercept is the value of the outcome at the knot (lifeExpect = 55) 
+* First estimate can be converted to a slope by dividing the estimate for each range over the range of values it covers 
+   + slope below 55: $b_1 = -.1384 / (55 - 43.99)$ = `r round(-.1384/(55 - 43.99), 2)`
+   + slope from 55 to maximum: $b_2 = (2.97 - (-.1384)) / (75.72 - 55)$ = `r round((2.97 - (-.1384)) / (75.72 - 55), 2)`
+
+## The End
+
+* Challenge is on GitHub 
+
+<center>
+![](seagull.jpg)</center>
+
+
+
+
+
+
+
+
+
+
+
+
+
