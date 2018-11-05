@@ -22,8 +22,6 @@ knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo=FALSE)
 * Simple linear regression workshop
 * Challenge time
 
-<center>
-![](pumpkin.jpg){ width=50% }</center>
 
 ## Outline
 
@@ -453,7 +451,7 @@ ggplot(data = dat, aes(x = x, y = y)) +
 
 Altogether:
 
-A linear model predicting mean happiness in countries by life expectancy in years was statistically significantly better than the mean (F(1, 151) = 244.5; p < .05). Life expectancy is a statistically significant predictor of happiness ($b_1$ = .11; p < .05). In the sample, for every one year life expectancy goes up in a country, happiness in the country goes up .11. The true slope for all countries is between .10 and .13, so the sample of countries comes from a population of countries where there is a .10 to .13 increase in happiness with every one-year increase in life expectancy of its citizens (95% CI: .10 - .13).
+A linear model predicting mean happiness in countries by life expectancy in years was statistically significantly better than the mean (F(1, 151) = 244.5; p < .05). Life expectancy is a statistically significant predictor of happiness ($b_1$ = .11; t = 15.64; p < .05). In the sample, for every one year life expectancy goes up in a country, happiness in the country goes up .11. The true slope for all countries is between .10 and .13, so the sample of countries comes from a population of countries where there is a .10 to .13 increase in happiness with every one-year increase in life expectancy of its citizens (95% CI: .10 - .13).
 
 ## How well does the model fit?
 
@@ -468,13 +466,16 @@ A linear model predicting mean happiness in countries by life expectancy in year
     + finding the correlation between the observed values of the outcome and the predicted values 
     + squaring the correlation to get the percent of variance
 
-## Predicted values
+## Getting model fit
 
-* To predict the level of happiness in each country based on the model, we could look at the life expectancy for each country and compute its happiness by hand using the model equation: $happiness = -1.80228 + .11446{lifeExpect}$ 
-* Fortunately, R has a command that will do it for us
-* Add the predicted values to the happyWorldSmall data frame with this code:
-```{r echo = TRUE}
+* To get the amount of variance in happiness the model with life expectancy explains: 
+    + Use the model to predict the happiness score based on life expectancy for each country $happiness = -1.80228 + .11446{lifeExpect}$ 
+    + Conduct a correlation between these predicted values of happiness and the observed happiness in each country 
+    + Square the correlation to get an $R^2$ or the percent of variation in happiness explained by the model 
+```{r echo = FALSE, results=FALSE}
 # predict values and add to data frame 
+# make smaller data frame with complete cases first 
+happyWorldSmall <- na.omit(happyWorld[ , c("happiness","lifeExpect")])
 happyWorldSmall$predicted <- predict(lm(happiness ~ lifeExpect, data = happyWorldSmall)) 
 # correlation between the observed outcome "happiness"
 # and the predicted happiness score 
@@ -482,8 +483,7 @@ obsPredCorr <- cor(happyWorldSmall$happiness, happyWorldSmall$predicted)
 # square the correlation
 obsPredCorr^2
 ```
-
-* $R^2$ = `r round(obsPredCorr^2, 2)` 
+* Or, get it from the output: $R^2$ = `r round(obsPredCorr^2, 2)` 
 * `r round(100*(obsPredCorr^2), 2)`% of the variance in happiness is accounted for by the model
 
 ## Reporting regression results
@@ -506,9 +506,17 @@ There are four primary assumptions for simple linear regression (LINE acronym):
 * Normality of residuals
 * Equal variance (homoscedasticity) 
 
-<center>
-![](test-all-assumptions.jpg)
-</center>
+To test assumptions, you will need predicted values and residuals added to the data frame. To do this you will first have to remove missing values: 
+
+```{r echo = TRUE}
+# make smaller data frame with complete cases and 
+# variables of interest
+happyWorldSmall <- na.omit(happyWorld[ , c("happiness","lifeExpect")])
+# add predicted values and residuals to the data
+happyWorldSmall$predicted <- predict(lm(happiness ~ lifeExpect, data = happyWorldSmall))
+happyWorldSmall$residuals <- residuals(lm(happiness ~ lifeExpect, data = happyWorldSmall))
+```
+
 
 ## Check assumption 1: Linearity
 
@@ -572,6 +580,10 @@ The Shapiro-Wilk test tests the null hypothesis that the residuals are normal.
 shapiro.test(happyWorldSmall$residuals)
 ```
 We failed to reject the null hypothesis that the residuals are normal. Assumption is MET.
+
+<center>
+![](test-all-assumptions.jpg){ width=25% }
+</center>
 
 ## Check Assumption 4: Equal variance (homoscedasticity)
 
