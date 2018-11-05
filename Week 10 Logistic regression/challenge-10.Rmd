@@ -1,0 +1,50 @@
+---
+title: "Challenge 10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Complete ONE of the following:
+
+* DataCamp Multiple and Logistic Regression Course Chapter 4 (If you do this, please submit a note in Blackboard that you completed the DataCamp version of the challenge)
+
+OR
+ 
+* Usual style of challenge
+
+### Standard edition
+
+Use the University of Kentucky data set (codebook below) and logistic regression to answer this question: _How well do age of initiation, percent of friends who smoke, and motivation from the policy together explain having a plan to quit smoking?_ 
+
+The data was saved as an SPSS file, so you will have to use the foreign library and the read.spss command to open the file, like this:
+
+```{r}
+# open the UKY data set
+library(foreign)
+uky <- read.spss(file = "https://tinyurl.com/ydyns6e6", to.data.frame = T)
+```
+
+### Hacker edition
+
+Complete the standard edition and add a graph of predicted probabilities like the one toward the end of this tutorial: https://stats.idre.ucla.edu/r/dae/logit-regression/. Your graph should predicted probabilities (y-axis) by percentage of friends who smoke (x-axis) with lines colored by motivation.
+
+**UKY codebook**
+
+The data are from a survey of University of Kentucky students following the implementation of a campus-wide smoking policy. The questions that were asked and the way the variables were coded are below:
+
+- age - What is your age? (in years)
+- age_initiation - How old were you when you smoked your first cigarette? (in years)
+- gender - What is your sex? (0=female, 1=male)
+- race - What is your race? (0=Non-white, 1=White)
+- risky_behavior - Scale score indicating participation in risky activities (higher = riskier)
+- quit - If you smoke, do you plan to quit? (0=No, 1=Yes)
+- parent - Do you have a parent who smokes? (0=No, 1=Yes)
+- sibling_smoke - Do you have a sibling who smokes? (0=No, 1=Yes)
+- friends_smoke - Among your friends, what percentage do you think smoke?
+- familiar_policy - How familiar are you with the rules and / regulations regarding the upcoming tobacco-free policy at the University of Kentucky? (0=unfamiliar, 1=familiar)
+- policy_success - the policy will be successful with reducing secondhand smoke exposure and encouraging people to quit (scale from 1 to 9 where 1 is not at all and 9 is very successful)
+- motivation - thinks the campus policy will increase my motivation to quit (0=No, 1=Yes)
+

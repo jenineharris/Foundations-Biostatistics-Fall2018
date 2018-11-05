@@ -21,7 +21,9 @@ knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo=FALSE)
 * Peer review (last one) 
 * Statistics flow chart
 * Logistic regression workshop
-* Challenge time
+* Challenge time or work with your book club group 
+
+
 
 ## Outline
 
@@ -148,13 +150,13 @@ oddsRatios
 
 * An odds ratio quantifies the increase or decrease in the odds of the outcome depending on the value of the predictor
 
-* An odds ratio of 1 indicates that the odds of the outcome are 1 times higher/lower for group A compared to group B
+* An odds ratio of 1 indicates that the odds of the outcome are 1 times higher/lower for one group than for another, so odds ratio of 1 is no difference!
 
 * In the population, is the odds ratio different from 1? 
     + Confidence intervals with 1 in them show that the odds could be 1 in the population 
     + Confidence intervals without 1 in them show that the odds are signficantly different from 1 
     
-* An odds ratio with a 95% CI that DOES NOT include 1 is statistically significant (see original output to confirm)
+* An odds ratio with a **95% CI that DOES NOT include 1** is **statistically significantly** different from 1...that is, there is some relationship
 
 ## Interpreting the continuous predictor odds ratios 
 
@@ -164,7 +166,7 @@ oddsRatios
 
 * For continuous predictors, odds ratios show increase in odds of the outcome for a one-unit increase in the predictor  
 
-    + There is a statistically significant relationship between age and zombie status. For every one year increase in age, the odds of being a zombie increase `r round(oddsRatios[2,1], 2)` times (95% CI: `r round(oddsRatios[2,2], 2)` - `r round(oddsRatios[2,3], 2)`). 
+    + Reject the null hypothesis that age is not associate with zombie status. There is a statistically significant relationship between age and zombie status. For every one year increase in age, the odds of being a zombie increase `r round(oddsRatios[2,1], 2)` times (95% CI: `r round(oddsRatios[2,2], 2)` - `r round(oddsRatios[2,3], 2)`). 
     
 ## Interpreting the categorical predictor odds ratios 
 
@@ -174,9 +176,9 @@ oddsRatios
 
 * For categorical predictors, odds ratios show the increase or decrease in odds of the outcome for the category shown compared to the *reference* group (category not shown) 
 
-    + There is no statistically significant relationship between sex and zombie status. 
+    + Retain the null hypothesis; there is no statistically significant relationship between sex and zombie status. 
     
-    + There is a statistically significant relationship between rurality and zombie status. The odds of being a zombie are `r round(oddsRatios[4,1], 2)` times higher for suburban compared to rural areas (95% CI: `r round(oddsRatios[4,2], 2)` - `r round(oddsRatios[4,3], 2)`). The odds of being a zombie are `r round(oddsRatios[5,1], 2)` times higher for urban compared to rural (95% CI: `r round(oddsRatios[5,2], 2)` - `r round(oddsRatios[5,3], 2)`). 
+    + Reject the null hypothesis that rurality is not associate with zombie status. There is a statistically significant relationship between rurality and zombie status. The odds of being a zombie are `r round(oddsRatios[4,1], 2)` times higher for suburban compared to rural areas (95% CI: `r round(oddsRatios[4,2], 2)` - `r round(oddsRatios[4,3], 2)`). The odds of being a zombie are `r round(oddsRatios[5,1], 2)` times higher for urban compared to rural (95% CI: `r round(oddsRatios[5,2], 2)` - `r round(oddsRatios[5,3], 2)`). 
     
 ## Interpreting odds ratios less than 1
 
@@ -205,7 +207,7 @@ prop.table(table(zombies$zombie))
 ```
 
 * The probability of .395 or 39.5% zombies is the baseline
-* Without knowing anything else, you would be more likely to predict that each person was NOT a zombie (because 60.5% are not zombies)
+* Without knowing anything else, you would be more likely to predict that each person was NOT a zombie (because 60.5% are NOT zombies)
 * Predicting everyone is not a zombie would result in the prediction being right 60.5% of the time 
 * Can the model do better than that? 
 
@@ -232,16 +234,16 @@ names(modelsig) <- c("Chi-squared", "d.f.", "p")
 modelsig
 ```
 
-The logistic regression model was significantly better than the baseline in predicting zombie status ($\chi^2$(`r zdf`) = `r round(zchi, 2)`; p < .05).
+Reject the null hypothesis, the logistic regression model was significantly better than the baseline in predicting zombie status ($\chi^2$(`r zdf`) = `r round(zchi, 2)`; p < .05).
 
 ## Model Fit
 
 * The last thing before putting the interpretation together is model fit 
 * In linear regression the model fit is $R^2$, which is the percent of variance in the outcome accounted for by the model 
-* In logistic regression the model fit is the percent correctly predicted
+* In logistic regression the model fit is the **percent correctly predicted**
     + Use the model to predict the probability that each person is a zombie 
-    + If the probability they are a zombie is 50% or higher, they are predicted to be a zombie 
-    + If the probability they are a zombie is below 50%, they are predicted to not be a zombie 
+    + If the model predicts 50% or more probability that a person is a zombie, they are predicted to be a zombie 
+    + If the probability they are a zombie is below 50%, the person is predicted to not be a zombie 
     + Compare the predicted zombie status with the observed zombie status to see what proportion the model predicted correctly! 
 
 ## Computing Model Fit 
@@ -257,6 +259,9 @@ library(descr)
 CrossTable(zombies$zombie, zombies$zpredict,
            prop.c = FALSE, prop.chisq = FALSE, prop.t = FALSE)
 ```
+
+* Columns are predicted, rows are observed 
+
 
 ## Interpret the model fit 
 ```{r}
@@ -278,7 +283,7 @@ CrossTable(zombies$zombie, zombies$zpredict,
 * Model fit 
 * Predictor odds ratios and CI 
 
-A logistic regression model including age, sex, and rurality as predictors of zombie status was statistically significantly better than the baseline at explaining zombie status ($\chi^2$(`r zdf`) = `r round(zchi, 2)`; p < .05). The model predicted 83% of observations correctly including 86.8% of the non-zombies and 77.2% of the zombies. All three predictors were statistically significant. For every one year increase in age, the odds of being a zombie increase 1.06 times (95% CI: 1.03 - 1.08). Zombie status is not significantly associated with sex. The odds of being a zombie is 4.65 times higher for suburban compared to rural areas (95% CI: 1.84 - 12.29). The odds of being a zombie is 14.88 times higher for urban compared to rural (95% CI: 5.54 - 44.81). The odds of being a zombie is 93% lower for those with food compared to those without (95% CI: .03 - .17).
+A logistic regression model including age, sex, and rurality as predictors of zombie status was statistically significantly better than the baseline at explaining zombie status ($\chi^2$(`r zdf`) = `r round(zchi, 2)`; p < .05). The model correctly predicted 83% of observations including 86.8% of the non-zombies and 77.2% of the zombies. The odds of being a zombie was not statistically significantly different for males compared to females. For every one year increase in age, the odds of being a zombie increased 1.06 times (95% CI: 1.03 - 1.08). The odds of being a zombie was 4.65 times higher for people in suburban compared to rural areas (95% CI: 1.84 - 12.29). The odds of being a zombie is 14.88 times higher for people in urban compared to rural areas (95% CI: 5.54 - 44.81). The odds of being a zombie is 93% lower for those with food compared to those without (OR = .07; 95% CI: .03 - .17).
     
 ## Assumptions 
 
@@ -288,10 +293,12 @@ A logistic regression model including age, sex, and rurality as predictors of zo
 
 ## Testing multicollinearity 
 
-* The GVIF, or generalized variance inflation factor, re-runs the model for each predictor as the outcome with the other predictors as the independent variables 
-* If model fit is very high for these test models, that means the predictors are strongly related and do not all need to be in the model 
-* Bottom line, if the GVIF score is too high, the variable is too strongly related to another variable and should be removed 
-    + A variable should be removed if $GVIF^1/2*df$ > 4
+* Multicollinearity is when two variables are highly correlated with one another and so are redundant
+* It is identified by the VIF in linear regression and the GVIF in logistic
+    + The GVIF, or generalized variance inflation factor, re-runs the model for each predictor as the outcome with the other predictors as the independent variables 
+    + If model fit is very high for these models, that means the predictors are strongly related to each other and do not all need to be in the model 
+    + Bottom line, if the GVIF score is too high, a variable is too strongly related to another variable and one of them should be removed 
+    + A variable should be removed if $GVIF^(1/(2*df))$ > 4
 
 ```{r echo = TRUE}
 # compute GVIF for zmodel
@@ -299,15 +306,15 @@ library(car)
 vif(zmodel)
 ```
 
-* The last column shows the $GVIF^1/2*df$ and none are > 2
+* The last column shows the $GVIF^(1/(2*df))$ and none are > 4
 * This assumption is MET
 
 ## Testing linearity with log odds
 
 * This assumption is only tested for continuous predictors in the model 
-    + age is the only continuous predictor
+    + age is the only continuous predictor 
 * Test by plotting the predictor value on the y-axis and the logit of the outcome on the x-axis
-* Minor deviations from linearity are ok, especially if monotonic
+* Minor deviations from linearity are ok, if monotonic 
 
 ```{r echo = TRUE, eval=FALSE}
 # predict the probability of zombie-ness
@@ -315,7 +322,7 @@ zombies$zpredictProb <- predict(zmodel, type = "response")
 # make a variable of the logit of the outcome
 zombies$logitZombie <- log(zombies$zpredictProb/(1-zombies$zpredictProb))
 
-# graph it with the predictor of age 
+# graph the logit of the outcome variable with the predictor of age 
 library(ggplot2)
 ggplot(zombies, aes(x = logitZombie, y = age))+
   geom_point(color = "gray") +
@@ -327,6 +334,7 @@ ggplot(zombies, aes(x = logitZombie, y = age))+
 ## Linearity graph 
 
 * There are deviations from linearity at both ends, but it generally follows the line and is a monotonic relationship (just goes one direction)
+* Assumption is MET 
 
 ```{r fig.height = 4}
 # predict the probability of zombie-ness
@@ -345,19 +353,17 @@ ggplot(zombies, aes(x = logitZombie, y = age))+
 
 ## Alternatives for not meeting assumptions
 
-There is no one specific test that is the alternative to logistic regression. Some of the options for dealing with failed assumptions are:
+There is no one specific test that is the one alternative to logistic regression when assumptions are not met. Some of the options for dealing with failed assumptions are: 
 
-* Report the results only using descriptive statistics (no test statistics, p-values, or confidence intervals, everything else is ok) 
-* Recode the independent variable(s) into categories and analyze with the appropriate test 
-* Transform the predictor(s) 
-    + Only an option when the non-linear relationship is monotonic (curves up or curves down, not both)
-* Give up and have a snack
+* Include additional variables in the model and check assumptions again 
+* Recode the independent variable(s) into categories and try again  
+* Use an alternate model for binary outcomes like negative binomial regression or tweedie regression 
 
 ## The End
 
-* 2 options for the Challenge, complete ONE of these two:
-    + Usual style of challenge in GitHub 
+* 2 options for (your very last challenge!) Challenge 10, complete ONE of these two:
     + DataCamp Multiple and Logistic Regression Course Chapter 4 (If you do this, please submit a note in Blackboard that you completed the DataCamp version of the challenge)
+    + Usual style of challenge in posted in GitHub 
 
 
 
