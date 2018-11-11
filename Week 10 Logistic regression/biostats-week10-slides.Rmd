@@ -130,7 +130,7 @@ summary(zmodel)
 ```{r}
 # estimate zombie model with age, sex, rurality
 zmodel <- glm(zombie ~ age + gender + rurality + food, data = zombies,
-              family = binomial(logit))
+              family = binomial(logit), na.action = na.exclude)
 summary(zmodel)
 
 ```
@@ -298,7 +298,7 @@ A logistic regression model including age, sex, and rurality as predictors of zo
     + The GVIF, or generalized variance inflation factor, re-runs the model for each predictor as the outcome with the other predictors as the independent variables 
     + If model fit is very high for these models, that means the predictors are strongly related to each other and do not all need to be in the model 
     + Bottom line, if the GVIF score is too high, a variable is too strongly related to another variable and one of them should be removed 
-    + A variable should be removed if $GVIF^(1/(2*df))$ > 4
+    + A variable should be removed if $GVIF^{1/(2*df)}$ > 4
 
 ```{r echo = TRUE}
 # compute GVIF for zmodel
@@ -306,7 +306,7 @@ library(car)
 vif(zmodel)
 ```
 
-* The last column shows the $GVIF^(1/(2*df))$ and none are > 4
+* The last column shows the $GVIF^{1/(2*df)}$ and none are > 4
 * This assumption is MET
 
 ## Testing linearity with log odds
@@ -364,6 +364,10 @@ There is no one specific test that is the one alternative to logistic regression
 * 2 options for (your very last challenge!) Challenge 10, complete ONE of these two:
     + DataCamp Multiple and Logistic Regression Course Chapter 4 (If you do this, please submit a note in Blackboard that you completed the DataCamp version of the challenge)
     + Usual style of challenge in posted in GitHub 
+    
+<center>
+
+![](logistics-meme.png) </center>
 
 
 
