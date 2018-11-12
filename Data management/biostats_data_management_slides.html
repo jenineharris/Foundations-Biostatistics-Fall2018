@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Style-Type" content="text/css" />
   <meta name="generator" content="pandoc" />
   <meta name="author" content="Joseph Anthony, Laura Gardner, Kyle Pitzer" />
-  <title>Biostats Week 11: Data Management</title>
+  <title>Data Management</title>
   <style type="text/css">code{white-space: pre;}</style>
   <style type="text/css">
 div.sourceCode { overflow-x: auto; }
@@ -45,7 +45,7 @@ code > span.in { color: #008000; } /* Information */
 </head>
 <body>
 <div class="slide titlepage">
-  <h1 class="title">Biostats Week 11: Data Management</h1>
+  <h1 class="title">Data Management</h1>
   <p class="author">
 Joseph Anthony, Laura Gardner, Kyle Pitzer
   </p>
@@ -107,28 +107,33 @@ Joseph Anthony, Laura Gardner, Kyle Pitzer
 <li><p>Missing data can be random or systematic</p></li>
 <li>Missing completely at random: (MCAR)
 <ul>
-<li>Reasons for missing are independent both of observable variables and of unobservable parameters of interest</li>
+<li>Reasons for missing values are not related to observed variables or other measureable characteristics</li>
 <li>Occur entirely at random</li>
-<li>Analysis performed on the data is unbiased; The random assignment of treatments is assumed to be preserved</li>
+<li>Analysis performed on the data is unbiased<br />
+</li>
 <li>Usually an unrealistically strong assumption in practice</li>
 </ul></li>
 <li>Missing at random: (MAR)
 <ul>
-<li>Missingness is not random but can be fully accounted for by variables with complete information.</li>
-<li>An assumption that is impossible to verify statistically, we must rely on its substantive reasonableness.</li>
-<li>E.g. Males are less likely to fill in a depression survey but this has nothing to do with their level of depression, after accounting for maleness.</li>
-<li>These data can still induce parameter bias in analyses</li>
-<li>If the parameter is estimated with Full Information Maximum Likelihood, MAR will provide unbiased estimates.</li>
+<li>Missingness is not COMPLETELY at random, but can be accounted for by observed variables
+<ul>
+<li>For example, perhaps males were less likely to answer questions about depression on a survey</li>
+<li>However, the reason males skipped the depression question had nothing to do with their level of depression</li>
+</ul></li>
+<li>MAR is impossible to verify statistically, we must rely on its reasonableness</li>
+<li>Data with values that are MAR can be biased</li>
+<li>There are methods you will learn in intermediate stats for estimating models that account for MAR data and give unbiased estimates</li>
 </ul></li>
 </ul>
 </div>
 <div id="types-of-missing-data-continued" class="slide section level1">
 <h1>Types of missing data (continued)</h1>
 <ul>
-<li>Missing not at random: (MNAR)(also known as nonignorable nonresponse)
+<li>Missing not at random: (MNAR)
 <ul>
-<li>Neither MAR nor MCAR (i.e. the value of the variable that’s missing is related to the reason it’s missing).</li>
-<li>This would occur if men failed to fill in a depression surve because of their level of depression.</li>
+<li>The information that is missing is related to the reason it is missing</li>
+<li>This would occur if a certain group (e.g., males, older adults) failed to fill in a depression survey because their level of depression (e.g., they had higher depression than other groups)</li>
+<li>This sort of missing results in the most bias</li>
 </ul></li>
 </ul>
 </div>
@@ -139,9 +144,8 @@ Joseph Anthony, Laura Gardner, Kyle Pitzer
 <ul>
 <li>In these cases, we usually don’t want to delete or omit the data, just want to code it differently</li>
 </ul></li>
-<li>Survey non-response error</li>
+<li>Survey non-response</li>
 <li>Data entry mistakes</li>
-<li>Extra spaces or unrecognizable characters</li>
 </ul>
 <center>
 <div class="figure">
@@ -152,10 +156,10 @@ Joseph Anthony, Laura Gardner, Kyle Pitzer
 <div id="important-to-understand-because" class="slide section level1">
 <h1>Important to understand because…</h1>
 <ul>
-<li><p>Missing values can impact analysis; they can skew results ways that are not representative of a general population</p></li>
+<li><p>Missing values can impact analysis; they can change results so findings from a sample are not providing a true sense of what is going on in the population</p></li>
 <li><p>If the missing values are random, they can be dealt with in analysis and data management</p></li>
 <li><p>If missing values are not random, then larger bias may exist and we likely need to re-collect data or rethink our research design</p></li>
-<li><p>Most missing data are not completely random, but there are ways to account for missing data in some forms</p></li>
+<li><p>Most missing data are not completely random and possible reasons for non-randomness would be part of writing conclusions (e.g., “more men were missing the depression data, which may have biased results”)</p></li>
 </ul>
 </div>
 <div id="deal-with-it" class="slide section level1">
@@ -163,23 +167,19 @@ Joseph Anthony, Laura Gardner, Kyle Pitzer
 <ul>
 <li>How do we identify missing data in datasets?
 <ul>
-<li>R codes missing data as “NA”</li>
-<li>Often have to look at the data to understand what “NA” means and how it is coded in each dataset</li>
-<li>Summarize command in RStudio, we will get to that</li>
+<li>R recognizes “NA” as missing
+<ul>
+<li>Data where missing is coded as something else should be recoded</li>
+</ul></li>
+<li>Often have to look at the data and codebook to understand what “NA” means and how it is used in each dataset</li>
+<li>Summarize command in RStudio</li>
 </ul></li>
 <li>How do we deal with missing data?
 <ul>
-<li>Don’t have any (LOL)</li>
-<li>Imputation/Imputed models
-<ul>
-<li>Some debate around these methods</li>
-</ul></li>
-<li>Removal
-<ul>
-<li>Case-wise deletion</li>
-<li>Pairwise deletion</li>
-</ul></li>
-<li>Recoding</li>
+<li>Don’t have any (LOL): This rarely happens</li>
+<li>Imputation/Imputed models: Filling in the missing with a value based on other characteristics of the data (controversial)</li>
+<li>Removal: Dropping observations or parts of observations</li>
+<li>Recoding: Include missing as a category in the analyses</li>
 </ul></li>
 </ul>
 <center>
@@ -1210,7 +1210,7 @@ alcohol&lt;-<span class="kw">read.sas7bdat</span>(<span class="st">&quot;http://
 <p>There is no challenge for this week, but these skills will come in handy on the final exam and in real life. To practice, read the scenario below and try the tasks below it:</p>
 <p>You are examining health department expenditures predicted by a number of variables included in a small data set. A colleague of yours was working with the data set when her cat walked across the keyboard changing several values and then saving the data set.</p>
 <ul>
-<li>Download and save the SPSS data set saved at: <a href="https://drive.google.com/open?id=0B9UP9lGaNL2hWUMxQ1RNMlBkeUk" class="uri">https://drive.google.com/open?id=0B9UP9lGaNL2hWUMxQ1RNMlBkeUk</a></li>
+<li>Use foreign to import the SPSS data set saved at: <a href="https://drive.google.com/open?id=0B9UP9lGaNL2hWUMxQ1RNMlBkeUk" class="uri">https://drive.google.com/open?id=0B9UP9lGaNL2hWUMxQ1RNMlBkeUk</a></li>
 <li>Examine the codebook for the data saved here: <a href="https://drive.google.com/file/d/0B9UP9lGaNL2hYnd4NXlnb09FV0U/view?usp=sharing" class="uri">https://drive.google.com/file/d/0B9UP9lGaNL2hYnd4NXlnb09FV0U/view?usp=sharing</a></li>
 <li>Conduct the tasks on the next slide</li>
 </ul>

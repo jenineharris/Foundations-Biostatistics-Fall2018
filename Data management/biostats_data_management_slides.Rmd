@@ -1,5 +1,5 @@
 ---
-title: 'Biostats Week 11: Data Management'
+title: 'Data Management'
 author: "Joseph Anthony, Laura Gardner, Kyle Pitzer"
 output:
   slidy_presentation:
@@ -67,60 +67,59 @@ Tony Fischetti: "Messy" data =
 * Missing data can be random or systematic
 
 * Missing completely at random: (MCAR)
-    + Reasons for missing are independent both of observable variables and of unobservable parameters of interest
-    + Occur entirely at random
-    + Analysis performed on the data is unbiased; The random assignment of treatments is assumed to be preserved
-    + Usually an unrealistically strong assumption in practice
+    + Reasons for missing values are not related to observed variables or other measureable characteristics
+    + Occur entirely at random 
+    + Analysis performed on the data is unbiased  
+    + Usually an unrealistically strong assumption in practice 
 
 * Missing at random: (MAR) 
-    + Missingness is not random but can be fully accounted for by variables with complete information.
-    + An assumption that is impossible to verify statistically, we must rely on its substantive reasonableness. 
-    + E.g. Males are less likely to fill in a depression survey but this has nothing to do with their level of depression, after accounting for maleness. 
-    + These data can still induce parameter bias in analyses 
-    + If the parameter is estimated with Full Information Maximum Likelihood, MAR will provide unbiased estimates.
+    + Missingness is not COMPLETELY at random, but can be accounted for by observed variables 
+        + For example, perhaps males were less likely to answer questions about depression on a survey 
+        + However, the reason males skipped the depression question had nothing to do with their level of depression 
+    + MAR is impossible to verify statistically, we must rely on its reasonableness 
+    + Data with values that are MAR can be biased 
+    + There are methods you will learn in intermediate stats for estimating models that account for MAR data and give unbiased estimates 
     
 # Types of missing data (continued)
 
-* Missing not at random: (MNAR)(also known as nonignorable nonresponse) 
-    + Neither MAR nor MCAR (i.e. the value of the variable that's missing is related to the reason it's missing).
-    + This would occur if men failed to fill in a depression surve because of their level of depression. 
+* Missing not at random: (MNAR)
+    + The information that is missing is related to the reason it is missing
+    + This would occur if a certain group (e.g., males, older adults) failed to fill in a depression survey because their level of depression (e.g., they had higher depression than other groups)
+    + This sort of missing results in the most bias 
     
 # Why does missing data happen?
 
 * Intentional Coding: an event did not occur (flight was cancelled, polling place was not open, etc.) 
     + In these cases, we usually don't want to delete or omit the data, just want to code it differently
-* Survey non-response error
-* Data entry mistakes
-* Extra spaces or unrecognizable characters
+* Survey non-response 
+* Data entry mistakes 
 
 <center>
 ![](but-why.png)
 
 # Important to understand because...
 
-* Missing values can impact analysis; they can skew results ways that are not representative of a general population 
+* Missing values can impact analysis; they can change results so findings from a sample are not providing a true sense of what is going on in the population 
 
 * If the missing values are random, they can be dealt with in analysis and data management 
 
 * If missing values are not random, then larger bias may exist and we likely need to re-collect data or rethink our research design 
 
-* Most missing data are not completely random, but there are ways to account for missing data in some forms 
+* Most missing data are not completely random and possible reasons for non-randomness would be part of writing conclusions (e.g., "more men were missing the depression data, which may have biased results") 
 
 # Deal with it
 
 * How do we identify missing data in datasets?
-    + R codes missing data as "NA"
-    + Often have to look at the data to understand what "NA" means and how it is coded in each dataset
-    + Summarize command in RStudio, we will get to that 
+    + R recognizes "NA" as missing
+        + Data where missing is coded as something else should be recoded
+    + Often have to look at the data and codebook to understand what "NA" means and how it is used in each dataset 
+    + Summarize command in RStudio 
 
 * How do we deal with missing data?
-    + Don't have any (LOL)
-    + Imputation/Imputed models
-        + Some debate around these methods
-    + Removal
-        + Case-wise deletion
-        + Pairwise deletion
-    + Recoding
+    + Don't have any (LOL): This rarely happens
+    + Imputation/Imputed models: Filling in the missing with a value based on other characteristics of the data (controversial)
+    + Removal: Dropping observations or parts of observations
+    + Recoding: Include missing as a category in the analyses
 
 <center>
 ![](yoda.png)
@@ -778,7 +777,7 @@ There is no challenge for this week, but these skills will come in handy on the 
 
 You are examining health department expenditures predicted by a number of variables included in a small data set. A colleague of yours was working with the data set when her cat walked across the keyboard changing several values and then saving the data set. 
 
-* Download and save the SPSS data set saved at:  https://drive.google.com/open?id=0B9UP9lGaNL2hWUMxQ1RNMlBkeUk 
+* Use foreign to import the SPSS data set saved at:  https://drive.google.com/open?id=0B9UP9lGaNL2hWUMxQ1RNMlBkeUk 
 * Examine the codebook for the data saved here:  https://drive.google.com/file/d/0B9UP9lGaNL2hYnd4NXlnb09FV0U/view?usp=sharing 
 * Conduct the tasks on the next slide  
 
