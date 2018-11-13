@@ -777,7 +777,7 @@ There is no challenge for this week, but these skills will come in handy on the 
 
 You are examining health department expenditures predicted by a number of variables included in a small data set. A colleague of yours was working with the data set when her cat walked across the keyboard changing several values and then saving the data set. 
 
-* Use foreign to import the SPSS data set saved at:  https://drive.google.com/open?id=0B9UP9lGaNL2hWUMxQ1RNMlBkeUk 
+* Use foreign to import the SPSS data set saved at: https://tinyurl.com/y84489qw
 * Examine the codebook for the data saved here:  https://drive.google.com/file/d/0B9UP9lGaNL2hYnd4NXlnb09FV0U/view?usp=sharing 
 * Conduct the tasks on the next slide  
 
