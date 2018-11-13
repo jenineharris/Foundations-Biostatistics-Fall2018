@@ -839,7 +839,7 @@ smokers &lt;-<span class="st"> </span><span class="kw">mutate</span>(smokers, <s
 ##   11.00   13.25   15.00   14.74   16.00   17.00</code></pre>
 </div>
 <div id="recoding-categorical-variables-to-fewer-categories" class="slide section level1">
-<h1>4. Recoding categorical variables to fewer categories</h1>
+<h1>Recoding categorical variables to fewer categories</h1>
 <ul>
 <li>Sometimes there are too few people in a category for analysis to be useful</li>
 <li>Basing statistical estimates and results on 1 or 2 people is unreliable at best</li>
@@ -1162,9 +1162,8 @@ alcohol&lt;-<span class="kw">read.sas7bdat</span>(<span class="st">&quot;http://
 <h1>Tasks</h1>
 <ul>
 <li>Identify and correct any value(s) that appear to be out-of-range or representing a missing value for any of the variables in the data set so that they come up as missing in analyses. Drop levels to clean up any factor variables if needed (Hint: R only recognizes NA as missing).</li>
-<li>You are thinking about studying health departments in categories of people served. Recode the numserved into a categorical variable called servedCat that has 4 levels: &lt;25000; 25000-99999; 100000-499999; 500000+.</li>
-<li>Create a variable that has the value of 1 for missing and 0 for not missing on the cancerscreen variable. Use the appropriate bivariate test to compare mean expenditures for health departments missing and not missing cancer screen data. Interpret your results including an assessment of whether the cancerscreen variable is MNAR or not.</li>
 <li>Create a variable that has the value of 1 for missing and 0 for not missing on the revenues variable. Use the appropriate bivariate test to compare mean expenditures for health departments missing and not missing revenues data. Interpret your results including an assessment of whether the revenues variable is MNAR or not.</li>
+<li>HACKER: You are thinking about studying health departments in categories of people served (population variable). Recode population into a categorical variable called servedCat that has 4 levels: &lt;25000; 25000-99999; 100000-499999; 500000+. (hint: look at this slide show on mutate and if_else with ranges: <a href="https://rstudio-pubs-static.s3.amazonaws.com/116317_e6922e81e72e4e3f83995485ce686c14.html#/" class="uri">https://rstudio-pubs-static.s3.amazonaws.com/116317_e6922e81e72e4e3f83995485ce686c14.html#/</a>)</li>
 </ul>
 </div>
 
