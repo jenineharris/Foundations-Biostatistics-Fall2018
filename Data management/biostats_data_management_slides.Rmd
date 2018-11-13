@@ -344,8 +344,8 @@ aggr(smokers, combined=TRUE)
 
 ```{r echo = TRUE} 
 # recode numcigs to a missingNumcigs variable
-smokers$missingNumcigs <- if_else(smokers$numcigs > 0, 
-                                  "not missing", "", 
+smokers$missingNumcigs <- if_else(condition = smokers$numcigs > 0, 
+                                  true = "not missing", false = "", 
                                   missing = "missing")
 #check the variable
 freq(smokers$missingNumcigs, plot=F)
@@ -381,8 +381,8 @@ Fill in the blanks to complete the code for adding a new variable differentiatin
 
 ```{r eval = FALSE, echo = TRUE}
 # recode packyrs to a missingPackyrs variable
-smokers$missingPackyrs <- __________(smokers$packyears > 0, 
-                                     "not missing", "",
+smokers$missingPackyrs <- __________(condition = smokers$packyears > 0, 
+                                     ______ = "not missing", false = "",
                                      _________ = "missing")
 #check the variable
 ________(smokers$missingPackyrs, plot=F)
@@ -396,8 +396,8 @@ CrossTable(____________, _____________, chisq=TRUE, prop.c=F,
 
 ```{r echo = TRUE}
 # recode packyrs to a missingPackyrs variable
-smokers$missingPackyrs <- if_else(smokers$packyears > 0, 
-                                  "not missing", "", 
+smokers$missingPackyrs <- if_else(condition = smokers$packyears > 0, 
+                                  true = "not missing", false = "", 
                                   missing = "missing")
 #check the variable
 freq(smokers$missingPackyrs, plot=F)
@@ -416,7 +416,8 @@ CrossTable(smokers$sex, smokers$missingPackyrs,
 
 ```{r echo=TRUE}
 #recode numcigs variable to a heavy smoker variable, yes for a pack or more, no for less
-smokers$heavy <- if_else(smokers$numcigs >= 20, "yes", "no")
+smokers$heavy <- if_else(condition = smokers$numcigs >= 20, 
+                         true = "yes", false = "no")
 
 #check your work
 freq(smokers$heavy, plot=F)
@@ -633,84 +634,6 @@ class(smokers$numcigs)
 smokers$numcigs<-as.numeric(smokers$numcigs)
 #check the change
 class(smokers$numcigs)
-```
-
-
-# You try it!
-
-Fill in the blanks to check VBMI4 and nosmokecar for out-of-range values and variable class. Fix what you find.
-
-Note:
-* BMI for adults ranges from 18 to 50, with a small percent of adults below or above this.
-* The categories for nosmokecar should be "Allowed" and "Not allowed" 
-
-```{r echo=TRUE, eval=FALSE}
-#check class and look at the VBMI4 variable
-________(smokers$VBMI4)
-smokers$VBMI4
-#use assert to determine any out-of-range values
-assert(smokers, ___________, VBMI4)
-```
-
-```{r echo=TRUE, eval=FALSE}
-#replace the out-of-range value(s) with NA
-smokers$VBMI4 <- na_if(smokers$VBMI4, ______)
-#check your work
-summary(smokers$VBMI4)
-```
-
-```{r echo=TRUE, eval=FALSE}
-#check class and look at the nosmokecar variable
-__________(smokers$nosmokecar)
-smokers$nosmokecar
-#use assert to determine any out-of-range values
-assert(smokers, ____________, nosmokecar)
-```
-
-```{r echo=TRUE, eval=FALSE}
-#replace Tall with NA
-smokers$nosmokecar <- na_if(smokers$nosmokecar, _______)
-#check your work
-summary(smokers$nosmokecar)
-# remove categories with no observations
-smokers$nosmokecar<-__________(smokers$nosmokecar)
-#check your work
-summary(smokers$nosmokecar)
-```
-
-# Correct code for you try it
-```{r echo=TRUE, eval=FALSE}
-#check class and look at the VBMI4 variable
-class(smokers$VBMI4)
-smokers$VBMI4
-#use assert to determine any out-of-range values
-assert(smokers, within_bounds(0,100), VBMI4)
-```
-
-```{r echo=TRUE}
-#replace the out-of-range value(s) with NA
-smokers$VBMI4 <- na_if(smokers$VBMI4, 99999)
-#check your work
-summary(smokers$VBMI4)
-```
-
-```{r echo=TRUE, eval=FALSE, message=TRUE, warning=TRUE, error=TRUE}
-#check class and look at the nosmokecar variable
-class(smokers$nosmokecar)
-smokers$nosmokecar
-#use assert to determine any out-of-range values
-assert(smokers, in_set("Not allowed","Allowed"), nosmokecar)
-```
-
-```{r echo=TRUE}
-#replace yn with NA
-smokers$nosmokecar <- na_if(smokers$nosmokecar, "yn")
-#check your work
-summary(smokers$nosmokecar)
-# remove categories with no observations
-smokers$nosmokecar<-droplevels(smokers$nosmokecar)
-#check your work
-summary(smokers$nosmokecar)
 ```
 
 

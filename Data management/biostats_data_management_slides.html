@@ -629,8 +629,8 @@ smokers<span class="op">$</span>marital_status&lt;-<span class="kw">droplevels</
 <div id="example-of-identifying-mnar" class="slide section level1">
 <h1>Example of identifying MNAR</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># recode numcigs to a missingNumcigs variable</span>
-smokers<span class="op">$</span>missingNumcigs &lt;-<span class="st"> </span><span class="kw">if_else</span>(smokers<span class="op">$</span>numcigs <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, 
-                                  <span class="st">&quot;not missing&quot;</span>, <span class="st">&quot;&quot;</span>, 
+smokers<span class="op">$</span>missingNumcigs &lt;-<span class="st"> </span><span class="kw">if_else</span>(<span class="dt">condition =</span> smokers<span class="op">$</span>numcigs <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, 
+                                  <span class="dt">true =</span> <span class="st">&quot;not missing&quot;</span>, <span class="dt">false =</span> <span class="st">&quot;&quot;</span>, 
                                   <span class="dt">missing =</span> <span class="st">&quot;missing&quot;</span>)
 <span class="co">#check the variable</span>
 <span class="kw">freq</span>(smokers<span class="op">$</span>missingNumcigs, <span class="dt">plot=</span>F)</code></pre></div>
@@ -705,8 +705,8 @@ smokers<span class="op">$</span>missingNumcigs &lt;-<span class="st"> </span><sp
 <h1>You try it!</h1>
 <p>Fill in the blanks to complete the code for adding a new variable differentiating missing and not missing for packyears and determining if there is a significant association between missing packyears data and sex.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># recode packyrs to a missingPackyrs variable</span>
-smokers<span class="op">$</span>missingPackyrs &lt;-<span class="st"> </span><span class="kw">__________</span>(smokers<span class="op">$</span>packyears <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, 
-                                     <span class="st">&quot;not missing&quot;</span>, <span class="st">&quot;&quot;</span>,
+smokers<span class="op">$</span>missingPackyrs &lt;-<span class="st"> </span><span class="kw">__________</span>(<span class="dt">condition =</span> smokers<span class="op">$</span>packyears <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, 
+                                     <span class="dt">______ =</span> <span class="st">&quot;not missing&quot;</span>, <span class="dt">false =</span> <span class="st">&quot;&quot;</span>,
                                      <span class="dt">_________ =</span> <span class="st">&quot;missing&quot;</span>)
 <span class="co">#check the variable</span>
 <span class="kw">________</span>(smokers<span class="op">$</span>missingPackyrs, <span class="dt">plot=</span>F)
@@ -718,8 +718,8 @@ smokers<span class="op">$</span>missingPackyrs &lt;-<span class="st"> </span><sp
 <div id="correct-code-for-you-try-it" class="slide section level1">
 <h1>Correct code for you try it</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># recode packyrs to a missingPackyrs variable</span>
-smokers<span class="op">$</span>missingPackyrs &lt;-<span class="st"> </span><span class="kw">if_else</span>(smokers<span class="op">$</span>packyears <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, 
-                                  <span class="st">&quot;not missing&quot;</span>, <span class="st">&quot;&quot;</span>, 
+smokers<span class="op">$</span>missingPackyrs &lt;-<span class="st"> </span><span class="kw">if_else</span>(<span class="dt">condition =</span> smokers<span class="op">$</span>packyears <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, 
+                                  <span class="dt">true =</span> <span class="st">&quot;not missing&quot;</span>, <span class="dt">false =</span> <span class="st">&quot;&quot;</span>, 
                                   <span class="dt">missing =</span> <span class="st">&quot;missing&quot;</span>)
 <span class="co">#check the variable</span>
 <span class="kw">freq</span>(smokers<span class="op">$</span>missingPackyrs, <span class="dt">plot=</span>F)</code></pre></div>
@@ -772,7 +772,8 @@ smokers<span class="op">$</span>missingPackyrs &lt;-<span class="st"> </span><sp
 <li>We do not have this variable in the smokers data set, but we can create a new variable called <em>heavy</em> from the numcigs variable using the same if_else function</li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#recode numcigs variable to a heavy smoker variable, yes for a pack or more, no for less</span>
-smokers<span class="op">$</span>heavy &lt;-<span class="st"> </span><span class="kw">if_else</span>(smokers<span class="op">$</span>numcigs <span class="op">&gt;=</span><span class="st"> </span><span class="dv">20</span>, <span class="st">&quot;yes&quot;</span>, <span class="st">&quot;no&quot;</span>)
+smokers<span class="op">$</span>heavy &lt;-<span class="st"> </span><span class="kw">if_else</span>(<span class="dt">condition =</span> smokers<span class="op">$</span>numcigs <span class="op">&gt;=</span><span class="st"> </span><span class="dv">20</span>, 
+                         <span class="dt">true =</span> <span class="st">&quot;yes&quot;</span>, <span class="dt">false =</span> <span class="st">&quot;no&quot;</span>)
 
 <span class="co">#check your work</span>
 <span class="kw">freq</span>(smokers<span class="op">$</span>heavy, <span class="dt">plot=</span>F)</code></pre></div>
@@ -1045,64 +1046,6 @@ smokers<span class="op">$</span>numcigs&lt;-<span class="kw">as.numeric</span>(s
 <span class="co">#check the change</span>
 <span class="kw">class</span>(smokers<span class="op">$</span>numcigs)</code></pre></div>
 <pre><code>## [1] &quot;numeric&quot;</code></pre>
-</div>
-<div id="you-try-it-3" class="slide section level1">
-<h1>You try it!</h1>
-<p>Fill in the blanks to check VBMI4 and nosmokecar for out-of-range values and variable class. Fix what you find.</p>
-<p>Note: * BMI for adults ranges from 18 to 50, with a small percent of adults below or above this. * The categories for nosmokecar should be “Allowed” and “Not allowed”</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#check class and look at the VBMI4 variable</span>
-<span class="kw">________</span>(smokers<span class="op">$</span>VBMI4)
-smokers<span class="op">$</span>VBMI4
-<span class="co">#use assert to determine any out-of-range values</span>
-<span class="kw">assert</span>(smokers, ___________, VBMI4)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#replace the out-of-range value(s) with NA</span>
-smokers<span class="op">$</span>VBMI4 &lt;-<span class="st"> </span><span class="kw">na_if</span>(smokers<span class="op">$</span>VBMI4, ______)
-<span class="co">#check your work</span>
-<span class="kw">summary</span>(smokers<span class="op">$</span>VBMI4)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#check class and look at the nosmokecar variable</span>
-<span class="kw">__________</span>(smokers<span class="op">$</span>nosmokecar)
-smokers<span class="op">$</span>nosmokecar
-<span class="co">#use assert to determine any out-of-range values</span>
-<span class="kw">assert</span>(smokers, ____________, nosmokecar)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#replace Tall with NA</span>
-smokers<span class="op">$</span>nosmokecar &lt;-<span class="st"> </span><span class="kw">na_if</span>(smokers<span class="op">$</span>nosmokecar, _______)
-<span class="co">#check your work</span>
-<span class="kw">summary</span>(smokers<span class="op">$</span>nosmokecar)
-<span class="co"># remove categories with no observations</span>
-smokers<span class="op">$</span>nosmokecar&lt;-<span class="kw">__________</span>(smokers<span class="op">$</span>nosmokecar)
-<span class="co">#check your work</span>
-<span class="kw">summary</span>(smokers<span class="op">$</span>nosmokecar)</code></pre></div>
-</div>
-<div id="correct-code-for-you-try-it-2" class="slide section level1">
-<h1>Correct code for you try it</h1>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#check class and look at the VBMI4 variable</span>
-<span class="kw">class</span>(smokers<span class="op">$</span>VBMI4)
-smokers<span class="op">$</span>VBMI4
-<span class="co">#use assert to determine any out-of-range values</span>
-<span class="kw">assert</span>(smokers, <span class="kw">within_bounds</span>(<span class="dv">0</span>,<span class="dv">100</span>), VBMI4)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#replace the out-of-range value(s) with NA</span>
-smokers<span class="op">$</span>VBMI4 &lt;-<span class="st"> </span><span class="kw">na_if</span>(smokers<span class="op">$</span>VBMI4, <span class="dv">99999</span>)
-<span class="co">#check your work</span>
-<span class="kw">summary</span>(smokers<span class="op">$</span>VBMI4)</code></pre></div>
-<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
-##   15.66   23.25   26.58   27.58   30.25   56.23       5</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#check class and look at the nosmokecar variable</span>
-<span class="kw">class</span>(smokers<span class="op">$</span>nosmokecar)
-smokers<span class="op">$</span>nosmokecar
-<span class="co">#use assert to determine any out-of-range values</span>
-<span class="kw">assert</span>(smokers, <span class="kw">in_set</span>(<span class="st">&quot;Not allowed&quot;</span>,<span class="st">&quot;Allowed&quot;</span>), nosmokecar)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#replace yn with NA</span>
-smokers<span class="op">$</span>nosmokecar &lt;-<span class="st"> </span><span class="kw">na_if</span>(smokers<span class="op">$</span>nosmokecar, <span class="st">&quot;yn&quot;</span>)
-<span class="co">#check your work</span>
-<span class="kw">summary</span>(smokers<span class="op">$</span>nosmokecar)</code></pre></div>
-<pre><code>##     Allowed Not allowed          yn        NA's 
-##          82          10           0           8</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># remove categories with no observations</span>
-smokers<span class="op">$</span>nosmokecar&lt;-<span class="kw">droplevels</span>(smokers<span class="op">$</span>nosmokecar)
-<span class="co">#check your work</span>
-<span class="kw">summary</span>(smokers<span class="op">$</span>nosmokecar)</code></pre></div>
-<pre><code>##     Allowed Not allowed        NA's 
-##          82          10           8</code></pre>
 </div>
 <div id="loading-data-from-other-software-packages" class="slide section level1">
 <h1>Loading data from other software packages</h1>
